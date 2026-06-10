@@ -91,12 +91,12 @@ class EinkPlugin(private val activity: Activity) : Plugin(activity) {
         val ret = JSObject()
         if (epdAvailable && epdControllerClass != null) {
             ret.put("available", true)
-            val modesArr = com.readest.eink.JSArray()
+            val modesArr = app.tauri.plugin.JSArray()
             supportedModes.forEach { modesArr.put(it) }
             ret.put("modes", modesArr)
         } else {
             ret.put("available", false)
-            ret.put("modes", com.readest.eink.JSArray())
+            ret.put("modes", app.tauri.plugin.JSArray())
         }
         invoke.resolve(ret)
     }

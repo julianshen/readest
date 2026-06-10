@@ -12,6 +12,8 @@ pub fn init<R: Runtime, C: DeserializeOwned>(
     let handle = api.register_android_plugin("com.readest.eink", "EinkPlugin")
         .map_err(|e| Error::PluginInvoke(e.to_string()))?;
     #[cfg(target_os = "ios")]
+    tauri::ios_plugin_binding!(init_plugin_eink);
+    #[cfg(target_os = "ios")]
     let handle = api.register_ios_plugin(init_plugin_eink)
         .map_err(|e| Error::PluginInvoke(e.to_string()))?;
     Ok(NativeStruct(handle))

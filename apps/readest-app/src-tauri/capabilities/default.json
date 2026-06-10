@@ -201,6 +201,7 @@
     "device-info:default",
     "turso:default",
     "native-tts:default",
-    "native-bridge:default"
+    "native-bridge:default",
+    "eink:default"
   ]
 }
