@@ -236,6 +236,7 @@ class MediaPlaybackService : MediaBrowserServiceCompat() {
                 if (newArtwork != null) {
                     currentArtwork = newArtwork
                 }
+                if (!isActive) return@launch
                 val metadataBuilder = MediaMetadataCompat.Builder()
                     .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentTitle)
                     .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentArtist)

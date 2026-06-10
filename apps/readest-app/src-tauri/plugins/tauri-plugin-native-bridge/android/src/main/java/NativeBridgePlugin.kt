@@ -144,6 +144,7 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
 
     override fun onDestroy() {
         pluginScope.cancel()
+        instance = null
     }
 
     companion object {
