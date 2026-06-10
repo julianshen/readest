@@ -9,6 +9,11 @@ exclude = [
 ]
 resolver = "2"
 
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 tracing = "0.1"
