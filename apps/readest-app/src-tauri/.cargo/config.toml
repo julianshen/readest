@@ -1,0 +1,2 @@
+[env]
+CARGO_NDK_PLATFORM = "26"

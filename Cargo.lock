@@ -37,6 +37,7 @@ dependencies = [
  "tauri-plugin-deep-link",
  "tauri-plugin-device-info",
  "tauri-plugin-dialog",
+ "tauri-plugin-eink",
  "tauri-plugin-fs",
  "tauri-plugin-haptics",
  "tauri-plugin-http",
@@ -7659,6 +7660,18 @@ dependencies = [
  "tauri-plugin-fs",
  "thiserror 2.0.18",
  "url",
+]
+
+[[package]]
+name = "tauri-plugin-eink"
+version = "0.1.0"
+dependencies = [
+ "schemars 0.8.22",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
