@@ -1,5 +1,17 @@
 {
   "releases": {
+    "0.11.5": {
+      "date": "2026-06-10",
+      "notes": [
+        "Android: Fixed ANR crashes on startup — migrated Tauri plugin IPC to background coroutines with proper lifecycle cancellation and thread-safe caching",
+        "Android: Fixed blank screen on Android 14+ (Issue #3297) — onWindowFocusChanged now triggers an explicit WebView invalidate to prevent the window focus race condition",
+        "Android/E-ink: Full Boox e-reader support — EPD refresh control via reflection, hardware button page turning, animation-free transitions, touch event throttle, and WebView software rendering",
+        "Android/E-ink: Added EPD mode settings UI (Settings > Misc > E-ink Mode) with A2/Mode/GC16/Gl16 refresh options, triggered on page turns",
+        "Android: Updated WebView upgrade plugin to defer package probes to background threads, preventing startup ANR",
+        "Library: Show file path for in-place imported books",
+        "Linux: Fix resize cursor in webview"
+      ]
+    },
     "0.11.4": {
       "date": "2026-06-03",
       "notes": [
