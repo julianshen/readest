@@ -1,0 +1,7 @@
+[default]
+description = "Default permissions for the eink plugin"
+permissions = [
+    "allow-get-epd-capabilities",
+    "allow-set-epd-mode",
+    "allow-do-epd-refresh",
+]

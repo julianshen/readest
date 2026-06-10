@@ -14,6 +14,8 @@ import { annotationToolQuickActions } from '@/app/reader/components/annotator/An
 import { BoxedList, SettingsRow, SettingsSelect, SettingsSwitchRow } from './primitives';
 import NumberInput from './NumberInput';
 import PageTurnerSettings from './PageTurnerSettings';
+import { getEpdCapabilities, setEpdMode } from '@/utils/bridge';
+import { EPD_MODES } from '@/services/constants';
 
 const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }) => {
   const _ = useTranslation();
@@ -47,6 +49,9 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
   const [animated, setAnimated] = useState(viewSettings.animated);
   const [isEink, setIsEink] = useState(viewSettings.isEink);
   const [isColorEink, setIsColorEink] = useState(viewSettings.isColorEink);
+  const [epdMode, setEpdModeState] = useState(viewSettings.epdMode || 'AUTO');
+  const [epdRefreshInterval, setEpdRefreshInterval] = useState(viewSettings.epdRefreshInterval || 5);
+  const [epdAvailable, setEpdAvailable] = useState(false);
   const [autoScreenBrightness, setAutoScreenBrightness] = useState(settings.autoScreenBrightness);
   const [swipeBrightnessGesture, setSwipeBrightnessGesture] = useState(
     settings.swipeBrightnessGesture,
@@ -74,6 +79,8 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
       disableDoubleClick: setIsDisableDoubleClick,
       enableAnnotationQuickActions: setEnableAnnotationQuickActions,
       copyToNotebook: setCopyToNotebook,
+      epdMode: setEpdModeState,
+      epdRefreshInterval: setEpdRefreshInterval,
     });
     pageTurnerResetRef.current();
   };
@@ -187,6 +194,24 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
     saveViewSettings(envConfig, bookKey, 'isColorEink', isColorEink);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isColorEink]);
+
+  // Load EPD capabilities on mount
+  useEffect(() => {
+    if (appService?.isAndroidApp) {
+      getEpdCapabilities().then((cap) => setEpdAvailable(cap.available)).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    saveViewSettings(envConfig, bookKey, 'epdMode', epdMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [epdMode]);
+
+  useEffect(() => {
+    saveViewSettings(envConfig, bookKey, 'epdRefreshInterval', epdRefreshInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [epdRefreshInterval]);
 
   useEffect(() => {
     if (autoScreenBrightness === settings.autoScreenBrightness) return;
@@ -383,6 +408,30 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
             onChange={() => setIsColorEink(!isColorEink)}
             data-setting-id='settings.control.colorEinkMode'
           />
+        )}
+        {isEink && epdAvailable && (
+          <>
+            <SettingsRow label={_('EPD Mode')}>
+              <SettingsSelect
+                value={epdMode}
+                onChange={(e) => {
+                  const mode = e.target.value;
+                  setEpdModeState(mode);
+                  setEpdMode({ mode }).catch(() => {});
+                }}
+                options={EPD_MODES}
+              />
+            </SettingsRow>
+            <SettingsRow label={_('Page Refresh Interval')}>
+              <NumberInput
+                label={_('Page Refresh Interval')}
+                value={epdRefreshInterval}
+                min={0}
+                max={20}
+                onChange={(value) => setEpdRefreshInterval(value)}
+              />
+            </SettingsRow>
+          </>
         )}
         {appService?.isMobileApp && (
           <SettingsSwitchRow

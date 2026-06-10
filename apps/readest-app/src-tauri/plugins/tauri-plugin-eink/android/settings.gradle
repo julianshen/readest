@@ -1,0 +1,29 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url = uri("https://jitpack.io") }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            switch (requested.id.id) {
+                case "com.android.library":
+                    useVersion("8.0.2")
+                    break
+                case "org.jetbrains.kotlin.android":
+                    useVersion("1.9.22")
+                    break
+            }
+        }
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+include ':tauri-android'
+project(':tauri-android').projectDir = new File('./.tauri/tauri-api')

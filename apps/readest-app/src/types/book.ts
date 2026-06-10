@@ -279,6 +279,8 @@ export interface ViewConfig {
   animated: boolean;
   isEink: boolean;
   isColorEink: boolean;
+  epdMode?: string;
+  epdRefreshInterval?: number;
 
   paragraphMode: ParagraphModeConfig;
 

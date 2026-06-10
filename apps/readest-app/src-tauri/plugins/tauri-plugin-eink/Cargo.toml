@@ -1,0 +1,20 @@
+[package]
+name = "tauri-plugin-eink"
+version = "0.1.0"
+authors = ["Readest"]
+description = "E-Ink EPD display control for Boox and similar e-paper devices"
+edition = "2021"
+rust-version = "1.88"
+exclude = ["/examples", "/dist-js", "/guest-js", "/node_modules"]
+links = "tauri-plugin-eink"
+
+[dependencies]
+tauri = { version = "2" }
+serde = "1"
+serde_json = "1"
+thiserror = "2"
+schemars = "0.8"
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }
+schemars = "0.8"

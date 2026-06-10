@@ -313,7 +313,17 @@ export const DEFAULT_EINK_VIEW_SETTINGS: Partial<ViewSettings> = {
   isEink: true,
   animated: false,
   volumeKeysToFlip: true,
+  epdMode: 'AUTO',
+  epdRefreshInterval: 5,
 };
+
+export const EPD_MODES = [
+  { value: 'AUTO', label: 'Auto' },
+  { value: 'TEXT', label: 'Text' },
+  { value: 'AUTO_A2', label: 'A2 (Fast)' },
+  { value: 'GC', label: 'GC16 (Clear)' },
+  { value: 'GU', label: 'Regal (Low Flash)' },
+];
 
 export const DEFAULT_PARAGRAPH_MODE_CONFIG: ParagraphModeConfig = {
   enabled: false,

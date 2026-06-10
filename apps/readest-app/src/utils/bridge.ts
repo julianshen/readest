@@ -263,3 +263,27 @@ export async function clearSyncPassphrase(): Promise<SyncPassphraseResponse> {
 export async function isSyncKeychainAvailable(): Promise<SyncKeychainAvailableResponse> {
   return invoke<SyncKeychainAvailableResponse>('plugin:native-bridge|is_sync_keychain_available');
 }
+
+// === Eink/EPD Bridge ===
+
+export interface EpdCapabilities {
+  available: boolean;
+  modes: string[];
+}
+
+export interface SetEpdModeRequest {
+  mode: string;
+}
+
+export async function getEpdCapabilities(): Promise<EpdCapabilities> {
+  const result = await invoke<EpdCapabilities>('plugin:eink|get_epd_capabilities');
+  return result;
+}
+
+export async function setEpdMode(request: SetEpdModeRequest): Promise<void> {
+  await invoke('plugin:eink|set_epd_mode', { payload: request });
+}
+
+export async function doEpdRefresh(): Promise<void> {
+  await invoke('plugin:eink|do_epd_refresh');
+}

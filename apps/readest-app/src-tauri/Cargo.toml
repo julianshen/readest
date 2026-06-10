@@ -62,6 +62,7 @@ tauri-plugin-sharekit = "0.3"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-device-info = "1.0.1"
 tauri-plugin-turso = { path = "./plugins/tauri-plugin-turso" }
+tauri-plugin-eink = { path = "./plugins/tauri-plugin-eink" }
 tauri-plugin-webdriver = { version = "0.2", optional = true }
 
 [target."cfg(target_os = \"macos\")".dependencies]
