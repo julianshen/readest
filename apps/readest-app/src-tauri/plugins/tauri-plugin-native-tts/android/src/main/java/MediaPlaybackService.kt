@@ -221,24 +221,24 @@ class MediaPlaybackService : MediaBrowserServiceCompat() {
         if (intent?.action == "UPDATE_METADATA") {
             currentTitle = intent.getStringExtra("title") ?: currentTitle
             currentArtist = intent.getStringExtra("artist") ?: currentArtist
-            val newArtwork = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra("artwork", Bitmap::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getParcelableExtra("artwork")
-            }
-            if (newArtwork != null) {
-                currentArtwork = newArtwork
-            }
-
-            val metadataBuilder = MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentTitle)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentArtist)
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, currentArtwork)
-            
-            mediaSession?.setMetadata(metadataBuilder.build())
-
-            showNotification(if (player.isPlaying) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED)
+            // Decode Bitmap on a background thread to avoid main-thread ANR
+            Thread {
+                val newArtwork = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra("artwork", Bitmap::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra("artwork")
+                }
+                if (newArtwork != null) {
+                    currentArtwork = newArtwork
+                }
+                val metadataBuilder = MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentTitle)
+                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentArtist)
+                    .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, currentArtwork)
+                mediaSession?.setMetadata(metadataBuilder.build())
+                showNotification(if (player.isPlaying) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED)
+            }.start()
         } else if (intent?.action == "UPDATE_PLAYBACK_STATE") {
             val isPlaying = intent.getBooleanExtra("playing", false)
             val position = intent.getLongExtra("position", 0L) // in milliseconds

@@ -39,6 +39,8 @@ import app.tauri.plugin.Plugin
 import app.tauri.plugin.Invoke
 import org.json.JSONArray
 import java.io.*
+import kotlinx.coroutines.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 @InvokeArg
 class AuthRequestArgs {
@@ -138,6 +140,7 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     private val billingManager by lazy {
         BillingManager(activity)
     }
+    private val pluginScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     companion object {
         private const val REQUEST_MANAGE_STORAGE = 1001
@@ -177,33 +180,28 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
 
         when (intent.action) {
             Intent.ACTION_VIEW -> {
-                // "Open with Readest": the OS hands us a single content://
-                // (or file://) URI on `intent.data`. Take the persistable
-                // permission so we can read it through any subsequent app
-                // launch, then forward it to the JS side via the existing
-                // shared-intent channel — without this trigger, the URI
-                // silently dies in Kotlin and the user just sees the
-                // library splash with nothing happening.
                 val uri = intent.data ?: return
-                tryTakePersistableReadPermission(uri)
-                emitSharedIntent("VIEW", listOf(uri))
+                pluginScope.launch(Dispatchers.IO) {
+                    tryTakePersistableReadPermission(uri)
+                    withContext(Dispatchers.Main) { emitSharedIntent("VIEW", listOf(uri)) }
+                }
             }
 
             Intent.ACTION_SEND -> {
-                // System share-sheet → "Send to Readest" (single file).
-                // The URI lives on EXTRA_STREAM, not on intent.data, which
-                // is why the previous data-only handler never saw share
-                // captures at all.
                 val uri = getExtraStream(intent) ?: return
-                tryTakePersistableReadPermission(uri)
-                emitSharedIntent("SEND", listOf(uri))
+                pluginScope.launch(Dispatchers.IO) {
+                    tryTakePersistableReadPermission(uri)
+                    withContext(Dispatchers.Main) { emitSharedIntent("SEND", listOf(uri)) }
+                }
             }
 
             Intent.ACTION_SEND_MULTIPLE -> {
                 val uris = getExtraStreamList(intent)
                 if (uris.isEmpty()) return
-                uris.forEach { tryTakePersistableReadPermission(it) }
-                emitSharedIntent("SEND", uris)
+                pluginScope.launch(Dispatchers.IO) {
+                    uris.forEach { tryTakePersistableReadPermission(it) }
+                    withContext(Dispatchers.Main) { emitSharedIntent("SEND", uris) }
+                }
             }
         }
     }
@@ -270,58 +268,64 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     @Command
     fun copy_uri_to_path(invoke: Invoke) {
         val args = invoke.parseArgs(CopyURIRequestArgs::class.java)
-        val ret = JSObject()
-        try {
-            val uri = Uri.parse(args.uri ?: "")
-            val dst = File(args.dst ?: "")
-            val inputStream = activity.contentResolver.openInputStream(uri)
+        pluginScope.launch(Dispatchers.IO) {
+            val ret = JSObject()
+            try {
+                val uri = Uri.parse(args.uri ?: "")
+                val dst = File(args.dst ?: "")
+                val inputStream = activity.contentResolver.openInputStream(uri)
 
-            if (inputStream != null) {
-                dst.outputStream().use { output ->
-                    inputStream.use { input ->
-                        input.copyTo(output)
+                if (inputStream != null) {
+                    dst.outputStream().use { output ->
+                        inputStream.use { input ->
+                            input.copyTo(output)
+                        }
                     }
+                    ret.put("success", true)
+                } else {
+                    ret.put("success", false)
+                    ret.put("error", "Failed to open input stream from URI")
                 }
-                ret.put("success", true)
-            } else {
+            } catch (e: Exception) {
                 ret.put("success", false)
-                ret.put("error", "Failed to open input stream from URI")
+                ret.put("error", e.message)
             }
-        } catch (e: Exception) {
-            ret.put("success", false)
-            ret.put("error", e.message)
+            withContext(Dispatchers.Main) { invoke.resolve(ret) }
         }
-        invoke.resolve(ret)
     }
 
     @Command
     fun install_package(invoke: Invoke) {
         val args = invoke.parseArgs(InstallPackageRequestArgs::class.java)
-        val ret = JSObject()
-        try {
-            val file = File(args.path ?: "")
-            if (file.exists()) {
-                val intent = Intent(Intent.ACTION_VIEW)
-                val apkUri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
-                intent.setDataAndType(apkUri, "application/vnd.android.package-archive")
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-                val packageManager = activity.packageManager
-                val resolveInfos = packageManager.queryIntentActivities(intent, 0)
-                for (resolveInfo in resolveInfos) {
-                    val packageName = resolveInfo.activityInfo.packageName
-                    activity.grantUriPermission(packageName, apkUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        pluginScope.launch(Dispatchers.IO) {
+            val ret = JSObject()
+            try {
+                val file = File(args.path ?: "")
+                if (file.exists()) {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    val apkUri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
+                    intent.setDataAndType(apkUri, "application/vnd.android.package-archive")
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    val packageManager = activity.packageManager
+                    val resolveInfos = packageManager.queryIntentActivities(intent, 0)
+                    for (resolveInfo in resolveInfos) {
+                        val packageName = resolveInfo.activityInfo.packageName
+                        activity.grantUriPermission(packageName, apkUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    withContext(Dispatchers.Main) {
+                        activity.startActivity(intent)
+                    }
+                    ret.put("success", true)
+                } else {
+                    ret.put("success", false)
+                    ret.put("error", "File does not exist")
                 }
-                activity.startActivity(intent)
-                ret.put("success", true)
-            } else {
+            } catch (e: Exception) {
                 ret.put("success", false)
-                ret.put("error", "File does not exist")
+                ret.put("error", e.message)
             }
-        } catch (e: Exception) {
-            ret.put("success", false)
-            ret.put("error", e.message)
+            withContext(Dispatchers.Main) { invoke.resolve(ret) }
         }
-        invoke.resolve(ret)
     }
 
     @Command
@@ -434,46 +438,55 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
 
     @Command
     fun get_sys_fonts_list(invoke: Invoke) {
-        val ret = JSObject()
-        try {
-            val fontList = mutableListOf<String>()
-            val fontFileList = mutableListOf<String>()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val systemFonts = SystemFonts.getAvailableFonts()
-                for (font in systemFonts) {
-                    val file = font.getFile()?: continue
-                    if (file.isFile && (file.name.endsWith(".ttf", true) || file.name.endsWith(".otf", true))) {
-                        fontFileList.add(file.name)
+        pluginScope.launch(Dispatchers.IO) {
+            val ret = JSObject()
+            try {
+                // Use cached font list if available
+                val fontList = cachedFontList ?: run {
+                    val fonts = scanFonts()
+                    cachedFontList = fonts
+                    fonts
+                }
+                val fontDict = JSObject()
+                for (fontName in fontList) {
+                    fontDict.put(fontName, fontName)
+                }
+                ret.put("fonts", fontDict)
+            } catch (e: Exception) {
+                ret.put("error", e.message)
+            }
+            withContext(Dispatchers.Main) { invoke.resolve(ret) }
+        }
+    }
+
+    private var cachedFontList: List<String>? = null
+
+    private fun scanFonts(): List<String> {
+        val fontFileList = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val systemFonts = SystemFonts.getAvailableFonts()
+            for (font in systemFonts) {
+                val file = font.getFile() ?: continue
+                if (file.isFile && (file.name.endsWith(".ttf", true) || file.name.endsWith(".otf", true))) {
+                    fontFileList.add(file.name)
+                }
+            }
+        } else {
+            val fontDirs = listOf("/system/fonts", "/system/font", "/data/fonts")
+            for (dirPath in fontDirs) {
+                val dir = File(dirPath)
+                if (dir.exists() && dir.isDirectory) {
+                    dir.listFiles()?.forEach { file ->
+                        if (file.isFile && (file.name.endsWith(".ttf", true) || file.name.endsWith(".otf", true))) {
+                            fontFileList.add(file.name)
+                        }
                     }
                 }
-            } else {
-                val fontDirs = listOf("/system/fonts", "/system/font", "/data/fonts")
-                for (dirPath in fontDirs) {
-                  val dir = File(dirPath)
-                  if (dir.exists() && dir.isDirectory) {
-                      dir.listFiles()?.forEach { file ->
-                          if (file.isFile && (file.name.endsWith(".ttf", true) || file.name.endsWith(".otf", true))) {
-                              fontFileList.add(file.name)
-                          }
-                      }
-                  }
-                }
             }
-            for (fileFileName in fontFileList) {
-                var fontName = fileFileName
-                    .replace(Regex("\\.(ttf|otf)$", RegexOption.IGNORE_CASE), "")
-                    .trim()
-                fontList.add(fontName)
-            }
-            var fontDict = JSObject()
-            for (fontName in fontList) {
-                fontDict.put(fontName, fontName)
-            }
-            ret.put("fonts", fontDict)
-        } catch (e: Exception) {
-            ret.put("error", e.message)
         }
-        invoke.resolve(ret)
+        return fontFileList.map { fileName ->
+            fileName.replace(Regex("\\.(ttf|otf)$", RegexOption.IGNORE_CASE), "").trim()
+        }
     }
 
     @Command
