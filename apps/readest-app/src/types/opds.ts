@@ -111,6 +111,8 @@ export interface OPDSBaseLink {
   href?: string;
   type?: string;
   title?: string;
+  /** OPDS 2.0 / RFC 6570: href is a URI template (e.g. `/search{?query}`). */
+  templated?: boolean;
 }
 
 interface OPDSPerson {
@@ -124,7 +126,7 @@ interface OPDSSubject {
   scheme?: string;
 }
 
-interface OPDSContent {
+export interface OPDSContent {
   value: string;
   type: 'text' | 'html' | 'xhtml';
 }
