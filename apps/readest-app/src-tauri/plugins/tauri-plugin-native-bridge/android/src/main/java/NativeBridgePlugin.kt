@@ -142,6 +142,10 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     }
     private val pluginScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
+    override fun onDestroy() {
+        pluginScope.cancel()
+    }
+
     companion object {
         private const val REQUEST_MANAGE_STORAGE = 1001
         private const val FOLDER_PICKER_REQUEST_CODE = 1002
@@ -268,63 +272,67 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     @Command
     fun copy_uri_to_path(invoke: Invoke) {
         val args = invoke.parseArgs(CopyURIRequestArgs::class.java)
-        pluginScope.launch(Dispatchers.IO) {
-            val ret = JSObject()
-            try {
-                val uri = Uri.parse(args.uri ?: "")
-                val dst = File(args.dst ?: "")
-                val inputStream = activity.contentResolver.openInputStream(uri)
+        pluginScope.launch {
+            val ret = withContext(Dispatchers.IO) {
+                val r = JSObject()
+                try {
+                    val uri = Uri.parse(args.uri ?: "")
+                    val dst = File(args.dst ?: "")
+                    val inputStream = activity.contentResolver.openInputStream(uri)
 
-                if (inputStream != null) {
-                    dst.outputStream().use { output ->
-                        inputStream.use { input ->
-                            input.copyTo(output)
+                    if (inputStream != null) {
+                        dst.outputStream().use { output ->
+                            inputStream.use { input ->
+                                input.copyTo(output)
+                            }
                         }
+                        r.put("success", true)
+                    } else {
+                        r.put("success", false)
+                        r.put("error", "Failed to open input stream from URI")
                     }
-                    ret.put("success", true)
-                } else {
-                    ret.put("success", false)
-                    ret.put("error", "Failed to open input stream from URI")
+                } catch (e: Exception) {
+                    r.put("success", false)
+                    r.put("error", e.message)
                 }
-            } catch (e: Exception) {
-                ret.put("success", false)
-                ret.put("error", e.message)
+                r
             }
-            withContext(Dispatchers.Main) { invoke.resolve(ret) }
+            if (isActive) invoke.resolve(ret)
         }
     }
 
     @Command
     fun install_package(invoke: Invoke) {
         val args = invoke.parseArgs(InstallPackageRequestArgs::class.java)
-        pluginScope.launch(Dispatchers.IO) {
-            val ret = JSObject()
-            try {
-                val file = File(args.path ?: "")
-                if (file.exists()) {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    val apkUri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
-                    intent.setDataAndType(apkUri, "application/vnd.android.package-archive")
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-                    val packageManager = activity.packageManager
-                    val resolveInfos = packageManager.queryIntentActivities(intent, 0)
-                    for (resolveInfo in resolveInfos) {
-                        val packageName = resolveInfo.activityInfo.packageName
-                        activity.grantUriPermission(packageName, apkUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        pluginScope.launch {
+            val ret = withContext(Dispatchers.IO) {
+                val r = JSObject()
+                try {
+                    val file = File(args.path ?: "")
+                    if (file.exists()) {
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        val apkUri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
+                        intent.setDataAndType(apkUri, "application/vnd.android.package-archive")
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        val packageManager = activity.packageManager
+                        val resolveInfos = packageManager.queryIntentActivities(intent, 0)
+                        for (resolveInfo in resolveInfos) {
+                            val packageName = resolveInfo.activityInfo.packageName
+                            activity.grantUriPermission(packageName, apkUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        withContext(Dispatchers.Main) { activity.startActivity(intent) }
+                        r.put("success", true)
+                    } else {
+                        r.put("success", false)
+                        r.put("error", "File does not exist")
                     }
-                    withContext(Dispatchers.Main) {
-                        activity.startActivity(intent)
-                    }
-                    ret.put("success", true)
-                } else {
-                    ret.put("success", false)
-                    ret.put("error", "File does not exist")
+                } catch (e: Exception) {
+                    r.put("success", false)
+                    r.put("error", e.message)
                 }
-            } catch (e: Exception) {
-                ret.put("success", false)
-                ret.put("error", e.message)
+                r
             }
-            withContext(Dispatchers.Main) { invoke.resolve(ret) }
+            if (isActive) invoke.resolve(ret)
         }
     }
 
@@ -438,27 +446,30 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
 
     @Command
     fun get_sys_fonts_list(invoke: Invoke) {
-        pluginScope.launch(Dispatchers.IO) {
-            val ret = JSObject()
-            try {
-                // Use cached font list if available
-                val fontList = cachedFontList ?: run {
-                    val fonts = scanFonts()
-                    cachedFontList = fonts
-                    fonts
+        pluginScope.launch {
+            val ret = withContext(Dispatchers.IO) {
+                val r = JSObject()
+                try {
+                    val fontList = cachedFontList ?: run {
+                        val fonts = scanFonts()
+                        cachedFontList = fonts
+                        fonts
+                    }
+                    val fontDict = JSObject()
+                    for (fontName in fontList) {
+                        fontDict.put(fontName, fontName)
+                    }
+                    r.put("fonts", fontDict)
+                } catch (e: Exception) {
+                    r.put("error", e.message)
                 }
-                val fontDict = JSObject()
-                for (fontName in fontList) {
-                    fontDict.put(fontName, fontName)
-                }
-                ret.put("fonts", fontDict)
-            } catch (e: Exception) {
-                ret.put("error", e.message)
+                r
             }
-            withContext(Dispatchers.Main) { invoke.resolve(ret) }
+            if (isActive) invoke.resolve(ret)
         }
     }
 
+    @Volatile
     private var cachedFontList: List<String>? = null
 
     private fun scanFonts(): List<String> {
