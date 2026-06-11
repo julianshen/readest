@@ -6,6 +6,7 @@ import { getAIProvider } from './providers';
 import { aiStore, chapterSummaryKey, hashContent } from './storage/aiStore';
 import { extractTextFromDocument } from './utils/chunker';
 import { buildChapterSummaryPrompt, buildRecapPrompt } from './prompts';
+import { getChapterTitle } from './ragService';
 
 // ≈6k tokens of input per call; above this a chapter is map-reduced.
 const MAX_SINGLE_CALL_CHARS = 24_000;
@@ -47,24 +48,12 @@ const splitOnParagraphs = (text: string, maxLen: number): string[] => {
     let cut = rest.lastIndexOf('\n\n', maxLen);
     if (cut < maxLen / 2) cut = rest.lastIndexOf('. ', maxLen);
     if (cut < maxLen / 2) cut = maxLen;
+    if (cut <= 0) cut = maxLen;
     pieces.push(rest.slice(0, cut));
     rest = rest.slice(cut);
   }
   if (rest.trim().length) pieces.push(rest);
   return pieces;
-};
-
-/**
- * Mirrors ragService.ts `getChapterTitle` (module-private there; replicated here verbatim).
- * Source: src/services/ai/ragService.ts – getChapterTitle()
- */
-const chapterTitleOf = (bookDoc: BookDoc, sectionIndex: number): string => {
-  const toc = bookDoc.toc;
-  if (!toc || toc.length === 0) return `Section ${sectionIndex + 1}`;
-  for (let i = toc.length - 1; i >= 0; i--) {
-    if (toc[i]!.id <= sectionIndex) return toc[i]!.label;
-  }
-  return toc[0]?.label || `Section ${sectionIndex + 1}`;
 };
 
 const summarizeText = async (
@@ -85,18 +74,19 @@ const summarizeText = async (
     return result.trim();
   }
 
-  // map: summarize each piece
+  // map: summarize each piece in parallel
   const pieces = splitOnParagraphs(text, MAX_SINGLE_CALL_CHARS);
-  const pieceSummaries: string[] = [];
-  for (const piece of pieces) {
-    const { text: pieceSummary } = await generateText({
-      model,
-      system,
-      prompt: piece,
-      temperature: 0.3,
-    });
-    pieceSummaries.push(pieceSummary.trim());
-  }
+  const pieceSummaries = await Promise.all(
+    pieces.map(async (piece) => {
+      const { text: pieceSummary } = await generateText({
+        model,
+        system,
+        prompt: piece,
+        temperature: 0.3,
+      });
+      return pieceSummary.trim();
+    }),
+  );
 
   // reduce: merge piece summaries into one
   const { text: merged } = await generateText({
@@ -118,7 +108,11 @@ export async function summarizeChapter(
   const cached = await aiStore.getChapterSummary(args.bookHash, args.sectionIndex);
   if (cached && cached.contentHash === contentHash) return cached.summary;
 
-  const summary = await summarizeText(args, chapterTitleOf(args.bookDoc, args.sectionIndex), text);
+  const summary = await summarizeText(
+    args,
+    getChapterTitle(args.bookDoc.toc, args.sectionIndex),
+    text,
+  );
   const entry: ChapterSummary = {
     key: chapterSummaryKey(args.bookHash, args.sectionIndex),
     bookHash: args.bookHash,
@@ -139,7 +133,7 @@ export async function recapToPosition(
   for (let i = 0; i < args.currentSectionIndex; i++) {
     try {
       const summary = await summarizeChapter({ ...args, sectionIndex: i });
-      parts.push(`${chapterTitleOf(args.bookDoc, i)}:\n${summary}`);
+      parts.push(`${getChapterTitle(args.bookDoc.toc, i)}:\n${summary}`);
     } catch (e) {
       if ((e as Error).message === 'AI_NOT_CONFIGURED') throw e;
       parts.push(`Chapter ${i + 1} could not be read.`);

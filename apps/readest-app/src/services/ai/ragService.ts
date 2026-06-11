@@ -50,7 +50,7 @@ function extractAuthor(metadata?: BookDocType['metadata']): string {
   return metadata.author.name || 'Unknown Author';
 }
 
-function getChapterTitle(toc: TOCItem[] | undefined, sectionIndex: number): string {
+export function getChapterTitle(toc: TOCItem[] | undefined, sectionIndex: number): string {
   if (!toc || toc.length === 0) return `Section ${sectionIndex + 1}`;
   for (let i = toc.length - 1; i >= 0; i--) {
     if (toc[i]!.id <= sectionIndex) return toc[i]!.label;

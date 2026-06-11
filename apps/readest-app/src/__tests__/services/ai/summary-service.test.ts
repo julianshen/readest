@@ -51,9 +51,12 @@ const longText = (label: string) => `${label} ` + 'sentence of plot. '.repeat(40
 beforeEach(() => {
   generateTextMock.mockReset();
   cache.clear();
-  generateTextMock.mockImplementation(async ({ prompt }: { prompt: string }) => ({
-    text: `SUM(${prompt.length})`,
-  }));
+  generateTextMock.mockImplementation(
+    async ({ system, prompt }: { system?: string; prompt: string }) => {
+      if (!system || !prompt) throw new Error('generateText called without system or prompt');
+      return { text: `SUM(${prompt.length})` };
+    },
+  );
 });
 
 describe('summarizeChapter', () => {
@@ -68,6 +71,9 @@ describe('summarizeChapter', () => {
     });
     expect(out).toMatch(/^SUM\(/);
     expect(generateTextMock).toHaveBeenCalledTimes(1);
+    const call = generateTextMock.mock.calls[0]![0] as { system: string; prompt: string };
+    expect(call.system).toContain('Test Book');
+    expect(call.prompt).toContain('sentence of plot');
 
     generateTextMock.mockClear();
     const again = await summarizeChapter({
@@ -127,6 +133,19 @@ describe('summarizeChapter', () => {
         sectionIndex: 0,
       }),
     ).rejects.toThrow('AI_NOT_CONFIGURED');
+  });
+
+  it('map-reduces CJK text without sentence-period separators', async () => {
+    const huge = '雙城記第一章開頭'.repeat(5000); // 40k chars, no '. ' or '\n\n'
+    const bookDoc = makeBookDoc([huge]);
+    await summarizeChapter({
+      bookDoc,
+      bookHash: 'h9',
+      bookTitle: 'T',
+      aiSettings: SETTINGS,
+      sectionIndex: 0,
+    });
+    expect(generateTextMock.mock.calls.length).toBeGreaterThanOrEqual(3);
   });
 });
 
