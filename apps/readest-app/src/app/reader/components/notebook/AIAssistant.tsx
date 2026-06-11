@@ -311,6 +311,7 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
   const { settings } = useSettingsStore();
   const { getBookData } = useBookDataStore();
   const { getProgress, getView } = useReaderStore();
+  const { conversations, loadConversations } = useAIChatStore();
   const bookData = getBookData(bookKey);
   const progress = getProgress(bookKey);
 
@@ -340,7 +341,13 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
     return selectBackend({ settings: aiSettings, isTauri: isTauriAppPlatform(), legacy, reedy });
   }, [aiSettings, appService]);
 
-  // check if book is indexed on mount
+  // check if book is indexed on mount and load conversations regardless of index state
+  useEffect(() => {
+    if (bookHash) {
+      loadConversations(bookHash);
+    }
+  }, [bookHash, loadConversations]);
+
   useEffect(() => {
     if (bookHash && backend) {
       backend.isIndexed(bookHash).then((result) => {
@@ -404,7 +411,7 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
       ? Math.round((indexProgress.current / indexProgress.total) * 100)
       : 0;
 
-  if (!indexed && !isIndexing) {
+  if (!indexed && !isIndexing && conversations.length === 0) {
     return (
       <div className='flex h-full flex-col items-center justify-center gap-3 p-4 text-center'>
         <div className='bg-primary/10 rounded-full p-3'>
