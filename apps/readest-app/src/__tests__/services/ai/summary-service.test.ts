@@ -183,4 +183,18 @@ describe('recapToPosition', () => {
     const synthesisPrompt = generateTextMock.mock.calls.at(-1)![0].prompt as string;
     expect(synthesisPrompt).toMatch(/Chapter 1 could not be read/);
   });
+
+  it('propagates AI_NOT_CONFIGURED instead of degrading to notes', async () => {
+    const bookDoc = makeBookDoc([longText('a'), longText('b')]);
+    await expect(
+      recapToPosition({
+        bookDoc,
+        bookHash: 'h8',
+        bookTitle: 'T',
+        aiSettings: {} as never,
+        currentSectionIndex: 2,
+      }),
+    ).rejects.toThrow('AI_NOT_CONFIGURED');
+    expect(generateTextMock).not.toHaveBeenCalled();
+  });
 });
