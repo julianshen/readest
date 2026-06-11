@@ -38,15 +38,6 @@ export function useAISummary(bookKey: string) {
         });
         if (!conversationId) return;
 
-        if (kind === 'recap' && sectionIndex === 0) {
-          await addMessage({
-            conversationId,
-            role: 'assistant',
-            content: _("You're at the very beginning — nothing to recap yet."),
-          });
-          return;
-        }
-
         eventDispatcher.dispatch('toast', {
           type: 'info',
           message:
@@ -73,6 +64,14 @@ export function useAISummary(bookKey: string) {
             eventDispatcher.dispatch('toast', {
               type: 'warning',
               message: _('Configure an AI provider in Settings → AI Assistant first'),
+            });
+            return;
+          }
+          if ((e as Error).message === 'NOTHING_TO_RECAP') {
+            await addMessage({
+              conversationId,
+              role: 'assistant',
+              content: _("You're at the very beginning — nothing to recap yet."),
             });
             return;
           }

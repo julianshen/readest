@@ -129,6 +129,9 @@ export async function recapToPosition(
   args: SummaryArgs & { currentSectionIndex: number },
 ): Promise<string> {
   const model = getModelOrThrow(args.aiSettings);
+  if (args.currentSectionIndex <= 0) {
+    throw new Error('NOTHING_TO_RECAP');
+  }
   const parts: string[] = [];
   for (let i = 0; i < args.currentSectionIndex; i++) {
     try {

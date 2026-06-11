@@ -216,4 +216,18 @@ describe('recapToPosition', () => {
     ).rejects.toThrow('AI_NOT_CONFIGURED');
     expect(generateTextMock).not.toHaveBeenCalled();
   });
+
+  it('throws NOTHING_TO_RECAP at the very beginning', async () => {
+    const bookDoc = makeBookDoc([longText('a')]);
+    await expect(
+      recapToPosition({
+        bookDoc,
+        bookHash: 'h10',
+        bookTitle: 'T',
+        aiSettings: SETTINGS,
+        currentSectionIndex: 0,
+      }),
+    ).rejects.toThrow('NOTHING_TO_RECAP');
+    expect(generateTextMock).not.toHaveBeenCalled();
+  });
 });
