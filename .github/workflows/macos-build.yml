@@ -76,7 +76,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
-          DMG=$(ls apps/readest-app/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg)
+          DMG=$(ls target/universal-apple-darwin/release/bundle/dmg/*.dmg)
           echo "Uploading $DMG to $RELEASE_TAG"
           gh release upload "$RELEASE_TAG" "$DMG" --clobber
           shasum -a 256 "$DMG"
