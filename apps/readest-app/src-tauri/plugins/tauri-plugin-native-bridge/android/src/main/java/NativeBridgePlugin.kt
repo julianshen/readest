@@ -1008,43 +1008,49 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
             return invoke.reject("empty word")
         }
 
-        try {
-            val intent = Intent(Intent.ACTION_PROCESS_TEXT).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_PROCESS_TEXT, word)
-                // Read-only — we don't want third-party apps writing
-                // back into a clipboard or selection slot we don't own.
-                putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
-            }
+        // queryIntentActivities scans installed-app manifests (50–200ms);
+        // keep it off the plugin command thread so other IPC isn't queued
+        // behind a dictionary lookup.
+        pluginScope.launch(Dispatchers.IO) {
+            try {
+                val intent = Intent(Intent.ACTION_PROCESS_TEXT).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_PROCESS_TEXT, word)
+                    // Read-only — we don't want third-party apps writing
+                    // back into a clipboard or selection slot we don't own.
+                    putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
+                }
 
-            // Probe for handlers before dispatching. An ActivityNotFound
-            // crash is a worse UX than a quiet "no dictionary app"
-            // result; surface the empty case explicitly.
-            val pm = activity.packageManager
-            val handlers = pm.queryIntentActivities(intent, 0)
-            if (handlers.isEmpty()) {
+                // Probe for handlers before dispatching. An ActivityNotFound
+                // crash is a worse UX than a quiet "no dictionary app"
+                // result; surface the empty case explicitly.
+                val pm = activity.packageManager
+                val handlers = pm.queryIntentActivities(intent, 0)
+                if (handlers.isEmpty()) {
+                    val ret = JSObject()
+                    ret.put("success", false)
+                    ret.put("unavailable", true)
+                    invoke.resolve(ret)
+                    return@launch
+                }
+
+                // FLAG_ACTIVITY_NEW_TASK is required because `activity`
+                // here is the plugin's host activity context — without it,
+                // some OEM ROMs reject the dispatch with "Calling
+                // startActivity() from outside of an Activity context".
+                // The system disambiguation dialog still appears (with the
+                // Always/Just once buttons) for multi-handler cases; for
+                // single-handler cases it goes straight through.
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                activity.startActivity(intent)
+
                 val ret = JSObject()
-                ret.put("success", false)
-                ret.put("unavailable", true)
-                return invoke.resolve(ret)
+                ret.put("success", true)
+                invoke.resolve(ret)
+            } catch (e: Exception) {
+                Log.e("NativeBridgePlugin", "show_lookup_popover failed", e)
+                invoke.reject("Failed to look up word: ${e.message}")
             }
-
-            // FLAG_ACTIVITY_NEW_TASK is required because `activity`
-            // here is the plugin's host activity context — without it,
-            // some OEM ROMs reject the dispatch with "Calling
-            // startActivity() from outside of an Activity context".
-            // The system disambiguation dialog still appears (with the
-            // Always/Just once buttons) for multi-handler cases; for
-            // single-handler cases it goes straight through.
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            activity.startActivity(intent)
-
-            val ret = JSObject()
-            ret.put("success", true)
-            invoke.resolve(ret)
-        } catch (e: Exception) {
-            Log.e("NativeBridgePlugin", "show_lookup_popover failed", e)
-            invoke.reject("Failed to look up word: ${e.message}")
         }
     }
 

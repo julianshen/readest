@@ -166,18 +166,10 @@ const RSVPControl: React.FC<RSVPControlProps> = ({ bookKey, gridInsets }) => {
       handleStart(selectionText);
     };
 
-    const handleRSVPStop = (event: CustomEvent) => {
-      const { bookKey: rsvpBookKey } = event.detail;
-      if (bookKey !== rsvpBookKey) return;
-      handleClose();
-    };
-
     eventDispatcher.on('rsvp-start', handleRSVPStart);
-    eventDispatcher.on('rsvp-stop', handleRSVPStop);
 
     return () => {
       eventDispatcher.off('rsvp-start', handleRSVPStart);
-      eventDispatcher.off('rsvp-stop', handleRSVPStop);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookKey]);

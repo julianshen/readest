@@ -191,9 +191,17 @@ class MainActivity : TauriActivity(), KeyDownInterceptor {
                 return true
             }
 
-            // Hardware page turner: intercept media keys when enabled.
-            if (interceptPageTurnerKeysEnabled && mediaKeyMap.containsKey(keyCode)) {
-                forwardKeyToWebView(mediaKeyMap[keyCode]!!, keyCode)
+            // Hardware page turner: intercept media keys and Boox
+            // PageUp/PageDown side buttons when enabled. PageUp/PageDown
+            // must be consumed here — once they reach the view tree the
+            // WebView swallows them for native scrolling and
+            // Activity.onKeyDown never fires.
+            if (interceptPageTurnerKeysEnabled &&
+                (mediaKeyMap.containsKey(keyCode) ||
+                    keyCode == KeyEvent.KEYCODE_PAGE_UP ||
+                    keyCode == KeyEvent.KEYCODE_PAGE_DOWN)
+            ) {
+                forwardKeyToWebView(keyNameFor(keyCode), keyCode)
                 return true
             }
 
@@ -216,42 +224,19 @@ class MainActivity : TauriActivity(), KeyDownInterceptor {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        val keyName = keyEventMap[keyCode]
-        if (keyName != null) {
-            wv?.evaluateJavascript(
-                """
-                try {
-                    window.onNativeKeyDown("$keyName", $keyCode)
-                } catch (err) {
-                    false
-                }
-                """.trimIndent()
-            ) { result ->
-              run {
-                if (result.equals("true", ignoreCase = true)) {
-                  Log.d("Key Event", "Key event $keyName intercepted")
-                }
-              }
+        // Intercepted keys are consumed in dispatchKeyEvent and never get
+        // here; forwarding non-intercepted volume/back keys to JS was a
+        // wasted evaluateJavascript per press. Only PageUp/PageDown keep a
+        // default forward path: if the WebView declined them (we only reach
+        // Activity.onKeyDown when no view consumed the key), they should
+        // still turn pages even before the reader acquires interception.
+        when (keyCode) {
+            KeyEvent.KEYCODE_PAGE_UP, KeyEvent.KEYCODE_PAGE_DOWN -> {
+                forwardKeyToWebView(keyNameFor(keyCode), keyCode)
+                return true
             }
-            return when (keyCode) {
-              KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                  if (interceptVolumeKeysEnabled) {
-                      true
-                  } else {
-                      super.onKeyDown(keyCode, event)
-                  }
-              }
-              KeyEvent.KEYCODE_BACK -> {
-                  if (interceptBackKeyEnabled) {
-                      true
-                  } else {
-                      super.onKeyDown(keyCode, event)
-                  }
-              }
-              else -> super.onKeyDown(keyCode, event)
-            }
+            else -> return super.onKeyDown(keyCode, event)
         }
-        return super.onKeyDown(keyCode, event)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

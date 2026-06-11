@@ -149,12 +149,10 @@ const ReaderContent: React.FC<{ ids?: string; settings: SystemSettings }> = ({ i
       unlistenOnCloseWindow = tauriHandleOnCloseWindow(handleCloseBooks);
     }
     window.addEventListener('beforeunload', handleCloseBooks);
-    eventDispatcher.on('beforereload', handleCloseBooks);
     eventDispatcher.on('close-reader', handleCloseBooks);
     eventDispatcher.on('quit-app', handleCloseBooks);
     return () => {
       window.removeEventListener('beforeunload', handleCloseBooks);
-      eventDispatcher.off('beforereload', handleCloseBooks);
       eventDispatcher.off('close-reader', handleCloseBooks);
       eventDispatcher.off('quit-app', handleCloseBooks);
       unlistenOnCloseWindow?.then((fn) => fn());
@@ -170,6 +168,7 @@ const ReaderContent: React.FC<{ ids?: string; settings: SystemSettings }> = ({ i
       const settings = useSettingsStore.getState().settings;
       eventDispatcher.dispatch('sync-book-progress', { bookKey });
       eventDispatcher.dispatch('flush-kosync', { bookKey });
+      eventDispatcher.dispatch('flush-webdav-sync', { bookKey });
       await saveConfig(envConfig, bookKey, config, settings);
     }
   };

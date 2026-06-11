@@ -332,12 +332,10 @@ const useBookShortcuts = ({ sideBarBookKey, bookKeys }: UseBookShortcutsProps) =
   useEffect(() => {
     eventDispatcher.on('zoom-in', handleZoomIn);
     eventDispatcher.on('zoom-out', handleZoomOut);
-    eventDispatcher.on('reset-zoom', resetZoom);
     eventDispatcher.on('pinch-zoom', handlePinchZoom);
     return () => {
       eventDispatcher.off('zoom-in', handleZoomIn);
       eventDispatcher.off('zoom-out', handleZoomOut);
-      eventDispatcher.off('reset-zoom', resetZoom);
       eventDispatcher.off('pinch-zoom', handlePinchZoom);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
