@@ -15,7 +15,7 @@ import { BoxedList, SettingsRow, SettingsSelect, SettingsSwitchRow } from './pri
 import NumberInput from './NumberInput';
 import PageTurnerSettings from './PageTurnerSettings';
 import { getEpdCapabilities, setEpdMode } from '@/utils/bridge';
-import { EPD_MODES } from '@/services/constants';
+import { filterEpdModes } from '@/services/constants';
 
 const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset }) => {
   const _ = useTranslation();
@@ -50,8 +50,11 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
   const [isEink, setIsEink] = useState(viewSettings.isEink);
   const [isColorEink, setIsColorEink] = useState(viewSettings.isColorEink);
   const [epdMode, setEpdModeState] = useState(viewSettings.epdMode || 'AUTO');
-  const [epdRefreshInterval, setEpdRefreshInterval] = useState(viewSettings.epdRefreshInterval ?? 5);
+  const [epdRefreshInterval, setEpdRefreshInterval] = useState(
+    viewSettings.epdRefreshInterval ?? 5,
+  );
   const [epdAvailable, setEpdAvailable] = useState(false);
+  const [epdSupportedModes, setEpdSupportedModes] = useState<string[]>([]);
   const [autoScreenBrightness, setAutoScreenBrightness] = useState(settings.autoScreenBrightness);
   const [swipeBrightnessGesture, setSwipeBrightnessGesture] = useState(
     settings.swipeBrightnessGesture,
@@ -198,7 +201,12 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
   // Load EPD capabilities on mount
   useEffect(() => {
     if (appService?.isAndroidApp) {
-      getEpdCapabilities().then((cap) => setEpdAvailable(cap.available)).catch(() => {});
+      getEpdCapabilities()
+        .then((cap) => {
+          setEpdAvailable(cap.available);
+          setEpdSupportedModes(cap.modes ?? []);
+        })
+        .catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -419,7 +427,7 @@ const ControlPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRes
                   setEpdModeState(mode);
                   setEpdMode({ mode }).catch(() => {});
                 }}
-                options={EPD_MODES}
+                options={filterEpdModes(epdSupportedModes)}
               />
             </SettingsRow>
             <SettingsRow label={_('Page Refresh Interval')}>

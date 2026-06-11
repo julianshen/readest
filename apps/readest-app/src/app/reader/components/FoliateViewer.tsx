@@ -24,6 +24,7 @@ import { useBackgroundTexture } from '@/hooks/useBackgroundTexture';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useEinkMode } from '@/hooks/useEinkMode';
+import { useEpdPageRefresh } from '@/hooks/useEpdPageRefresh';
 import { useKOSync } from '../hooks/useKOSync';
 import { useWebDAVSync } from '../hooks/useWebDAVSync';
 import {
@@ -108,6 +109,11 @@ const FoliateViewer: React.FC<{
   const bookData = getBookData(bookKey);
   const viewState = getViewState(bookKey);
   const viewSettings = getViewSettings(bookKey);
+  const { notifyPageChange } = useEpdPageRefresh({
+    enabled: !!appService?.isAndroidApp && !!viewSettings?.isEink,
+    epdMode: viewSettings?.epdMode,
+    refreshInterval: viewSettings?.epdRefreshInterval ?? 5,
+  });
 
   const viewRef = useRef<FoliateView | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -154,6 +160,7 @@ const FoliateViewer: React.FC<{
       detail.time,
       detail.range,
     );
+    notifyPageChange();
   };
 
   const getDocTransformHandler = ({ width, height }: { width: number; height: number }) => {

@@ -325,6 +325,13 @@ export const EPD_MODES = [
   { value: 'GU', label: 'Regal (Low Flash)' },
 ];
 
+// The eink plugin reports the device's actual EPDMode enum constants; offering
+// a value outside that list makes setMode fail silently on the native side.
+export const filterEpdModes = (supportedModes: string[]) =>
+  supportedModes.length === 0
+    ? EPD_MODES
+    : EPD_MODES.filter((mode) => supportedModes.includes(mode.value));
+
 export const DEFAULT_PARAGRAPH_MODE_CONFIG: ParagraphModeConfig = {
   enabled: false,
 };
