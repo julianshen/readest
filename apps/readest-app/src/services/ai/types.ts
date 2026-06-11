@@ -27,8 +27,9 @@ export interface AISettings {
   aiGatewayCustomModel?: string;
   aiGatewayEmbeddingModel?: string;
 
-  // OpenAI-compatible provider (OpenRouter, Together, Groq, vLLM, ...).
-  // Default base URL is OpenRouter's, but any compatible endpoint works.
+  // Generic OpenAI-compatible endpoint (OpenRouter, Together, Groq, vLLM, ...).
+  // Defaults to OpenRouter; distinct from the dedicated `openai*` block below,
+  // which is reserved for the user's own OpenAI (or Azure OpenAI) account.
   openrouterApiKey?: string;
   openrouterBaseUrl?: string;
   openrouterModel?: string;
