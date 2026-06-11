@@ -77,6 +77,10 @@ export const openaiProvider: TranslationProvider = {
     const model = new OpenAIProvider(aiSettings).getModel();
     const system = buildSystemPrompt(sourceLang, targetLang);
 
+    // Book text could contain instruction-like content (prompt injection).
+    // JSON.stringify keeps it from breaking the JSON envelope, and
+    // parseAligned's length/type guard turns any derailed response into an
+    // error rather than corrupted output; worst case is a bad translation.
     const requestOnce = async (): Promise<string[]> => {
       const { text } = await generateText({
         model,

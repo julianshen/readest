@@ -135,6 +135,12 @@ describe('openai translation provider', () => {
     expect(generateTextMock).toHaveBeenCalledTimes(2);
   });
 
+  it('throws when array elements are not strings', async () => {
+    generateTextMock.mockResolvedValue({ text: '[null]' });
+    await expect(openaiProvider.translate(['Hello'], 'en', 'de')).rejects.toThrow();
+    expect(generateTextMock).toHaveBeenCalledTimes(2); // retried
+  });
+
   it('accepts a fenced JSON code block', async () => {
     generateTextMock.mockResolvedValue({ text: '```json\n["Hallo"]\n```' });
     await expect(openaiProvider.translate(['Hello'], 'en', 'de')).resolves.toEqual(['Hallo']);
