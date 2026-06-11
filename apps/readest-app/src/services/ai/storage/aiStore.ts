@@ -351,6 +351,9 @@ class AIStore {
       };
       tx.onerror = () => reject(tx.error);
     });
+    // Runs as a separate transaction after the main clear commits (IDB can't
+    // span both); a crash in between leaves orphaned summaries, which is
+    // harmless — they're keyed by bookHash and re-imported books get a new hash.
     await this.clearChapterSummaries(bookHash);
   }
 

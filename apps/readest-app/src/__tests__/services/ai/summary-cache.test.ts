@@ -9,4 +9,8 @@ describe('chapter summary cache keys', () => {
     expect(hashContent('hello')).toBe(hashContent('hello'));
     expect(hashContent('hello')).not.toBe(hashContent('hellp'));
   });
+  it('differentiates non-ASCII content (CJK, emoji)', () => {
+    expect(hashContent('雙城記')).not.toBe(hashContent('双城记'));
+    expect(hashContent('a📖b')).not.toBe(hashContent('a📕b'));
+  });
 });
