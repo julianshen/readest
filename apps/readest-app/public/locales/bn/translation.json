@@ -1699,5 +1699,12 @@
   "Book file is not available locally": "বইয়ের ফাইলটি স্থানীয়ভাবে উপলব্ধ নয়",
   "Failed to send book": "বই পাঠাতে ব্যর্থ হয়েছে",
   "Send": "পাঠান",
-  "Highlight Current Sentence": "বর্তমান বাক্য হাইলাইট করুন"
+  "Highlight Current Sentence": "বর্তমান বাক্য হাইলাইট করুন",
+  "WebDAV Sync": "WebDAV সিঙ্ক",
+  "File Path": "ফাইলের পথ",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI কনফিগারেশন",
+  "EPD Mode": "EPD মোড",
+  "Page Refresh Interval": "পৃষ্ঠা রিফ্রেশ বিরতি",
+  "API Key Required": "API কী প্রয়োজন"
 }

@@ -1732,5 +1732,12 @@
   "Book file is not available locally": "O ficheiro do livro não está disponível localmente",
   "Failed to send book": "Falha ao enviar o livro",
   "Send": "Enviar",
-  "Highlight Current Sentence": "Destacar a frase atual"
+  "Highlight Current Sentence": "Destacar a frase atual",
+  "WebDAV Sync": "Sincronização WebDAV",
+  "File Path": "Caminho do arquivo",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "Configuração do OpenAI",
+  "EPD Mode": "Modo EPD",
+  "Page Refresh Interval": "Intervalo de atualização da página",
+  "API Key Required": "Chave API necessária"
 }

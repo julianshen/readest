@@ -1699,5 +1699,12 @@
   "Book file is not available locally": "Το αρχείο του βιβλίου δεν είναι διαθέσιμο τοπικά",
   "Failed to send book": "Αποτυχία αποστολής βιβλίου",
   "Send": "Αποστολή",
-  "Highlight Current Sentence": "Επισήμανση τρέχουσας πρότασης"
+  "Highlight Current Sentence": "Επισήμανση τρέχουσας πρότασης",
+  "WebDAV Sync": "Συγχρονισμός WebDAV",
+  "File Path": "Διαδρομή αρχείου",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "Διαμόρφωση OpenAI",
+  "EPD Mode": "Λειτουργία EPD",
+  "Page Refresh Interval": "Διάστημα ανανέωσης σελίδας",
+  "API Key Required": "Απαιτείται κλειδί API"
 }

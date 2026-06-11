@@ -1666,5 +1666,12 @@
   "Book file is not available locally": "Fail buku tidak tersedia secara setempat",
   "Failed to send book": "Gagal menghantar buku",
   "Send": "Hantar",
-  "Highlight Current Sentence": "Serlahkan ayat semasa"
+  "Highlight Current Sentence": "Serlahkan ayat semasa",
+  "WebDAV Sync": "Penyegerakan WebDAV",
+  "File Path": "Laluan Fail",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "Konfigurasi OpenAI",
+  "EPD Mode": "Mod EPD",
+  "Page Refresh Interval": "Selang Muat Semula Halaman",
+  "API Key Required": "Kunci API diperlukan"
 }

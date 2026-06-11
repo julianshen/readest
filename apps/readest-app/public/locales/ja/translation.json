@@ -1666,5 +1666,12 @@
   "Book file is not available locally": "書籍ファイルがローカルに存在しません",
   "Failed to send book": "書籍の送信に失敗しました",
   "Send": "送信",
-  "Highlight Current Sentence": "現在の文をハイライト"
+  "Highlight Current Sentence": "現在の文をハイライト",
+  "WebDAV Sync": "WebDAV 同期",
+  "File Path": "ファイルパス",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI 設定",
+  "EPD Mode": "EPD モード",
+  "Page Refresh Interval": "ページ更新間隔",
+  "API Key Required": "APIキーが必要です"
 }

@@ -1699,5 +1699,12 @@
   "Book file is not available locally": "පොත් ගොනුව දේශීයව ලබා ගත නොහැක",
   "Failed to send book": "පොත යැවීමට අසමත් විය",
   "Send": "යවන්න",
-  "Highlight Current Sentence": "වර්තමාන වාක්‍යය ඉස්මතු කරන්න"
+  "Highlight Current Sentence": "වර්තමාන වාක්‍යය ඉස්මතු කරන්න",
+  "WebDAV Sync": "WebDAV සමමුහුර්තතාව",
+  "File Path": "ගොනු මාර්ගය",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI වින්‍යාසය",
+  "EPD Mode": "EPD ප්‍රකාරය",
+  "Page Refresh Interval": "පිටු නවීකරණ පරතරය",
+  "API Key Required": "API යතුර අවශ්‍යයි"
 }

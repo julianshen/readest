@@ -1666,5 +1666,12 @@
   "Book file is not available locally": "ไม่มีไฟล์หนังสือในเครื่อง",
   "Failed to send book": "ส่งหนังสือไม่สำเร็จ",
   "Send": "ส่ง",
-  "Highlight Current Sentence": "ไฮไลต์ประโยคปัจจุบัน"
+  "Highlight Current Sentence": "ไฮไลต์ประโยคปัจจุบัน",
+  "WebDAV Sync": "ซิงค์ WebDAV",
+  "File Path": "เส้นทางไฟล์",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "การตั้งค่า OpenAI",
+  "EPD Mode": "โหมด EPD",
+  "Page Refresh Interval": "ช่วงเวลารีเฟรชหน้า",
+  "API Key Required": "ต้องใช้ API Key"
 }

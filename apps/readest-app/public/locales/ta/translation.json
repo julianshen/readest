@@ -1699,5 +1699,12 @@
   "Book file is not available locally": "புத்தக கோப்பு உள்ளூரில் கிடைக்கவில்லை",
   "Failed to send book": "புத்தகத்தை அனுப்ப முடியவில்லை",
   "Send": "அனுப்பு",
-  "Highlight Current Sentence": "தற்போதைய வாக்கியத்தை தனிப்படுத்து"
+  "Highlight Current Sentence": "தற்போதைய வாக்கியத்தை தனிப்படுத்து",
+  "WebDAV Sync": "WebDAV ஒத்திசைவு",
+  "File Path": "கோப்பு பாதை",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI கட்டமைப்பு",
+  "EPD Mode": "EPD முறை",
+  "Page Refresh Interval": "பக்க புதுப்பிப்பு இடைவெளி",
+  "API Key Required": "API விசை தேவை"
 }

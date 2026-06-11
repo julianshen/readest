@@ -1699,5 +1699,12 @@
   "Book file is not available locally": "Bokfilen är inte tillgänglig lokalt",
   "Failed to send book": "Det gick inte att skicka boken",
   "Send": "Skicka",
-  "Highlight Current Sentence": "Markera aktuell mening"
+  "Highlight Current Sentence": "Markera aktuell mening",
+  "WebDAV Sync": "WebDAV-synkronisering",
+  "File Path": "Filsökväg",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI-konfiguration",
+  "EPD Mode": "EPD-läge",
+  "Page Refresh Interval": "Siduppdateringsintervall",
+  "API Key Required": "API-nyckel krävs"
 }

@@ -1765,5 +1765,12 @@
   "Book file is not available locally": "Datoteka knjige ni na voljo lokalno",
   "Failed to send book": "Pošiljanje knjige ni uspelo",
   "Send": "Pošlji",
-  "Highlight Current Sentence": "Označi trenutni stavek"
+  "Highlight Current Sentence": "Označi trenutni stavek",
+  "WebDAV Sync": "Sinhronizacija WebDAV",
+  "File Path": "Pot do datoteke",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "Konfiguracija OpenAI",
+  "EPD Mode": "Način EPD",
+  "Page Refresh Interval": "Interval osveževanja strani",
+  "API Key Required": "Zahtevan API-ključ"
 }

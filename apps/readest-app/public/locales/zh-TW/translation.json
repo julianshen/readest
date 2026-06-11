@@ -1666,5 +1666,12 @@
   "Book file is not available locally": "本機沒有此書籍檔案",
   "Failed to send book": "傳送書籍失敗",
   "Send": "傳送",
-  "Highlight Current Sentence": "醒目標示目前句子"
+  "Highlight Current Sentence": "醒目標示目前句子",
+  "WebDAV Sync": "WebDAV 同步",
+  "File Path": "檔案路徑",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI 設定",
+  "EPD Mode": "EPD 模式",
+  "Page Refresh Interval": "頁面重新整理間隔",
+  "API Key Required": "需要 API 金鑰"
 }

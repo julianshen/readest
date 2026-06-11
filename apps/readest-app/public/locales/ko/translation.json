@@ -1666,5 +1666,12 @@
   "Book file is not available locally": "책 파일을 로컬에서 사용할 수 없습니다",
   "Failed to send book": "책 보내기에 실패했습니다",
   "Send": "보내기",
-  "Highlight Current Sentence": "현재 문장 강조"
+  "Highlight Current Sentence": "현재 문장 강조",
+  "WebDAV Sync": "WebDAV 동기화",
+  "File Path": "파일 경로",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI 설정",
+  "EPD Mode": "EPD 모드",
+  "Page Refresh Interval": "페이지 새로 고침 간격",
+  "API Key Required": "API 키가 필요합니다"
 }

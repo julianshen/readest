@@ -1732,5 +1732,12 @@
   "Book file is not available locally": "קובץ הספר אינו זמין באופן מקומי",
   "Failed to send book": "שליחת הספר נכשלה",
   "Send": "שליחה",
-  "Highlight Current Sentence": "הדגשת המשפט הנוכחי"
+  "Highlight Current Sentence": "הדגשת המשפט הנוכחי",
+  "WebDAV Sync": "סנכרון WebDAV",
+  "File Path": "נתיב קובץ",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "הגדרות OpenAI",
+  "EPD Mode": "מצב EPD",
+  "Page Refresh Interval": "מרווח רענון עמוד",
+  "API Key Required": "נדרש מפתח API"
 }

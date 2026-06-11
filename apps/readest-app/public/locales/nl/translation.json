@@ -1699,5 +1699,12 @@
   "Book file is not available locally": "Boekbestand is niet lokaal beschikbaar",
   "Failed to send book": "Verzenden van boek mislukt",
   "Send": "Verzenden",
-  "Highlight Current Sentence": "Huidige zin markeren"
+  "Highlight Current Sentence": "Huidige zin markeren",
+  "WebDAV Sync": "WebDAV-synchronisatie",
+  "File Path": "Bestandspad",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI-configuratie",
+  "EPD Mode": "EPD-modus",
+  "Page Refresh Interval": "Interval voor paginavernieuwing",
+  "API Key Required": "API-sleutel vereist"
 }

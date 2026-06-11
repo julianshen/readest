@@ -1699,5 +1699,12 @@
   "Book file is not available locally": "Kitap dosyası yerel olarak mevcut değil",
   "Failed to send book": "Kitap gönderilemedi",
   "Send": "Gönder",
-  "Highlight Current Sentence": "Geçerli cümleyi vurgula"
+  "Highlight Current Sentence": "Geçerli cümleyi vurgula",
+  "WebDAV Sync": "WebDAV Senkronizasyonu",
+  "File Path": "Dosya Yolu",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "OpenAI Yapılandırması",
+  "EPD Mode": "EPD Modu",
+  "Page Refresh Interval": "Sayfa Yenileme Aralığı",
+  "API Key Required": "API Anahtarı Gerekli"
 }

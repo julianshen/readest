@@ -1765,5 +1765,12 @@
   "Book file is not available locally": "Файл книги недоступний локально",
   "Failed to send book": "Не вдалося надіслати книгу",
   "Send": "Надіслати",
-  "Highlight Current Sentence": "Виділяти поточне речення"
+  "Highlight Current Sentence": "Виділяти поточне речення",
+  "WebDAV Sync": "Синхронізація WebDAV",
+  "File Path": "Шлях до файлу",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "Налаштування OpenAI",
+  "EPD Mode": "Режим EPD",
+  "Page Refresh Interval": "Інтервал оновлення сторінки",
+  "API Key Required": "Потрібен API-ключ"
 }

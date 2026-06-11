@@ -1666,5 +1666,12 @@
   "Book file is not available locally": "Tệp sách không có sẵn trên thiết bị",
   "Failed to send book": "Gửi sách thất bại",
   "Send": "Gửi",
-  "Highlight Current Sentence": "Tô sáng câu hiện tại"
+  "Highlight Current Sentence": "Tô sáng câu hiện tại",
+  "WebDAV Sync": "Đồng bộ WebDAV",
+  "File Path": "Đường dẫn tệp",
+  "OpenAI (ChatGPT)": "OpenAI (ChatGPT)",
+  "OpenAI Configuration": "Cấu hình OpenAI",
+  "EPD Mode": "Chế độ EPD",
+  "Page Refresh Interval": "Khoảng thời gian làm mới trang",
+  "API Key Required": "Yêu cầu khóa API"
 }
