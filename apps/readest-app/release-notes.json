@@ -1,5 +1,11 @@
 {
   "releases": {
+    "0.11.7": {
+      "date": "2026-06-12",
+      "notes": [
+        "AI: Chapter summaries and the story recap are now written in the book's own language instead of drifting to English"
+      ]
+    },
     "0.11.5": {
       "date": "2026-06-10",
       "notes": [
