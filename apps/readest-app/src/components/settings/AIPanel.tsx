@@ -87,6 +87,15 @@ const AIPanel: React.FC = () => {
   const [fetchingModels, setFetchingModels] = useState(false);
   const [gatewayKey, setGatewayKey] = useState(aiSettings.aiGatewayApiKey ?? '');
 
+  // ---- OpenAI state ----
+  const [openaiKey, setOpenaiKey] = useState(aiSettings.openaiApiKey ?? '');
+  const [openaiUrl, setOpenaiUrl] = useState(
+    aiSettings.openaiBaseUrl ?? DEFAULT_AI_SETTINGS.openaiBaseUrl ?? '',
+  );
+  const [openaiModel, setOpenaiModel] = useState(
+    aiSettings.openaiModel ?? DEFAULT_AI_SETTINGS.openaiModel ?? '',
+  );
+
   // ---- OpenRouter (OpenAI-compatible) state ----
   const [openrouterKey, setOpenrouterKey] = useState(aiSettings.openrouterApiKey ?? '');
   const [openrouterUrl, setOpenrouterUrl] = useState(
@@ -288,6 +297,31 @@ const AIPanel: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openrouterEmbeddingModel]);
 
+  // ---- OpenAI save effects ----
+  useEffect(() => {
+    if (!isMounted.current) return;
+    if (openaiKey !== (aiSettings.openaiApiKey ?? '')) {
+      saveAiSetting('openaiApiKey', openaiKey);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openaiKey]);
+
+  useEffect(() => {
+    if (!isMounted.current) return;
+    if (openaiUrl !== (aiSettings.openaiBaseUrl ?? '')) {
+      saveAiSetting('openaiBaseUrl', openaiUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openaiUrl]);
+
+  useEffect(() => {
+    if (!isMounted.current) return;
+    if (openaiModel !== (aiSettings.openaiModel ?? '')) {
+      saveAiSetting('openaiModel', openaiModel);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openaiModel]);
+
   // Get the effective model ID to use (either selected or custom)
   const getEffectiveModelId = useCallback(() => {
     if (selectedModel === CUSTOM_MODEL_VALUE && customModelStatus === 'valid') {
@@ -382,6 +416,9 @@ const AIPanel: React.FC = () => {
         openrouterBaseUrl: openrouterUrl,
         openrouterModel,
         openrouterEmbeddingModel,
+        openaiApiKey: openaiKey,
+        openaiBaseUrl: openaiUrl,
+        openaiModel,
       };
       const aiProvider = getAIProvider(testSettings);
       const isHealthy = await aiProvider.healthCheck();
@@ -441,6 +478,16 @@ const AIPanel: React.FC = () => {
             className='radio'
             checked={provider === 'openrouter'}
             onChange={() => setProvider('openrouter')}
+            disabled={!enabled}
+          />
+        </SettingsRow>
+        <SettingsRow label={_('OpenAI (ChatGPT)')} asLabel>
+          <input
+            type='radio'
+            name='ai-provider'
+            className='radio'
+            checked={provider === 'openai'}
+            onChange={() => setProvider('openai')}
             disabled={!enabled}
           />
         </SettingsRow>
@@ -738,6 +785,50 @@ const AIPanel: React.FC = () => {
                 'Optional. Leave blank if your endpoint does not support embeddings — chat will still work but RAG features will be unavailable.',
               )}
             </span>
+          </div>
+        </BoxedList>
+      )}
+
+      {provider === 'openai' && (
+        <BoxedList title={_('OpenAI Configuration')} className={disabledSection}>
+          {/* API key */}
+          <div className='flex flex-col gap-2 pe-4 py-3'>
+            <SettingLabel>{_('API Key')}</SettingLabel>
+            <input
+              type='password'
+              className='input input-bordered input-sm w-full'
+              value={openaiKey}
+              onChange={(e) => setOpenaiKey(e.target.value)}
+              placeholder='sk-...'
+              disabled={!enabled}
+              autoComplete='off'
+            />
+          </div>
+
+          {/* Model */}
+          <div className='flex flex-col gap-2 pe-4 py-3'>
+            <SettingLabel>{_('Model')}</SettingLabel>
+            <input
+              type='text'
+              className='input input-bordered input-sm w-full'
+              value={openaiModel}
+              onChange={(e) => setOpenaiModel(e.target.value)}
+              placeholder='gpt-4o-mini'
+              disabled={!enabled}
+            />
+          </div>
+
+          {/* Base URL */}
+          <div className='flex flex-col gap-2 pe-4 py-3'>
+            <SettingLabel>{_('Base URL')}</SettingLabel>
+            <input
+              type='text'
+              className='input input-bordered input-sm w-full'
+              value={openaiUrl}
+              onChange={(e) => setOpenaiUrl(e.target.value)}
+              placeholder='https://api.openai.com/v1'
+              disabled={!enabled}
+            />
           </div>
         </BoxedList>
       )}
