@@ -14,8 +14,9 @@ pub fn init<R: Runtime, C: DeserializeOwned>(
 }
 
 // Desktop has no EPD hardware; generic over R to mirror mobile::NativeStruct
-// so lib.rs can name NativeStruct<R> on every platform.
-pub struct NativeStruct<R: Runtime>(PhantomData<R>);
+// so lib.rs can name NativeStruct<R> on every platform. `fn() -> R` keeps
+// the marker Send + Sync (app.manage requires it) without bounding R.
+pub struct NativeStruct<R: Runtime>(PhantomData<fn() -> R>);
 
 impl<R: Runtime> NativeStruct<R> {
     pub fn get_capabilities(&self) -> Result<EpdCapabilities> {
