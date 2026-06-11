@@ -95,6 +95,9 @@ const AIPanel: React.FC = () => {
   const [openaiModel, setOpenaiModel] = useState(
     aiSettings.openaiModel ?? DEFAULT_AI_SETTINGS.openaiModel ?? '',
   );
+  const [openaiEmbeddingModel, setOpenaiEmbeddingModel] = useState(
+    aiSettings.openaiEmbeddingModel ?? DEFAULT_AI_SETTINGS.openaiEmbeddingModel ?? '',
+  );
 
   // ---- OpenRouter (OpenAI-compatible) state ----
   const [openrouterKey, setOpenrouterKey] = useState(aiSettings.openrouterApiKey ?? '');
@@ -322,6 +325,14 @@ const AIPanel: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openaiModel]);
 
+  useEffect(() => {
+    if (!isMounted.current) return;
+    if (openaiEmbeddingModel !== (aiSettings.openaiEmbeddingModel ?? '')) {
+      saveAiSetting('openaiEmbeddingModel', openaiEmbeddingModel);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openaiEmbeddingModel]);
+
   // Get the effective model ID to use (either selected or custom)
   const getEffectiveModelId = useCallback(() => {
     if (selectedModel === CUSTOM_MODEL_VALUE && customModelStatus === 'valid') {
@@ -419,6 +430,7 @@ const AIPanel: React.FC = () => {
         openaiApiKey: openaiKey,
         openaiBaseUrl: openaiUrl,
         openaiModel,
+        openaiEmbeddingModel,
       };
       const aiProvider = getAIProvider(testSettings);
       const isHealthy = await aiProvider.healthCheck();
@@ -814,6 +826,19 @@ const AIPanel: React.FC = () => {
               value={openaiModel}
               onChange={(e) => setOpenaiModel(e.target.value)}
               placeholder='gpt-4o-mini'
+              disabled={!enabled}
+            />
+          </div>
+
+          {/* Embedding model — consumed by the RAG/Reedy indexing paths */}
+          <div className='flex flex-col gap-2 pe-4 py-3'>
+            <SettingLabel>{_('Embedding Model')}</SettingLabel>
+            <input
+              type='text'
+              className='input input-bordered input-sm w-full'
+              value={openaiEmbeddingModel}
+              onChange={(e) => setOpenaiEmbeddingModel(e.target.value)}
+              placeholder='text-embedding-3-small'
               disabled={!enabled}
             />
           </div>

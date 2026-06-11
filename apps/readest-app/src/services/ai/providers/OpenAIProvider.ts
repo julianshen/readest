@@ -2,12 +2,14 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import type { LanguageModel, EmbeddingModel } from 'ai';
 import type { AIProvider, AISettings, AIProviderName } from '../types';
 import { aiLogger } from '../logger';
+import { DEFAULT_AI_SETTINGS } from '../constants';
 import { AI_TIMEOUTS } from '../utils/retry';
 import { getAIFetch } from '../utils/httpFetch';
 
-const DEFAULT_BASE_URL = 'https://api.openai.com/v1';
-const DEFAULT_MODEL = 'gpt-4o-mini';
-const DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small';
+// Single source of truth is DEFAULT_AI_SETTINGS; aliased here for readability.
+const DEFAULT_BASE_URL = DEFAULT_AI_SETTINGS.openaiBaseUrl!;
+const DEFAULT_MODEL = DEFAULT_AI_SETTINGS.openaiModel!;
+const DEFAULT_EMBEDDING_MODEL = DEFAULT_AI_SETTINGS.openaiEmbeddingModel!;
 
 /**
  * OpenAI's official API. Functionally a sibling of `OpenRouterProvider`

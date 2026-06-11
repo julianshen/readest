@@ -1,4 +1,5 @@
 import { generateText } from 'ai';
+import type { LanguageModel } from 'ai';
 import { stubTranslation as _ } from '@/utils/misc';
 import { useSettingsStore } from '@/store/settingsStore';
 import { normalizeToShortLang } from '@/utils/lang';
@@ -8,6 +9,18 @@ import type { AISettings } from '@/services/ai/types';
 
 const getAISettings = (): AISettings | undefined =>
   useSettingsStore.getState().settings?.aiSettings;
+
+// translate() runs once per visible paragraph while reading; building a new
+// SDK client (and emitting an init log) per call is pure waste. Cache the
+// model handle until the relevant settings change.
+let modelCache: { key: string; model: LanguageModel } | null = null;
+const getModelFor = (aiSettings: AISettings): LanguageModel => {
+  const key = `${aiSettings.openaiApiKey}|${aiSettings.openaiBaseUrl ?? ''}|${aiSettings.openaiModel ?? ''}`;
+  if (modelCache?.key !== key) {
+    modelCache = { key, model: new OpenAIProvider(aiSettings).getModel() };
+  }
+  return modelCache.model;
+};
 
 // LLMs love fencing JSON even when told not to; strip a single outer fence.
 const stripCodeFences = (text: string): string =>
@@ -74,7 +87,7 @@ export const openaiProvider: TranslationProvider = {
     if (!nonEmptyIndices.length) return [...texts];
     const nonEmpty = nonEmptyIndices.map((i) => texts[i]!);
 
-    const model = new OpenAIProvider(aiSettings).getModel();
+    const model = getModelFor(aiSettings);
     const system = buildSystemPrompt(sourceLang, targetLang);
 
     // Book text could contain instruction-like content (prompt injection).

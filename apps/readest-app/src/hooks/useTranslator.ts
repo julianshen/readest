@@ -23,7 +23,10 @@ export function useTranslator({
 }: UseTranslatorOptions = {}) {
   const _ = useTranslation();
   const { token } = useAuth();
-  const openaiApiKey = useSettingsStore((s) => s.settings?.aiSettings?.openaiApiKey);
+  // Provider availability can depend on AI settings (e.g. the OpenAI key);
+  // each provider's isAvailable() reads the store itself, so we only need a
+  // re-evaluation signal — any aiSettings write produces a new reference.
+  const aiSettings = useSettingsStore((s) => s.settings?.aiSettings);
   const [loading, setLoading] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(provider);
   const [translator, setTransltor] = useState(() => getTranslator(provider));
@@ -41,7 +44,7 @@ export function useTranslator({
     setTransltor(getTranslator(selectedProviderName));
     setSelectedProvider(selectedProviderName);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provider, openaiApiKey]);
+  }, [provider, aiSettings]);
 
   const translate = useCallback(
     async (
