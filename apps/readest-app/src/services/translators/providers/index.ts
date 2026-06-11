@@ -54,6 +54,7 @@ export const isTranslatorAvailable = (
   if (translator.disabled) return false;
   if (translator.quotaExceeded) return false;
   if (translator.authRequired && !hasToken) return false;
+  if (translator.isAvailable && !translator.isAvailable()) return false;
   return true;
 };
 
@@ -77,6 +78,9 @@ export const getTranslatorDisplayLabel = (
   }
   if (translator.quotaExceeded) {
     return `${translator.label} (${_('Quota Exceeded')})`;
+  }
+  if (translator.isAvailable && !translator.isAvailable()) {
+    return `${translator.label} (${_('API Key Required')})`;
   }
   return translator.label;
 };

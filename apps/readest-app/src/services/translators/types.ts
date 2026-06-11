@@ -13,6 +13,12 @@ export interface TranslationProvider {
    * again — no other code changes required.
    */
   disabled?: boolean;
+  /**
+   * Provider-specific availability beyond the Readest-cloud token check —
+   * e.g. "the user configured an OpenAI API key". Checked by
+   * `isTranslatorAvailable`; absent means "no extra requirement".
+   */
+  isAvailable?: () => boolean;
   translate: (
     texts: string[],
     sourceLang: string,
