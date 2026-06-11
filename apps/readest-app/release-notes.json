@@ -1084,6 +1084,15 @@
         "Initial release with full functionality for ePub rendering.",
         "Support multi-book reading with Parallel Read."
       ]
+    },
+    "0.11.6": {
+      "date": "2026-06-11",
+      "notes": [
+        "AI: Added AI chapter summaries and story recap in the book menu (Settings > AI must be enabled)",
+        "AI: Assistant now shows past conversations without requiring the book to be indexed first",
+        "Translation: AI translation now uses your configured AI assistant (Ollama, OpenRouter, AI Gateway, or OpenAI) instead of requiring a separate OpenAI key",
+        "Translation: AI Translator is only selectable when the AI assistant is enabled and configured"
+      ]
     }
   }
 }
