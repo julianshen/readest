@@ -105,9 +105,10 @@ export const useAIChatStore = create<AIChatState>((set, get) => ({
       }
     }
 
-    set((state) => ({
-      messages: [...state.messages, fullMessage],
-    }));
+    set((state) => {
+      if (state.activeConversationId !== fullMessage.conversationId) return state;
+      return { messages: [...state.messages, fullMessage] };
+    });
   },
 
   deleteConversation: async (id: string) => {

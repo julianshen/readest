@@ -1,6 +1,6 @@
 import { embed, embedMany } from 'ai';
 import { aiStore } from './storage/aiStore';
-import { chunkSection, extractTextFromDocument } from './utils/chunker';
+import { chunkSection, extractTextFromDocument, MIN_SECTION_CHARS } from './utils/chunker';
 import { withRetryAndTimeout, AI_TIMEOUTS, AI_RETRY_CONFIGS } from './utils/retry';
 import { getAIProvider } from './providers';
 import { aiLogger } from './logger';
@@ -50,7 +50,7 @@ function extractAuthor(metadata?: BookDocType['metadata']): string {
   return metadata.author.name || 'Unknown Author';
 }
 
-function getChapterTitle(toc: TOCItem[] | undefined, sectionIndex: number): string {
+export function getChapterTitle(toc: TOCItem[] | undefined, sectionIndex: number): string {
   if (!toc || toc.length === 0) return `Section ${sectionIndex + 1}`;
   for (let i = toc.length - 1; i >= 0; i--) {
     if (toc[i]!.id <= sectionIndex) return toc[i]!.label;
@@ -105,7 +105,7 @@ export async function indexBook(
       try {
         const doc = await section.createDocument();
         const text = extractTextFromDocument(doc);
-        if (text.length < 100) continue;
+        if (text.length < MIN_SECTION_CHARS) continue;
         const sectionChunks = chunkSection(
           doc,
           i,

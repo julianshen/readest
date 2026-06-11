@@ -1673,5 +1673,18 @@
   "OpenAI Configuration": "OpenAI 설정",
   "EPD Mode": "EPD 모드",
   "Page Refresh Interval": "페이지 새로 고침 간격",
-  "API Key Required": "API 키가 필요합니다"
+  "API Key Required": "API 키가 필요합니다",
+  "AI Summary": "AI 요약",
+  "Recap: Story So Far": "요약: 지금까지의 이야기",
+  "Summarize This Chapter": "이 챕터 요약하기",
+  "Recap": "요약",
+  "Chapter Summary": "챕터 요약",
+  "You're at the very beginning — nothing to recap yet.": "이제 막 시작했습니다 — 아직 요약할 내용이 없습니다.",
+  "Generating recap — this may take a minute...": "요약을 생성 중입니다 — 잠시 기다려 주세요...",
+  "Summarizing chapter — this may take a moment...": "챕터를 요약 중입니다 — 잠시 기다려 주세요...",
+  "Configure an AI provider in Settings → AI Assistant first": "먼저 설정 → AI 어시스턴트에서 AI 제공자를 설정하세요",
+  "Summary failed. Please try again.": "요약에 실패했습니다. 다시 시도해 주세요.",
+  "OpenAI API Key": "OpenAI API 키",
+  "OpenAI Base URL": "OpenAI 기본 URL",
+  "OpenAI Model": "OpenAI 모델"
 }

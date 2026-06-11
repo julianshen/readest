@@ -13,7 +13,7 @@ export function useOpenAIInNotebook() {
       conversationId?: string;
       bookHash?: string;
       newConversationTitle?: string;
-    }) => {
+    }): Promise<string | null> => {
       // Open notebook and switch to AI tab
       setNotebookVisible(true);
       setNotebookActiveTab('ai');
@@ -21,10 +21,13 @@ export function useOpenAIInNotebook() {
       if (options?.conversationId) {
         // Load existing conversation
         await setActiveConversation(options.conversationId);
+        return options.conversationId;
       } else if (options?.bookHash && options?.newConversationTitle) {
         // Create new conversation
-        await createConversation(options.bookHash, options.newConversationTitle);
+        const id = await createConversation(options.bookHash, options.newConversationTitle);
+        return id;
       }
+      return null;
     },
     [setNotebookVisible, setNotebookActiveTab, setActiveConversation, createConversation],
   );

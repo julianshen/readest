@@ -1,16 +1,36 @@
-import { TextChunk, ScoredChunk, BookIndexMeta, AIConversation, AIMessage } from '../types';
+import {
+  TextChunk,
+  ScoredChunk,
+  BookIndexMeta,
+  AIConversation,
+  AIMessage,
+  ChapterSummary,
+} from '../types';
 import { aiLogger } from '../logger';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const lunr = require('lunr') as typeof import('lunr');
 
 const DB_NAME = 'readest-ai';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const CHUNKS_STORE = 'chunks';
 const META_STORE = 'bookMeta';
 const BM25_STORE = 'bm25Indices';
 const CONVERSATIONS_STORE = 'conversations';
 const MESSAGES_STORE = 'messages';
+const CHAPTER_SUMMARIES_STORE = 'chapterSummaries';
+
+export const chapterSummaryKey = (bookHash: string, sectionIndex: number): string =>
+  `${bookHash}:${sectionIndex}`;
+
+// djb2 — cheap, stable, good enough for cache invalidation (not security).
+export const hashContent = (text: string): string => {
+  let h = 5381;
+  for (let i = 0; i < text.length; i++) {
+    h = ((h << 5) + h + text.charCodeAt(i)) | 0;
+  }
+  return (h >>> 0).toString(36) + ':' + text.length.toString(36);
+};
 
 function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) return 0;
@@ -90,6 +110,12 @@ class AIStore {
         if (!db.objectStoreNames.contains(MESSAGES_STORE)) {
           const msgStore = db.createObjectStore(MESSAGES_STORE, { keyPath: 'id' });
           msgStore.createIndex('conversationId', 'conversationId', { unique: false });
+        }
+
+        // v4: chapter summary cache
+        if (!db.objectStoreNames.contains(CHAPTER_SUMMARIES_STORE)) {
+          const store = db.createObjectStore(CHAPTER_SUMMARIES_STORE, { keyPath: 'key' });
+          store.createIndex('bookHash', 'bookHash', { unique: false });
         }
       };
     });
@@ -305,7 +331,7 @@ class AIStore {
 
   async clearBook(bookHash: string): Promise<void> {
     const db = await this.openDB();
-    return new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const tx = db.transaction([CHUNKS_STORE, META_STORE, BM25_STORE], 'readwrite');
       const cursor = tx.objectStore(CHUNKS_STORE).index('bookHash').openCursor(bookHash);
       cursor.onsuccess = (e) => {
@@ -325,6 +351,10 @@ class AIStore {
       };
       tx.onerror = () => reject(tx.error);
     });
+    // Runs as a separate transaction after the main clear commits (IDB can't
+    // span both); a crash in between leaves orphaned summaries, which is
+    // harmless — they're keyed by bookHash and re-imported books get a new hash.
+    await this.clearChapterSummaries(bookHash);
   }
 
   // conversation persistence methods
@@ -447,6 +477,53 @@ class AIStore {
         resolve(messages);
       };
       req.onerror = () => reject(req.error);
+    });
+  }
+
+  // chapter summary cache methods
+
+  async getChapterSummary(bookHash: string, sectionIndex: number): Promise<ChapterSummary | null> {
+    const db = await this.openDB();
+    return new Promise((resolve, reject) => {
+      const req = db
+        .transaction(CHAPTER_SUMMARIES_STORE, 'readonly')
+        .objectStore(CHAPTER_SUMMARIES_STORE)
+        .get(chapterSummaryKey(bookHash, sectionIndex));
+      req.onsuccess = () => {
+        const result = req.result as ChapterSummary | undefined;
+        resolve(result ?? null);
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async saveChapterSummary(summary: ChapterSummary): Promise<void> {
+    const db = await this.openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(CHAPTER_SUMMARIES_STORE, 'readwrite');
+      tx.objectStore(CHAPTER_SUMMARIES_STORE).put(summary);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => {
+        aiLogger.store.error('saveChapterSummary', tx.error?.message || 'TX error');
+        reject(tx.error);
+      };
+    });
+  }
+
+  async clearChapterSummaries(bookHash: string): Promise<void> {
+    const db = await this.openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(CHAPTER_SUMMARIES_STORE, 'readwrite');
+      const cursor = tx.objectStore(CHAPTER_SUMMARIES_STORE).index('bookHash').openCursor(bookHash);
+      cursor.onsuccess = (e) => {
+        const c = (e.target as IDBRequest<IDBCursorWithValue>).result;
+        if (c) {
+          c.delete();
+          c.continue();
+        }
+      };
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
   }
 }

@@ -1673,5 +1673,18 @@
   "OpenAI Configuration": "Konfigurasi OpenAI",
   "EPD Mode": "Mod EPD",
   "Page Refresh Interval": "Selang Muat Semula Halaman",
-  "API Key Required": "Kunci API diperlukan"
+  "API Key Required": "Kunci API diperlukan",
+  "AI Summary": "Ringkasan AI",
+  "Recap: Story So Far": "Rekap: Cerita Setakat Ini",
+  "Summarize This Chapter": "Ringkaskan Bab Ini",
+  "Recap": "Rekap",
+  "Chapter Summary": "Ringkasan Bab",
+  "You're at the very beginning — nothing to recap yet.": "Anda baru sahaja bermula — belum ada yang perlu direkap.",
+  "Generating recap — this may take a minute...": "Menjana rekap — ini mungkin mengambil masa seminit...",
+  "Summarizing chapter — this may take a moment...": "Meringkaskan bab — ini mungkin mengambil masa sebentar...",
+  "Configure an AI provider in Settings → AI Assistant first": "Sila konfigurasikan pembekal AI dalam Tetapan → Pembantu AI dahulu",
+  "Summary failed. Please try again.": "Gagal menjana ringkasan. Sila cuba lagi.",
+  "OpenAI API Key": "Kunci API OpenAI",
+  "OpenAI Base URL": "URL Asas OpenAI",
+  "OpenAI Model": "Model OpenAI"
 }

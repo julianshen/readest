@@ -1706,5 +1706,18 @@
   "OpenAI Configuration": "پیکربندی OpenAI",
   "EPD Mode": "حالت EPD",
   "Page Refresh Interval": "فاصله به‌روزرسانی صفحه",
-  "API Key Required": "کلید API مورد نیاز است"
+  "API Key Required": "کلید API مورد نیاز است",
+  "AI Summary": "خلاصه هوش مصنوعی",
+  "Recap: Story So Far": "خلاصه: داستان تاکنون",
+  "Summarize This Chapter": "خلاصه این فصل",
+  "Recap": "خلاصه",
+  "Chapter Summary": "خلاصه فصل",
+  "You're at the very beginning — nothing to recap yet.": "شما در ابتدای کتاب هستید — هنوز چیزی برای خلاصه کردن وجود ندارد.",
+  "Generating recap — this may take a minute...": "در حال ایجاد خلاصه — این ممکن است یک دقیقه طول بکشد...",
+  "Summarizing chapter — this may take a moment...": "در حال خلاصه کردن فصل — این ممکن است کمی طول بکشد...",
+  "Configure an AI provider in Settings → AI Assistant first": "لطفاً ابتدا یک ارائه‌دهنده هوش مصنوعی را در تنظیمات ← دستیار هوش مصنوعی پیکربندی کنید",
+  "Summary failed. Please try again.": "ایجاد خلاصه ناموفق بود. لطفاً دوباره امتحان کنید.",
+  "OpenAI API Key": "کلید API OpenAI",
+  "OpenAI Base URL": "URL پایه OpenAI",
+  "OpenAI Model": "مدل OpenAI"
 }

@@ -123,3 +123,14 @@ export interface AIMessage {
   content: string;
   createdAt: number;
 }
+
+export interface ChapterSummary {
+  /** `${bookHash}:${sectionIndex}` */
+  key: string;
+  bookHash: string;
+  sectionIndex: number;
+  /** hash of the section text — invalidates when content changes */
+  contentHash: string;
+  summary: string;
+  createdAt: number;
+}

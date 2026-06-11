@@ -40,10 +40,12 @@ Responsibilities:
 
 - **Text extraction**: section text via the same extraction path
   `ragService.indexBook` uses (foliate sections → plain text). The recap
-  includes only sections strictly before the current one, plus the current
-  section truncated at the reading position. Spoiler-safe by construction;
-  additionally honors `aiSettings.spoilerProtection` (no content past the
-  position is ever sent).
+  includes only sections strictly before the current one. The current,
+  partially-read section is NOT included — intra-section truncation requires
+  CFI offset math and is deferred to phase 2. this position-windowed
+  construction IS the spoiler protection; the `aiSettings.spoilerProtection`
+  flag governs the assistant's RAG retrieval and is not separately consulted
+  here.
 - **Chunking**: chapters above a token threshold are split with the existing
   `chunker.ts` and map-reduced (chunk summaries → chapter summary).
 - **Per-chapter cache**: chapter summaries are cached in the AI storage
@@ -58,9 +60,9 @@ Responsibilities:
 ### 2. Book menu (`BookMenu.tsx`)
 
 An "AI" section with two entries — `Recap: Story So Far` and
-`Summarize This Chapter` — gated the same way as the AI panel: visible when
-`aiSettings.enabled` and the active provider is configured; otherwise hidden
-(consistent with how sync menu sections appear only when configured).
+`Summarize This Chapter` — visible when `aiSettings.enabled`; if no provider
+is configured, invoking an entry shows a toast pointing to Settings → AI
+Assistant (hiding the menu entirely would make the feature undiscoverable).
 
 ### 3. Notebook delivery
 
@@ -103,3 +105,4 @@ precedent).
 - Auto-recap banner when reopening a book after N days.
 - Exporting summaries to annotations/notes.
 - Per-feature model override; selected-text and whole-book summaries.
+- Intra-section (partial current chapter) recap content — phase 2.

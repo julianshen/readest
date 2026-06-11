@@ -1673,5 +1673,18 @@
   "OpenAI Configuration": "การตั้งค่า OpenAI",
   "EPD Mode": "โหมด EPD",
   "Page Refresh Interval": "ช่วงเวลารีเฟรชหน้า",
-  "API Key Required": "ต้องใช้ API Key"
+  "API Key Required": "ต้องใช้ API Key",
+  "AI Summary": "สรุป AI",
+  "Recap: Story So Far": "สรุป: เรื่องราวจนถึงตอนนี้",
+  "Summarize This Chapter": "สรุปบทนี้",
+  "Recap": "สรุปเนื้อเรื่อง",
+  "Chapter Summary": "สรุปบท",
+  "You're at the very beginning — nothing to recap yet.": "คุณอยู่ที่จุดเริ่มต้น — ยังไม่มีเนื้อเรื่องให้สรุป",
+  "Generating recap — this may take a minute...": "กำลังสร้างบทสรุป — อาจใช้เวลาสักครู่...",
+  "Summarizing chapter — this may take a moment...": "กำลังสรุปบท — อาจใช้เวลาสักครู่...",
+  "Configure an AI provider in Settings → AI Assistant first": "กรุณาตั้งค่าผู้ให้บริการ AI ใน การตั้งค่า → ผู้ช่วย AI ก่อน",
+  "Summary failed. Please try again.": "สรุปล้มเหลว กรุณาลองใหม่อีกครั้ง",
+  "OpenAI API Key": "OpenAI API Key",
+  "OpenAI Base URL": "OpenAI Base URL",
+  "OpenAI Model": "OpenAI Model"
 }

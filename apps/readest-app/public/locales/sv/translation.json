@@ -1706,5 +1706,18 @@
   "OpenAI Configuration": "OpenAI-konfiguration",
   "EPD Mode": "EPD-läge",
   "Page Refresh Interval": "Siduppdateringsintervall",
-  "API Key Required": "API-nyckel krävs"
+  "API Key Required": "API-nyckel krävs",
+  "AI Summary": "AI-sammanfattning",
+  "Recap: Story So Far": "Återblick: historien hittills",
+  "Summarize This Chapter": "Sammanfatta detta kapitel",
+  "Recap": "Återblick",
+  "Chapter Summary": "Kapitelsammanfattning",
+  "You're at the very beginning — nothing to recap yet.": "Du är precis i början — det finns inget att sammanfatta ännu.",
+  "Generating recap — this may take a minute...": "Genererar sammanfattning — det kan ta en stund...",
+  "Summarizing chapter — this may take a moment...": "Sammanfattar kapitel — det kan ta en stund...",
+  "Configure an AI provider in Settings → AI Assistant first": "Konfigurera en AI-leverantör i Inställningar → AI-assistent först",
+  "Summary failed. Please try again.": "Sammanfattning misslyckades. Försök igen.",
+  "OpenAI API Key": "OpenAI API-nyckel",
+  "OpenAI Base URL": "OpenAI bas-URL",
+  "OpenAI Model": "OpenAI-modell"
 }
