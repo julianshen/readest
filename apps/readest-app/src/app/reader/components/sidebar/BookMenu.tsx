@@ -18,6 +18,7 @@ import { saveViewSettings } from '@/helpers/settings';
 import { setProofreadRulesVisibility } from '@/app/reader/components/ProofreadRules';
 import { setAboutDialogVisible } from '@/components/AboutWindow';
 import useBooksManager from '../../hooks/useBooksManager';
+import { useAISummary } from '../../hooks/useAISummary';
 import MenuItem from '@/components/MenuItem';
 import Menu from '@/components/Menu';
 
@@ -126,6 +127,15 @@ const BookMenu: React.FC<BookMenuProps> = ({ menuClassName, setIsDropdownOpen })
     eventDispatcher.dispatch('hardcover-push-progress', { bookKey: sideBarBookKey });
     setIsDropdownOpen?.(false);
   };
+  const { runRecap, runChapterSummary } = useAISummary(sideBarBookKey ?? '');
+  const handleRecap = () => {
+    runRecap();
+    setIsDropdownOpen?.(false);
+  };
+  const handleChapterSummary = () => {
+    runChapterSummary();
+    setIsDropdownOpen?.(false);
+  };
   // Routed through Annotator (per-book, long-lived) so that the
   // confirmation dialog isn't unmounted with the dropdown menu.
   const handleClearAnnotations = () => {
@@ -180,7 +190,8 @@ const BookMenu: React.FC<BookMenuProps> = ({ menuClassName, setIsDropdownOpen })
       {(settings.kosync.enabled ||
         settings.webdav.enabled ||
         settings.readwise.enabled ||
-        settings.hardcover.enabled) && <hr aria-hidden='true' className='border-base-200 my-1' />}
+        settings.hardcover.enabled ||
+        settings.aiSettings?.enabled) && <hr aria-hidden='true' className='border-base-200 my-1' />}
       {settings.kosync.enabled && (
         <MenuItem label={_('KOReader Sync')} detailsOpen={false} buttonClass='py-2'>
           <ul className='flex flex-col ps-1'>
@@ -209,6 +220,14 @@ const BookMenu: React.FC<BookMenuProps> = ({ menuClassName, setIsDropdownOpen })
           <ul className='flex flex-col ps-1'>
             <MenuItem label={_('Push Progress')} noIcon onClick={handlePushHardcoverProgress} />
             <MenuItem label={_('Push Notes')} noIcon onClick={handlePushHardcoverNotes} />
+          </ul>
+        </MenuItem>
+      )}
+      {settings.aiSettings?.enabled && (
+        <MenuItem label={_('AI Summary')} detailsOpen={false} buttonClass='py-2'>
+          <ul className='flex flex-col ps-1'>
+            <MenuItem label={_('Recap: Story So Far')} noIcon onClick={handleRecap} />
+            <MenuItem label={_('Summarize This Chapter')} noIcon onClick={handleChapterSummary} />
           </ul>
         </MenuItem>
       )}
