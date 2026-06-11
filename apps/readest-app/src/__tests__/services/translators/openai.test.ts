@@ -106,6 +106,7 @@ describe('openai translation provider', () => {
     const call = generateTextMock.mock.calls[0]![0];
     expect(call.temperature).toBe(0);
     expect(call.prompt).toBe(JSON.stringify(['Hello', 'World']));
+    expect(call.model).toEqual({ modelId: 'gpt-4o-mini' });
   });
 
   it('passes empty lines through without sending them', async () => {
