@@ -12,6 +12,7 @@ import { polish, preprocess } from '@/services/translators';
 import { eventDispatcher } from '@/utils/event';
 import { getLocale } from '@/utils/misc';
 import { useTranslation } from './useTranslation';
+import { useSettingsStore } from '@/store/settingsStore';
 
 export function useTranslator({
   provider = 'deepl',
@@ -22,6 +23,7 @@ export function useTranslator({
 }: UseTranslatorOptions = {}) {
   const _ = useTranslation();
   const { token } = useAuth();
+  const openaiApiKey = useSettingsStore((s) => s.settings?.aiSettings?.openaiApiKey);
   const [loading, setLoading] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(provider);
   const [translator, setTransltor] = useState(() => getTranslator(provider));
@@ -39,7 +41,7 @@ export function useTranslator({
     setTransltor(getTranslator(selectedProviderName));
     setSelectedProvider(selectedProviderName);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provider]);
+  }, [provider, openaiApiKey]);
 
   const translate = useCallback(
     async (

@@ -155,6 +155,15 @@ describe('openai translation provider', () => {
     expect(generateTextMock).toHaveBeenCalledTimes(1);
   });
 
+  it('maps 403 to UNAUTHORIZED without retrying', async () => {
+    const err = Object.assign(new Error('forbidden'), { statusCode: 403 });
+    generateTextMock.mockRejectedValue(err);
+    await expect(openaiProvider.translate(['Hello'], 'en', 'de')).rejects.toThrow(
+      ErrorCodes.UNAUTHORIZED,
+    );
+    expect(generateTextMock).toHaveBeenCalledTimes(1);
+  });
+
   it('maps 429 to DAILY_QUOTA_EXCEEDED', async () => {
     const err = Object.assign(new Error('rate limited'), { statusCode: 429 });
     generateTextMock.mockRejectedValue(err);
