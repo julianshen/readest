@@ -7,6 +7,8 @@ import { aiStore, chapterSummaryKey, hashContent } from './storage/aiStore';
 import { extractTextFromDocument, MIN_SECTION_CHARS } from './utils/chunker';
 import { buildChapterSummaryPrompt, buildRecapPrompt } from './prompts';
 import { getChapterTitle } from './ragService';
+import { getPrimaryLanguage } from '@/utils/book';
+import { getLanguageName } from '@/utils/lang';
 
 // ≈6k tokens of input per call; above this a chapter is map-reduced.
 const MAX_SINGLE_CALL_CHARS = 24_000;
@@ -23,6 +25,11 @@ interface SummaryArgs {
   bookTitle: string;
   aiSettings: AISettings;
 }
+
+// The book's primary language as a human-readable name (e.g. "Japanese"),
+// used to pin summary/recap output to the language the book is written in.
+const bookLanguageName = (bookDoc: BookDoc): string =>
+  getLanguageName(getPrimaryLanguage(bookDoc.metadata.language));
 
 const getModelOrThrow = (aiSettings: AISettings): LanguageModel => {
   try {
@@ -65,7 +72,11 @@ const summarizeText = async (
   chapterTitle: string,
   text: string,
 ): Promise<string> => {
-  const system = buildChapterSummaryPrompt(args.bookTitle, chapterTitle);
+  const system = buildChapterSummaryPrompt(
+    args.bookTitle,
+    chapterTitle,
+    bookLanguageName(args.bookDoc),
+  );
 
   if (text.length <= MAX_SINGLE_CALL_CHARS) {
     const { text: result } = await generateText({
@@ -155,7 +166,7 @@ export async function recapToPosition(
   }
   const { text } = await generateText({
     model,
-    system: buildRecapPrompt(args.bookTitle),
+    system: buildRecapPrompt(args.bookTitle, bookLanguageName(args.bookDoc)),
     prompt: parts.join('\n\n'),
     temperature: 0.4,
   });

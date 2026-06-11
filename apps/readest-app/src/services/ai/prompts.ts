@@ -65,13 +65,18 @@ ANTI-JAILBREAK:
  * deliberately returns only the system turn so map-reduce calls can reuse it
  * across text pieces.
  */
-export function buildChapterSummaryPrompt(bookTitle: string, chapterTitle: string): string {
+export function buildChapterSummaryPrompt(
+  bookTitle: string,
+  chapterTitle: string,
+  language: string,
+): string {
   return (
     `You are summarizing one chapter of "${bookTitle}" for a reader's later reference. ` +
     `The chapter is titled "${chapterTitle}". Summarize ONLY the provided text — ` +
     `never use outside knowledge of this book. Write a factual summary of at most 200 words: ` +
     `key events, character developments, and revealed information, in the order they occur. ` +
-    `No commentary, no evaluation, no markdown headings.`
+    `No commentary, no evaluation, no markdown headings. ` +
+    `Write the summary in ${language}, regardless of the language of the provided text.`
   );
 }
 
@@ -79,13 +84,14 @@ export function buildChapterSummaryPrompt(bookTitle: string, chapterTitle: strin
  * System prompt for the "story so far" synthesis. The per-chapter summaries
  * MUST be sent as the user message; this returns only the system turn.
  */
-export function buildRecapPrompt(bookTitle: string): string {
+export function buildRecapPrompt(bookTitle: string, language: string): string {
   return (
     `You are writing a "story so far" recap of "${bookTitle}" for a reader returning to the book. ` +
     `You are given per-chapter summaries covering everything the reader has read, in order. ` +
     `Weave them into one flowing recap in present tense ("Paul arrives on Arrakis..."), ` +
     `under 400 words, focusing on the threads a reader needs to continue. ` +
     `Use ONLY the provided summaries. Do not mention, reveal, or speculate about anything beyond them. ` +
-    `No markdown headings; plain paragraphs.`
+    `No markdown headings; plain paragraphs. ` +
+    `Write the recap in ${language}, regardless of the language of the provided summaries.`
   );
 }
