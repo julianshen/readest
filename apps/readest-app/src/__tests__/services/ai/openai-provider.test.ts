@@ -1,4 +1,29 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// mock fetch for provider tests
+const mockFetch = vi.fn();
+vi.stubGlobal('fetch', mockFetch);
+
+// mock logger
+vi.mock('@/services/ai/logger', () => ({
+  aiLogger: {
+    provider: {
+      init: vi.fn(),
+      error: vi.fn(),
+    },
+  },
+}));
+
+// mock @ai-sdk/openai-compatible so OpenAIProvider can be constructed
+// without going over the network during unit tests.
+vi.mock('@ai-sdk/openai-compatible', () => ({
+  createOpenAICompatible: vi.fn(() => ({
+    chatModel: vi.fn((id: string) => ({ modelId: id })),
+    textEmbeddingModel: vi.fn((id: string) => ({ modelId: id })),
+  })),
+}));
+
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { getAIProvider } from '@/services/ai/providers';
 import { OpenAIProvider } from '@/services/ai/providers/OpenAIProvider';
 import { DEFAULT_AI_SETTINGS } from '@/services/ai/constants';
@@ -12,6 +37,10 @@ const settingsWithKey = (overrides: Partial<AISettings> = {}): AISettings => ({
 });
 
 describe('OpenAIProvider', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('getAIProvider returns an OpenAIProvider for provider "openai"', () => {
     const provider = getAIProvider(settingsWithKey());
     expect(provider).toBeInstanceOf(OpenAIProvider);
@@ -40,8 +69,42 @@ describe('OpenAIProvider', () => {
 
   it('getModel uses the configured model id with gpt-4o-mini fallback', () => {
     const provider = new OpenAIProvider(settingsWithKey({ openaiModel: 'gpt-4.1' }));
-    expect((provider.getModel() as { modelId: string }).modelId).toBe('gpt-4.1');
+    provider.getModel();
+    const instance = vi.mocked(createOpenAICompatible).mock.results[0]?.value as {
+      chatModel: ReturnType<typeof vi.fn>;
+    };
+    expect(instance.chatModel).toHaveBeenCalledWith('gpt-4.1');
+
+    vi.clearAllMocks();
+
     const defaulted = new OpenAIProvider(settingsWithKey({ openaiModel: undefined }));
-    expect((defaulted.getModel() as { modelId: string }).modelId).toBe('gpt-4o-mini');
+    defaulted.getModel();
+    const defaultInstance = vi.mocked(createOpenAICompatible).mock.results[0]?.value as {
+      chatModel: ReturnType<typeof vi.fn>;
+    };
+    expect(defaultInstance.chatModel).toHaveBeenCalledWith('gpt-4o-mini');
+  });
+
+  it('healthCheck succeeds when /models responds OK', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, status: 200 });
+    const provider = new OpenAIProvider(
+      settingsWithKey({ openaiBaseUrl: 'https://api.openai.com/v1' }),
+    );
+
+    expect(await provider.healthCheck()).toBe(true);
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.openai.com/v1/models',
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({ Authorization: 'Bearer sk-test' }),
+      }),
+    );
+  });
+
+  it('healthCheck returns false when /models fails', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 401 });
+    const provider = new OpenAIProvider(settingsWithKey());
+
+    expect(await provider.healthCheck()).toBe(false);
   });
 });

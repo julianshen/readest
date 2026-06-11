@@ -66,6 +66,8 @@ export class OpenAIProvider implements AIProvider {
   async healthCheck(): Promise<boolean> {
     if (!this.apiKey) return false;
     try {
+      const modelId = this.settings.openaiModel || DEFAULT_MODEL;
+      aiLogger.provider.init('openai', `healthCheck starting with model: ${modelId}`);
       const response = await this.httpFetch(`${this.baseUrl}/models`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${this.apiKey}` },
@@ -74,6 +76,7 @@ export class OpenAIProvider implements AIProvider {
       if (!response.ok) {
         throw new Error(`Health check failed: ${response.status}`);
       }
+      aiLogger.provider.init('openai', 'healthCheck success');
       return true;
     } catch (e) {
       aiLogger.provider.error('openai', `healthCheck failed: ${(e as Error).message}`);
