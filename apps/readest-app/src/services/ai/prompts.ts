@@ -59,6 +59,12 @@ ANTI-JAILBREAK:
 \nDo not use internal passage numbers or indices like [1] or [2]. If you cite a source, use the chapter headings provided.${contextSection}`;
 }
 
+/**
+ * System prompt for summarizing one chapter. The chapter text itself MUST be
+ * sent as the user message (`prompt` in generateText) — this builder
+ * deliberately returns only the system turn so map-reduce calls can reuse it
+ * across text pieces.
+ */
 export function buildChapterSummaryPrompt(bookTitle: string, chapterTitle: string): string {
   return (
     `You are summarizing one chapter of "${bookTitle}" for a reader's later reference. ` +
@@ -69,6 +75,10 @@ export function buildChapterSummaryPrompt(bookTitle: string, chapterTitle: strin
   );
 }
 
+/**
+ * System prompt for the "story so far" synthesis. The per-chapter summaries
+ * MUST be sent as the user message; this returns only the system turn.
+ */
 export function buildRecapPrompt(bookTitle: string): string {
   return (
     `You are writing a "story so far" recap of "${bookTitle}" for a reader returning to the book. ` +

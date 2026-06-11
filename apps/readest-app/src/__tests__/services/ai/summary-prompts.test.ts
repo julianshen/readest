@@ -8,6 +8,7 @@ describe('summary prompts', () => {
     expect(p).toContain('Chapter 3');
     expect(p).toMatch(/200 words/i);
     expect(p).toMatch(/only the provided text/i);
+    expect(p).toMatch(/never use outside knowledge/i);
   });
 
   it('recap prompt embeds the book title and present-tense instruction', () => {
