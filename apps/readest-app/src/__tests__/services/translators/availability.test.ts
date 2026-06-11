@@ -81,6 +81,11 @@ describe('isTranslatorAvailable with isAvailable hook', () => {
     expect(isTranslatorAvailable(makeProvider({ authRequired: true }), false)).toBe(false);
     expect(isTranslatorAvailable(makeProvider({ authRequired: true }), true)).toBe(true);
   });
+
+  it('disabled takes priority over isAvailable()', () => {
+    const p = makeProvider({ disabled: true, isAvailable: () => true });
+    expect(isTranslatorAvailable(p, true)).toBe(false);
+  });
 });
 
 describe('getTranslatorDisplayLabel with isAvailable hook', () => {
