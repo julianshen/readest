@@ -115,7 +115,9 @@ const SettingsDialog: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       tab: 'AI',
       icon: PiRobot,
       label: _('AI Assistant'),
-      disabled: process.env.NODE_ENV === 'production',
+      // Shown in production builds: the OpenAI translation provider needs
+      // this panel for API-key entry. The assistant itself stays behind the
+      // "Enable AI Assistant" toggle (off by default).
     },
     {
       tab: 'TTS',
