@@ -1,0 +1,82 @@
+name: macOS Build (fork)
+
+# Fork-local macOS build: produces an UNSIGNED universal .dmg and uploads it
+# to an existing GitHub release. Unlike upstream's release.yml it needs no
+# Apple certificates and no Tauri updater signing key (updater artifacts are
+# disabled via a config override). First launch on macOS requires
+# right-click → Open (unsigned app) or `xattr -cr /Applications/Readest.app`.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to upload the dmg to'
+        required: true
+        default: 'v0.11.5'
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: initialize git submodules
+        run: git submodule update --init --recursive
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: copy pdfjs-dist and simplecc-dist to public directory
+        run: pnpm --filter @readest/readest-app setup-vendors
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: macos-universal-fork-cargo
+
+      - name: create .env.local for Next.js
+        run: |
+          cat > apps/readest-app/.env.local <<EOF
+          NEXT_PUBLIC_DEFAULT_POSTHOG_URL_BASE64=${{ secrets.NEXT_PUBLIC_DEFAULT_POSTHOG_URL_BASE64 }}
+          NEXT_PUBLIC_DEFAULT_POSTHOG_KEY_BASE64=${{ secrets.NEXT_PUBLIC_DEFAULT_POSTHOG_KEY_BASE64 }}
+          NEXT_PUBLIC_DEFAULT_SUPABASE_URL_BASE64=${{ secrets.NEXT_PUBLIC_DEFAULT_SUPABASE_URL_BASE64 }}
+          NEXT_PUBLIC_DEFAULT_SUPABASE_KEY_BASE64=${{ secrets.NEXT_PUBLIC_DEFAULT_SUPABASE_KEY_BASE64 }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_DEV_BASE64=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_DEV_BASE64 }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_BASE64=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_BASE64 }}
+          NEXT_PUBLIC_APP_PLATFORM=tauri
+          EOF
+
+      - name: build universal dmg (unsigned, no updater artifacts)
+        working-directory: apps/readest-app
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
+        run: |
+          pnpm tauri build --target universal-apple-darwin \
+            --config '{"bundle":{"createUpdaterArtifacts":false}}'
+
+      - name: upload dmg to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          DMG=$(ls apps/readest-app/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg)
+          echo "Uploading $DMG to $RELEASE_TAG"
+          gh release upload "$RELEASE_TAG" "$DMG" --clobber
+          shasum -a 256 "$DMG"
