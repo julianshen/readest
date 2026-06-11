@@ -1,6 +1,6 @@
 import type { LanguageModel, EmbeddingModel } from 'ai';
 
-export type AIProviderName = 'ollama' | 'ai-gateway' | 'openrouter';
+export type AIProviderName = 'ollama' | 'ai-gateway' | 'openrouter' | 'openai';
 
 export interface AIProvider {
   id: AIProviderName;
@@ -33,6 +33,15 @@ export interface AISettings {
   openrouterBaseUrl?: string;
   openrouterModel?: string;
   openrouterEmbeddingModel?: string;
+
+  // OpenAI's official API (or any deployment exposing the same schema, e.g.
+  // Azure OpenAI / a proxy) — distinct from the generic `openrouter*` fields
+  // so translation can use OpenAI even when the assistant uses another
+  // provider. API key only; ChatGPT OAuth is deliberately out of scope.
+  openaiApiKey?: string;
+  openaiBaseUrl?: string;
+  openaiModel?: string;
+  openaiEmbeddingModel?: string;
 
   spoilerProtection: boolean;
   maxContextChunks: number;

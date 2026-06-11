@@ -34,6 +34,10 @@ export const DEFAULT_AI_SETTINGS: AISettings = {
   openrouterModel: '',
   openrouterEmbeddingModel: '',
 
+  openaiBaseUrl: 'https://api.openai.com/v1',
+  openaiModel: 'gpt-4o-mini',
+  openaiEmbeddingModel: 'text-embedding-3-small',
+
   spoilerProtection: true,
   maxContextChunks: 10,
   indexingMode: 'on-demand',
