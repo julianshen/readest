@@ -4,14 +4,18 @@ import type { BookDoc } from '@/libs/document';
 import type { AISettings, ChapterSummary } from './types';
 import { getAIProvider } from './providers';
 import { aiStore, chapterSummaryKey, hashContent } from './storage/aiStore';
-import { extractTextFromDocument } from './utils/chunker';
+import { extractTextFromDocument, MIN_SECTION_CHARS } from './utils/chunker';
 import { buildChapterSummaryPrompt, buildRecapPrompt } from './prompts';
 import { getChapterTitle } from './ragService';
 
 // ≈6k tokens of input per call; above this a chapter is map-reduced.
 const MAX_SINGLE_CALL_CHARS = 24_000;
-// Mirrors indexBook: sections shorter than this carry no summarizable prose.
-const MIN_SECTION_CHARS = 100;
+
+export const SummaryErrorCodes = {
+  NOT_CONFIGURED: 'AI_NOT_CONFIGURED',
+  NOTHING_TO_RECAP: 'NOTHING_TO_RECAP',
+  CHAPTER_UNREADABLE: 'CHAPTER_UNREADABLE',
+} as const;
 
 interface SummaryArgs {
   bookDoc: BookDoc;
@@ -24,7 +28,7 @@ const getModelOrThrow = (aiSettings: AISettings): LanguageModel => {
   try {
     return getAIProvider(aiSettings).getModel();
   } catch {
-    throw new Error('AI_NOT_CONFIGURED');
+    throw new Error(SummaryErrorCodes.NOT_CONFIGURED);
   }
 };
 
@@ -48,7 +52,6 @@ const splitOnParagraphs = (text: string, maxLen: number): string[] => {
     let cut = rest.lastIndexOf('\n\n', maxLen);
     if (cut < maxLen / 2) cut = rest.lastIndexOf('. ', maxLen);
     if (cut < maxLen / 2) cut = maxLen;
-    if (cut <= 0) cut = maxLen;
     pieces.push(rest.slice(0, cut));
     rest = rest.slice(cut);
   }
@@ -57,11 +60,11 @@ const splitOnParagraphs = (text: string, maxLen: number): string[] => {
 };
 
 const summarizeText = async (
+  model: LanguageModel,
   args: SummaryArgs,
   chapterTitle: string,
   text: string,
 ): Promise<string> => {
-  const model = getModelOrThrow(args.aiSettings);
   const system = buildChapterSummaryPrompt(args.bookTitle, chapterTitle);
 
   if (text.length <= MAX_SINGLE_CALL_CHARS) {
@@ -98,17 +101,18 @@ const summarizeText = async (
   return merged.trim();
 };
 
-export async function summarizeChapter(
+const summarizeChapterWithModel = async (
+  model: LanguageModel,
   args: SummaryArgs & { sectionIndex: number },
-): Promise<string> {
-  getModelOrThrow(args.aiSettings); // fail fast before any I/O
+): Promise<string> => {
   const text = await sectionText(args.bookDoc, args.sectionIndex);
-  if (!text) throw new Error('CHAPTER_UNREADABLE');
+  if (!text) throw new Error(SummaryErrorCodes.CHAPTER_UNREADABLE);
   const contentHash = hashContent(text);
   const cached = await aiStore.getChapterSummary(args.bookHash, args.sectionIndex);
   if (cached && cached.contentHash === contentHash) return cached.summary;
 
   const summary = await summarizeText(
+    model,
     args,
     getChapterTitle(args.bookDoc.toc, args.sectionIndex),
     text,
@@ -123,6 +127,13 @@ export async function summarizeChapter(
   };
   await aiStore.saveChapterSummary(entry);
   return summary;
+};
+
+export async function summarizeChapter(
+  args: SummaryArgs & { sectionIndex: number },
+): Promise<string> {
+  const model = getModelOrThrow(args.aiSettings); // fail fast before any I/O
+  return summarizeChapterWithModel(model, args);
 }
 
 export async function recapToPosition(
@@ -130,15 +141,15 @@ export async function recapToPosition(
 ): Promise<string> {
   const model = getModelOrThrow(args.aiSettings);
   if (args.currentSectionIndex <= 0) {
-    throw new Error('NOTHING_TO_RECAP');
+    throw new Error(SummaryErrorCodes.NOTHING_TO_RECAP);
   }
   const parts: string[] = [];
   for (let i = 0; i < args.currentSectionIndex; i++) {
     try {
-      const summary = await summarizeChapter({ ...args, sectionIndex: i });
+      const summary = await summarizeChapterWithModel(model, { ...args, sectionIndex: i });
       parts.push(`${getChapterTitle(args.bookDoc.toc, i)}:\n${summary}`);
     } catch (e) {
-      if ((e as Error).message === 'AI_NOT_CONFIGURED') throw e;
+      if ((e as Error).message === SummaryErrorCodes.NOT_CONFIGURED) throw e;
       parts.push(`Chapter ${i + 1} could not be read.`);
     }
   }

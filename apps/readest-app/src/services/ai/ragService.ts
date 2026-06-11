@@ -1,6 +1,6 @@
 import { embed, embedMany } from 'ai';
 import { aiStore } from './storage/aiStore';
-import { chunkSection, extractTextFromDocument } from './utils/chunker';
+import { chunkSection, extractTextFromDocument, MIN_SECTION_CHARS } from './utils/chunker';
 import { withRetryAndTimeout, AI_TIMEOUTS, AI_RETRY_CONFIGS } from './utils/retry';
 import { getAIProvider } from './providers';
 import { aiLogger } from './logger';
@@ -105,7 +105,7 @@ export async function indexBook(
       try {
         const doc = await section.createDocument();
         const text = extractTextFromDocument(doc);
-        if (text.length < 100) continue;
+        if (text.length < MIN_SECTION_CHARS) continue;
         const sectionChunks = chunkSection(
           doc,
           i,

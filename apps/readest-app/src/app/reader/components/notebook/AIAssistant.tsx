@@ -341,14 +341,9 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
     return selectBackend({ settings: aiSettings, isTauri: isTauriAppPlatform(), legacy, reedy });
   }, [aiSettings, appService]);
 
-  // check if book is indexed on mount and load conversations regardless of index state
   useEffect(() => {
-    if (bookHash) {
-      loadConversations(bookHash);
-    }
-  }, [bookHash, loadConversations]);
-
-  useEffect(() => {
+    // load conversations regardless of indexing so the gate below can see them
+    if (bookHash) loadConversations(bookHash);
     if (bookHash && backend) {
       backend.isIndexed(bookHash).then((result) => {
         setIndexed(result);
@@ -359,7 +354,7 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
     } else {
       setIsLoading(false);
     }
-  }, [bookHash, backend]);
+  }, [bookHash, backend, loadConversations]);
 
   const handleIndex = useCallback(async () => {
     if (!bookData?.bookDoc || !aiSettings || !backend) return;

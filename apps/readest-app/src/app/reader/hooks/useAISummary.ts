@@ -4,7 +4,7 @@ import { useBookDataStore } from '@/store/bookDataStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useAIChatStore } from '@/store/aiChatStore';
 import { useOpenAIInNotebook } from './useOpenAIInNotebook';
-import { summarizeChapter, recapToPosition } from '@/services/ai/summaryService';
+import { summarizeChapter, recapToPosition, SummaryErrorCodes } from '@/services/ai/summaryService';
 import { eventDispatcher } from '@/utils/event';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -60,14 +60,14 @@ export function useAISummary(bookKey: string) {
               : await summarizeChapter({ ...args, sectionIndex });
           await addMessage({ conversationId, role: 'assistant', content: text });
         } catch (e) {
-          if ((e as Error).message === 'AI_NOT_CONFIGURED') {
+          if ((e as Error).message === SummaryErrorCodes.NOT_CONFIGURED) {
             eventDispatcher.dispatch('toast', {
               type: 'warning',
               message: _('Configure an AI provider in Settings → AI Assistant first'),
             });
             return;
           }
-          if ((e as Error).message === 'NOTHING_TO_RECAP') {
+          if ((e as Error).message === SummaryErrorCodes.NOTHING_TO_RECAP) {
             await addMessage({
               conversationId,
               role: 'assistant',
@@ -75,6 +75,7 @@ export function useAISummary(bookKey: string) {
             });
             return;
           }
+          // CHAPTER_UNREADABLE and provider failures both land here by design
           await addMessage({
             conversationId,
             role: 'assistant',
