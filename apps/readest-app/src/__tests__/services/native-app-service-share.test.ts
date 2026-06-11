@@ -69,11 +69,25 @@ vi.mock('@/services/settingsService', () => ({
   saveSettings: vi.fn().mockResolvedValue(undefined),
 }));
 
-async function loadServiceWithOS(os: 'macos' | 'windows' | 'linux' | 'ios' | 'android') {
-  osTypeMock.mockReturnValue(os);
-  vi.resetModules();
-  const mod = await import('@/services/nativeAppService');
-  return new mod.NativeAppService();
+// Import the (heavy) module graph exactly once, at collection time via
+// top-level await, so its cost is NOT charged against any single test's 5s
+// timeout — under the full parallel suite that import can take seconds, and
+// awaiting it inside a test intermittently overran the timeout. The
+// OS-specific branches in saveFile read `this.isLinuxApp` / `this.isWindowsApp`
+// / `this.isIOSApp` at call time, and those are plain overridable instance
+// fields, so we set them per instance instead of re-importing under a fresh
+// OS mock (vi.resetModules), which was both expensive and prone to bleeding
+// async state across tests.
+const serviceModule = await import('@/services/nativeAppService');
+
+function loadServiceWithOS(os: 'macos' | 'windows' | 'linux' | 'ios' | 'android') {
+  const service = new serviceModule.NativeAppService();
+  service.isMacOSApp = os === 'macos';
+  service.isWindowsApp = os === 'windows';
+  service.isLinuxApp = os === 'linux';
+  service.isIOSApp = os === 'ios';
+  service.isAndroidApp = os === 'android';
+  return service;
 }
 
 describe('NativeAppService.saveFile share gating', () => {
