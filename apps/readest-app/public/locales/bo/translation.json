@@ -1673,7 +1673,6 @@
   "OpenAI Configuration": "OpenAI སྒྲིག་འགོད།",
   "EPD Mode": "EPD ཐབས་ལམ།",
   "Page Refresh Interval": "ཤོག་ལྷེ་གསར་སྒྱུར་བར་ཚད།",
-  "API Key Required": "API གསང་ལྡེ་དགོས།",
   "AI Summary": "AI བསྡུས་དོན།",
   "Recap: Story So Far": "བསྡུས་དོན། འཕྲལ་གྱི་གཏམ་རྒྱུད།",
   "Summarize This Chapter": "ལེའུ་འདི་བསྡུས་སྙིང་བྱོས།",
@@ -1686,5 +1685,6 @@
   "Summary failed. Please try again.": "བསྡུས་དོན་ཕམ་ཉེས་བྱུང་། ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།།",
   "OpenAI API Key": "OpenAI API ལྡེ་མིག",
   "OpenAI Base URL": "OpenAI གཞི་རྩའི་URL",
-  "OpenAI Model": "OpenAI དཔེ་གཞི།"
+  "OpenAI Model": "OpenAI དཔེ་གཞི།",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

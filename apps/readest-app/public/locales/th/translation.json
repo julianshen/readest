@@ -1673,7 +1673,6 @@
   "OpenAI Configuration": "การตั้งค่า OpenAI",
   "EPD Mode": "โหมด EPD",
   "Page Refresh Interval": "ช่วงเวลารีเฟรชหน้า",
-  "API Key Required": "ต้องใช้ API Key",
   "AI Summary": "สรุป AI",
   "Recap: Story So Far": "สรุป: เรื่องราวจนถึงตอนนี้",
   "Summarize This Chapter": "สรุปบทนี้",
@@ -1686,5 +1685,6 @@
   "Summary failed. Please try again.": "สรุปล้มเหลว กรุณาลองใหม่อีกครั้ง",
   "OpenAI API Key": "OpenAI API Key",
   "OpenAI Base URL": "OpenAI Base URL",
-  "OpenAI Model": "OpenAI Model"
+  "OpenAI Model": "OpenAI Model",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

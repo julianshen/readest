@@ -83,7 +83,7 @@ export const getTranslatorDisplayLabel = (
     return `${translator.label} (${_('Quota Exceeded')})`;
   }
   if (translator.isAvailable && !translator.isAvailable()) {
-    return `${translator.label} (${_('API Key Required')})`;
+    return `${translator.label} (${_('Not Configured')})`;
   }
   return translator.label;
 };

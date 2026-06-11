@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "Διαμόρφωση OpenAI",
   "EPD Mode": "Λειτουργία EPD",
   "Page Refresh Interval": "Διάστημα ανανέωσης σελίδας",
-  "API Key Required": "Απαιτείται κλειδί API",
   "AI Summary": "Περίληψη AI",
   "Recap: Story So Far": "Ανακεφαλαίωση: η ιστορία μέχρι τώρα",
   "Summarize This Chapter": "Ανακεφαλαίωση αυτού του κεφαλαίου",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "Η ανακεφαλαίωση απέτυχε. Παρακαλώ δοκιμάστε ξανά.",
   "OpenAI API Key": "Κλειδί API OpenAI",
   "OpenAI Base URL": "Βασική URL OpenAI",
-  "OpenAI Model": "Μοντέλο OpenAI"
+  "OpenAI Model": "Μοντέλο OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

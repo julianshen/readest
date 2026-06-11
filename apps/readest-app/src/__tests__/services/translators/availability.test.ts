@@ -93,10 +93,10 @@ describe('isTranslatorAvailable with isAvailable hook', () => {
 });
 
 describe('getTranslatorDisplayLabel with isAvailable hook', () => {
-  it('appends API Key Required when isAvailable() is false', () => {
+  it('appends Not Configured when isAvailable() is false', () => {
     const p = makeProvider({ isAvailable: () => false });
     const label = getTranslatorDisplayLabel(p, true, (k) => k);
-    expect(label).toBe('Fake (API Key Required)');
+    expect(label).toBe('Fake (Not Configured)');
   });
 });
 

@@ -1838,7 +1838,6 @@
   "OpenAI Configuration": "إعداد OpenAI",
   "EPD Mode": "وضع EPD",
   "Page Refresh Interval": "فترة تحديث الصفحة",
-  "API Key Required": "مفتاح API مطلوب",
   "AI Summary": "ملخص الذكاء الاصطناعي",
   "Recap: Story So Far": "ملخص: القصة حتى الآن",
   "Summarize This Chapter": "تلخيص هذا الفصل",
@@ -1851,5 +1850,6 @@
   "Summary failed. Please try again.": "فشل إنشاء الملخص. يرجى المحاولة مرة أخرى.",
   "OpenAI API Key": "مفتاح API لـ OpenAI",
   "OpenAI Base URL": "عنوان URL الأساسي لـ OpenAI",
-  "OpenAI Model": "نموذج OpenAI"
+  "OpenAI Model": "نموذج OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "OpenAI-konfiguration",
   "EPD Mode": "EPD-läge",
   "Page Refresh Interval": "Siduppdateringsintervall",
-  "API Key Required": "API-nyckel krävs",
   "AI Summary": "AI-sammanfattning",
   "Recap: Story So Far": "Återblick: historien hittills",
   "Summarize This Chapter": "Sammanfatta detta kapitel",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "Sammanfattning misslyckades. Försök igen.",
   "OpenAI API Key": "OpenAI API-nyckel",
   "OpenAI Base URL": "OpenAI bas-URL",
-  "OpenAI Model": "OpenAI-modell"
+  "OpenAI Model": "OpenAI-modell",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

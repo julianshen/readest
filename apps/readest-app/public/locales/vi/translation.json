@@ -1673,7 +1673,6 @@
   "OpenAI Configuration": "Cấu hình OpenAI",
   "EPD Mode": "Chế độ EPD",
   "Page Refresh Interval": "Khoảng thời gian làm mới trang",
-  "API Key Required": "Yêu cầu khóa API",
   "AI Summary": "Tóm tắt AI",
   "Recap: Story So Far": "Tóm tắt: Câu chuyện đến nay",
   "Summarize This Chapter": "Tóm tắt chương này",
@@ -1686,5 +1685,6 @@
   "Summary failed. Please try again.": "Tóm tắt thất bại. Vui lòng thử lại.",
   "OpenAI API Key": "Khóa API OpenAI",
   "OpenAI Base URL": "URL cơ sở OpenAI",
-  "OpenAI Model": "Mô hình OpenAI"
+  "OpenAI Model": "Mô hình OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

@@ -1772,7 +1772,6 @@
   "OpenAI Configuration": "Konfiguracija OpenAI",
   "EPD Mode": "Način EPD",
   "Page Refresh Interval": "Interval osveževanja strani",
-  "API Key Required": "Zahtevan API-ključ",
   "AI Summary": "Povzetek AI",
   "Recap: Story So Far": "Povzetek: zgodba do sedaj",
   "Summarize This Chapter": "Povzemi to poglavje",
@@ -1785,5 +1784,6 @@
   "Summary failed. Please try again.": "Povzetek ni uspel. Prosimo, poskusite znova.",
   "OpenAI API Key": "OpenAI API ključ",
   "OpenAI Base URL": "OpenAI osnovna URL",
-  "OpenAI Model": "OpenAI model"
+  "OpenAI Model": "OpenAI model",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

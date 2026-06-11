@@ -1673,7 +1673,6 @@
   "OpenAI Configuration": "OpenAI 配置",
   "EPD Mode": "EPD 模式",
   "Page Refresh Interval": "页面刷新间隔",
-  "API Key Required": "需要 API 密钥",
   "AI Summary": "AI 摘要",
   "Recap: Story So Far": "回顾：故事至今",
   "Summarize This Chapter": "总结本章",
@@ -1686,5 +1685,6 @@
   "Summary failed. Please try again.": "摘要生成失败，请重试。",
   "OpenAI API Key": "OpenAI API 密钥",
   "OpenAI Base URL": "OpenAI 基础 URL",
-  "OpenAI Model": "OpenAI 模型"
+  "OpenAI Model": "OpenAI 模型",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

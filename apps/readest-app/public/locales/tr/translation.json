@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "OpenAI Yapılandırması",
   "EPD Mode": "EPD Modu",
   "Page Refresh Interval": "Sayfa Yenileme Aralığı",
-  "API Key Required": "API Anahtarı Gerekli",
   "AI Summary": "AI Özeti",
   "Recap: Story So Far": "Özet: Şimdiye Kadar Olanlar",
   "Summarize This Chapter": "Bu Bölümü Özetle",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "Özet oluşturma başarısız. Lütfen tekrar deneyin.",
   "OpenAI API Key": "OpenAI API Anahtarı",
   "OpenAI Base URL": "OpenAI Temel URL",
-  "OpenAI Model": "OpenAI Modeli"
+  "OpenAI Model": "OpenAI Modeli",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

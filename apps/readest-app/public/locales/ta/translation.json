@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "OpenAI கட்டமைப்பு",
   "EPD Mode": "EPD முறை",
   "Page Refresh Interval": "பக்க புதுப்பிப்பு இடைவெளி",
-  "API Key Required": "API விசை தேவை",
   "AI Summary": "AI சுருக்கம்",
   "Recap: Story So Far": "சுருக்கம்: இதுவரை கதை",
   "Summarize This Chapter": "இந்த அத்தியாயத்தை சுருக்குக",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "சுருக்கம் தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.",
   "OpenAI API Key": "OpenAI API திறவுகோல்",
   "OpenAI Base URL": "OpenAI அடிப்படை URL",
-  "OpenAI Model": "OpenAI மாதிரி"
+  "OpenAI Model": "OpenAI மாதிரி",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

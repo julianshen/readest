@@ -1772,7 +1772,6 @@
   "OpenAI Configuration": "Налаштування OpenAI",
   "EPD Mode": "Режим EPD",
   "Page Refresh Interval": "Інтервал оновлення сторінки",
-  "API Key Required": "Потрібен API-ключ",
   "AI Summary": "Короткий зміст ШІ",
   "Recap: Story So Far": "Короткий зміст: історія на цей момент",
   "Summarize This Chapter": "Підсумувати цей розділ",
@@ -1785,5 +1784,6 @@
   "Summary failed. Please try again.": "Не вдалося створити короткий зміст. Будь ласка, спробуйте ще раз.",
   "OpenAI API Key": "Ключ API OpenAI",
   "OpenAI Base URL": "Базовий URL OpenAI",
-  "OpenAI Model": "Модель OpenAI"
+  "OpenAI Model": "Модель OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

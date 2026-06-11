@@ -1673,7 +1673,6 @@
   "OpenAI Configuration": "OpenAI 設定",
   "EPD Mode": "EPD 模式",
   "Page Refresh Interval": "頁面重新整理間隔",
-  "API Key Required": "需要 API 金鑰",
   "AI Summary": "AI 摘要",
   "Recap: Story So Far": "回顧：故事至今",
   "Summarize This Chapter": "摘要本章",
@@ -1686,5 +1685,6 @@
   "Summary failed. Please try again.": "摘要產生失敗，請重試。",
   "OpenAI API Key": "OpenAI API 金鑰",
   "OpenAI Base URL": "OpenAI 基礎 URL",
-  "OpenAI Model": "OpenAI 模型"
+  "OpenAI Model": "OpenAI 模型",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

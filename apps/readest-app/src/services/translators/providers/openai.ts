@@ -3,21 +3,42 @@ import type { LanguageModel } from 'ai';
 import { stubTranslation as _ } from '@/utils/misc';
 import { useSettingsStore } from '@/store/settingsStore';
 import { normalizeToShortLang } from '@/utils/lang';
-import { OpenAIProvider } from '@/services/ai/providers/OpenAIProvider';
+import { getAIProvider } from '@/services/ai/providers';
 import { ErrorCodes, TranslationProvider } from '../types';
 import type { AISettings } from '@/services/ai/types';
 
 const getAISettings = (): AISettings | undefined =>
   useSettingsStore.getState().settings?.aiSettings;
 
+// Mirrors the per-provider key checks inside getAIProvider() so availability
+// can be probed without throwing. Ollama is keyless; it only needs its
+// connection settings (which have defaults).
+const isProviderConfigured = (s: AISettings): boolean => {
+  switch (s.provider) {
+    case 'ollama':
+      return !!s.ollamaBaseUrl && !!s.ollamaModel;
+    case 'ai-gateway':
+      return !!s.aiGatewayApiKey;
+    case 'openrouter':
+      return !!s.openrouterApiKey;
+    case 'openai':
+      return !!s.openaiApiKey;
+    default:
+      return false;
+  }
+};
+
+const isUsable = (s: AISettings | undefined): s is AISettings =>
+  !!s?.enabled && isProviderConfigured(s);
+
 // translate() runs once per visible paragraph while reading; building a new
 // SDK client (and emitting an init log) per call is pure waste. Cache the
-// model handle until the relevant settings change.
-let modelCache: { key: string; model: LanguageModel } | null = null;
+// model handle until settings change (any aiSettings write produces a new
+// object reference in the store).
+let modelCache: { settings: AISettings; model: LanguageModel } | null = null;
 const getModelFor = (aiSettings: AISettings): LanguageModel => {
-  const key = `${aiSettings.openaiApiKey}|${aiSettings.openaiBaseUrl ?? ''}|${aiSettings.openaiModel ?? ''}`;
-  if (modelCache?.key !== key) {
-    modelCache = { key, model: new OpenAIProvider(aiSettings).getModel() };
+  if (modelCache?.settings !== aiSettings) {
+    modelCache = { settings: aiSettings, model: getAIProvider(aiSettings).getModel() };
   }
   return modelCache.model;
 };
@@ -69,14 +90,14 @@ const parseAligned = (raw: string, expectedLength: number): string[] => {
 
 export const openaiProvider: TranslationProvider = {
   name: 'openai',
-  label: _('OpenAI (ChatGPT)'),
-  // Uses the user's own OpenAI key, not the Readest cloud token.
+  label: _('AI Assistant'),
+  // Uses the user's own AI assistant settings, not the Readest cloud token.
   authRequired: false,
-  isAvailable: () => !!getAISettings()?.openaiApiKey,
+  isAvailable: () => isUsable(getAISettings()),
   translate: async (texts: string[], sourceLang: string, targetLang: string): Promise<string[]> => {
     if (!texts.length) return [];
     const aiSettings = getAISettings();
-    if (!aiSettings?.openaiApiKey) {
+    if (!isUsable(aiSettings)) {
       throw new Error(ErrorCodes.UNAUTHORIZED);
     }
 

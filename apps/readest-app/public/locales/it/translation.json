@@ -1739,7 +1739,6 @@
   "OpenAI Configuration": "Configurazione OpenAI",
   "EPD Mode": "Modalità EPD",
   "Page Refresh Interval": "Intervallo di aggiornamento pagina",
-  "API Key Required": "Chiave API richiesta",
   "AI Summary": "Riepilogo IA",
   "Recap: Story So Far": "Riepilogo: la storia fino ad ora",
   "Summarize This Chapter": "Riepiloga questo capitolo",
@@ -1752,5 +1751,6 @@
   "Summary failed. Please try again.": "Riepilogo non riuscito. Per favore riprova.",
   "OpenAI API Key": "Chiave API OpenAI",
   "OpenAI Base URL": "URL base OpenAI",
-  "OpenAI Model": "Modello OpenAI"
+  "OpenAI Model": "Modello OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

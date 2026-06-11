@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "OpenAI कॉन्फ़िगरेशन",
   "EPD Mode": "EPD मोड",
   "Page Refresh Interval": "पृष्ठ ताज़ा करने का अंतराल",
-  "API Key Required": "API कुंजी आवश्यक है",
   "AI Summary": "AI सारांश",
   "Recap: Story So Far": "पुनःकथन: अब तक की कहानी",
   "Summarize This Chapter": "इस अध्याय का सारांश करें",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "सारांश विफल हुआ। कृपया पुनः प्रयास करें।",
   "OpenAI API Key": "OpenAI API कुंजी",
   "OpenAI Base URL": "OpenAI बेस URL",
-  "OpenAI Model": "OpenAI मॉडल"
+  "OpenAI Model": "OpenAI मॉडल",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

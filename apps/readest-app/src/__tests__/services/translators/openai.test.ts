@@ -64,12 +64,11 @@ vi.mock('ai', async (importOriginal) => {
   return { ...actual, generateText: generateTextMock };
 });
 
-// The provider class pulls in transport/logger; stub it entirely.
-// Must be a class (constructor function) so `new OpenAIProvider(...)` works.
-vi.mock('@/services/ai/providers/OpenAIProvider', () => ({
-  OpenAIProvider: vi.fn(function () {
-    return { getModel: getModelMock };
-  }),
+// The provider factory pulls in transport/logger via the provider classes;
+// stub the whole registry. The translator resolves its model through
+// getAIProvider() so it follows whatever provider the AI assistant uses.
+vi.mock('@/services/ai/providers', () => ({
+  getAIProvider: vi.fn(() => ({ getModel: getModelMock })),
 }));
 
 import { useSettingsStore } from '@/store/settingsStore';
@@ -87,14 +86,41 @@ const setAiSettings = (aiSettings: Record<string, unknown> | undefined) => {
 
 beforeEach(() => {
   generateTextMock.mockReset();
-  setAiSettings({ openaiApiKey: 'sk-test', openaiModel: 'gpt-4o-mini' });
+  setAiSettings({
+    enabled: true,
+    provider: 'openai',
+    openaiApiKey: 'sk-test',
+    openaiModel: 'gpt-4o-mini',
+  });
 });
 
 describe('openai translation provider', () => {
-  it('is unavailable without an API key and available with one', () => {
+  it('is unavailable until the AI assistant is enabled and configured', () => {
     setAiSettings({});
     expect(openaiProvider.isAvailable!()).toBe(false);
-    setAiSettings({ openaiApiKey: 'sk-test' });
+    // configured but assistant disabled
+    setAiSettings({ enabled: false, provider: 'openai', openaiApiKey: 'sk-test' });
+    expect(openaiProvider.isAvailable!()).toBe(false);
+    // enabled but provider missing its key
+    setAiSettings({ enabled: true, provider: 'openai' });
+    expect(openaiProvider.isAvailable!()).toBe(false);
+    setAiSettings({ enabled: true, provider: 'openai', openaiApiKey: 'sk-test' });
+    expect(openaiProvider.isAvailable!()).toBe(true);
+  });
+
+  it('follows the AI assistant provider selection, not just OpenAI', () => {
+    setAiSettings({ enabled: true, provider: 'openrouter', openrouterApiKey: 'or-test' });
+    expect(openaiProvider.isAvailable!()).toBe(true);
+    setAiSettings({
+      enabled: true,
+      provider: 'ollama',
+      ollamaBaseUrl: 'http://127.0.0.1:11434',
+      ollamaModel: 'llama3.2',
+    });
+    expect(openaiProvider.isAvailable!()).toBe(true);
+    setAiSettings({ enabled: true, provider: 'ai-gateway' });
+    expect(openaiProvider.isAvailable!()).toBe(false);
+    setAiSettings({ enabled: true, provider: 'ai-gateway', aiGatewayApiKey: 'gw-test' });
     expect(openaiProvider.isAvailable!()).toBe(true);
   });
 
@@ -172,7 +198,7 @@ describe('openai translation provider', () => {
     );
   });
 
-  it('throws UNAUTHORIZED when no key is configured', async () => {
+  it('throws UNAUTHORIZED when the assistant is not configured', async () => {
     setAiSettings({});
     await expect(openaiProvider.translate(['Hello'], 'en', 'de')).rejects.toThrow(
       ErrorCodes.UNAUTHORIZED,

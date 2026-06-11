@@ -118,9 +118,10 @@ const LangPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset 
     return getTranslators().map((t) => ({
       value: t.name,
       label: getTranslatorDisplayLabel(t, !!token, _),
-      // Providers marked `disabled` (e.g. upstream relay is down) stay in the
-      // dropdown so users can see them, but cannot be selected.
-      disabled: !!t.disabled,
+      // Unavailable providers (e.g. upstream relay down, login required, or
+      // the AI assistant not enabled/configured) stay in the dropdown so
+      // users can see them, but cannot be selected.
+      disabled: !isTranslatorAvailable(t, !!token),
     }));
   };
 

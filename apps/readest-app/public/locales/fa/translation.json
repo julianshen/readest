@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "پیکربندی OpenAI",
   "EPD Mode": "حالت EPD",
   "Page Refresh Interval": "فاصله به‌روزرسانی صفحه",
-  "API Key Required": "کلید API مورد نیاز است",
   "AI Summary": "خلاصه هوش مصنوعی",
   "Recap: Story So Far": "خلاصه: داستان تاکنون",
   "Summarize This Chapter": "خلاصه این فصل",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "ایجاد خلاصه ناموفق بود. لطفاً دوباره امتحان کنید.",
   "OpenAI API Key": "کلید API OpenAI",
   "OpenAI Base URL": "URL پایه OpenAI",
-  "OpenAI Model": "مدل OpenAI"
+  "OpenAI Model": "مدل OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

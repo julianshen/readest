@@ -91,7 +91,7 @@ const TranslatorPopup: React.FC<TranslatorPopupProps> = ({
     const availableProviders = translators.map((t) => ({
       name: t.name,
       label: getTranslatorDisplayLabel(t, !!token, _),
-      disabled: !!t.disabled,
+      disabled: !isTranslatorAvailable(t, !!token),
     }));
     setProviders(availableProviders);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1673,7 +1673,6 @@
   "OpenAI Configuration": "OpenAI 設定",
   "EPD Mode": "EPD モード",
   "Page Refresh Interval": "ページ更新間隔",
-  "API Key Required": "APIキーが必要です",
   "AI Summary": "AI 要約",
   "Recap: Story So Far": "あらすじ：これまでのお話",
   "Summarize This Chapter": "この章を要約する",
@@ -1686,5 +1685,6 @@
   "Summary failed. Please try again.": "要約に失敗しました。もう一度お試しください。",
   "OpenAI API Key": "OpenAI API キー",
   "OpenAI Base URL": "OpenAI ベース URL",
-  "OpenAI Model": "OpenAI モデル"
+  "OpenAI Model": "OpenAI モデル",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

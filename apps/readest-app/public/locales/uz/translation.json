@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "OpenAI konfiguratsiyasi",
   "EPD Mode": "EPD rejimi",
   "Page Refresh Interval": "Sahifani yangilash intervali",
-  "API Key Required": "API kaliti kerak",
   "AI Summary": "AI xulosa",
   "Recap: Story So Far": "Xulosa: Hozirga qadar hikoya",
   "Summarize This Chapter": "Ushbu bobni xulosa qiling",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "Xulosa muvaffaqiyatsiz. Iltimos, qayta urinib ko'ring.",
   "OpenAI API Key": "OpenAI API kaliti",
   "OpenAI Base URL": "OpenAI asosiy URL",
-  "OpenAI Model": "OpenAI modeli"
+  "OpenAI Model": "OpenAI modeli",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

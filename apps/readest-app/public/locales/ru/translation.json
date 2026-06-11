@@ -1772,7 +1772,6 @@
   "OpenAI Configuration": "Настройка OpenAI",
   "EPD Mode": "Режим EPD",
   "Page Refresh Interval": "Интервал обновления страницы",
-  "API Key Required": "Требуется API-ключ",
   "AI Summary": "Краткое содержание ИИ",
   "Recap: Story So Far": "Краткое содержание: история на данный момент",
   "Summarize This Chapter": "Резюмировать эту главу",
@@ -1785,5 +1784,6 @@
   "Summary failed. Please try again.": "Не удалось создать краткое содержание. Пожалуйста, попробуйте ещё раз.",
   "OpenAI API Key": "Ключ API OpenAI",
   "OpenAI Base URL": "Базовый URL OpenAI",
-  "OpenAI Model": "Модель OpenAI"
+  "OpenAI Model": "Модель OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

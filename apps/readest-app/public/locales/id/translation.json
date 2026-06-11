@@ -1673,7 +1673,6 @@
   "OpenAI Configuration": "Konfigurasi OpenAI",
   "EPD Mode": "Mode EPD",
   "Page Refresh Interval": "Interval Refresh Halaman",
-  "API Key Required": "Kunci API diperlukan",
   "AI Summary": "Ringkasan AI",
   "Recap: Story So Far": "Rekap: Cerita Sejauh Ini",
   "Summarize This Chapter": "Ringkas Bab Ini",
@@ -1686,5 +1685,6 @@
   "Summary failed. Please try again.": "Gagal membuat ringkasan. Silakan coba lagi.",
   "OpenAI API Key": "Kunci API OpenAI",
   "OpenAI Base URL": "URL Dasar OpenAI",
-  "OpenAI Model": "Model OpenAI"
+  "OpenAI Model": "Model OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

@@ -1739,7 +1739,6 @@
   "OpenAI Configuration": "הגדרות OpenAI",
   "EPD Mode": "מצב EPD",
   "Page Refresh Interval": "מרווח רענון עמוד",
-  "API Key Required": "נדרש מפתח API",
   "AI Summary": "סיכום AI",
   "Recap: Story So Far": "סיכום: הסיפור עד כה",
   "Summarize This Chapter": "סכם פרק זה",
@@ -1752,5 +1751,6 @@
   "Summary failed. Please try again.": "הסיכום נכשל. אנא נסה שוב.",
   "OpenAI API Key": "מפתח API של OpenAI",
   "OpenAI Base URL": "כתובת URL בסיסית של OpenAI",
-  "OpenAI Model": "מודל OpenAI"
+  "OpenAI Model": "מודל OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

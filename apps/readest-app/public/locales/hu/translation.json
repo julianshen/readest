@@ -1706,7 +1706,6 @@
   "OpenAI Configuration": "OpenAI konfiguráció",
   "EPD Mode": "EPD mód",
   "Page Refresh Interval": "Oldal frissítési időköz",
-  "API Key Required": "API-kulcs szükséges",
   "AI Summary": "AI összefoglalás",
   "Recap: Story So Far": "Visszatekintő: a történet eddig",
   "Summarize This Chapter": "Ez a fejezet összefoglalása",
@@ -1719,5 +1718,6 @@
   "Summary failed. Please try again.": "Az összefoglalás sikertelen. Kérjük, próbálja újra.",
   "OpenAI API Key": "OpenAI API-kulcs",
   "OpenAI Base URL": "OpenAI alap URL",
-  "OpenAI Model": "OpenAI modell"
+  "OpenAI Model": "OpenAI modell",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }

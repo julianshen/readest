@@ -1739,7 +1739,6 @@
   "OpenAI Configuration": "Configuración de OpenAI",
   "EPD Mode": "Modo EPD",
   "Page Refresh Interval": "Intervalo de actualización de página",
-  "API Key Required": "Se requiere clave API",
   "AI Summary": "Resumen de IA",
   "Recap: Story So Far": "Resumen: la historia hasta ahora",
   "Summarize This Chapter": "Resumir este capítulo",
@@ -1752,5 +1751,6 @@
   "Summary failed. Please try again.": "Error al generar el resumen. Por favor, inténtalo de nuevo.",
   "OpenAI API Key": "Clave API de OpenAI",
   "OpenAI Base URL": "URL base de OpenAI",
-  "OpenAI Model": "Modelo de OpenAI"
+  "OpenAI Model": "Modelo de OpenAI",
+  "Not Configured": "__STRING_NOT_TRANSLATED__"
 }
