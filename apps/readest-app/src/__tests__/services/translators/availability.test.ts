@@ -56,7 +56,11 @@ vi.mock('@/utils/supabase', () => ({
 
 vi.stubGlobal('fetch', vi.fn());
 
-import { isTranslatorAvailable, getTranslatorDisplayLabel } from '@/services/translators/providers';
+import {
+  isTranslatorAvailable,
+  getTranslatorDisplayLabel,
+  getTranslator,
+} from '@/services/translators/providers';
 import type { TranslationProvider } from '@/services/translators/types';
 
 const makeProvider = (overrides: Partial<TranslationProvider>): TranslationProvider => ({
@@ -93,5 +97,14 @@ describe('getTranslatorDisplayLabel with isAvailable hook', () => {
     const p = makeProvider({ isAvailable: () => false });
     const label = getTranslatorDisplayLabel(p, true, (k) => k);
     expect(label).toBe('Fake (API Key Required)');
+  });
+});
+
+describe('openai translator registration', () => {
+  it('is registered in the translators registry', () => {
+    const t = getTranslator('openai');
+    expect(t).toBeDefined();
+    expect(t!.name).toBe('openai');
+    expect(typeof t!.isAvailable).toBe('function');
   });
 });
