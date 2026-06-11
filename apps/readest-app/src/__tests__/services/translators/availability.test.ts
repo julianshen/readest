@@ -1,4 +1,61 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// Mock environment module
+vi.mock('@/services/environment', () => ({
+  isTauriAppPlatform: vi.fn(() => false),
+  getAPIBaseUrl: vi.fn(() => 'https://api.example.com'),
+}));
+
+vi.mock('@/utils/misc', () => ({
+  stubTranslation: (s: string) => s,
+}));
+
+vi.mock('@/utils/lang', () => ({
+  normalizeToShortLang: vi.fn((lang: string) => {
+    const map: Record<string, string> = {
+      'en-US': 'en',
+      'fr-FR': 'fr',
+      'zh-CN': 'zh',
+      AUTO: 'auto',
+      en: 'en',
+      fr: 'fr',
+      de: 'de',
+      zh: 'zh',
+      auto: 'auto',
+    };
+    return map[lang] ?? lang;
+  }),
+  normalizeToFullLang: vi.fn((lang: string) => {
+    const map: Record<string, string> = {
+      en: 'en',
+      fr: 'fr',
+      de: 'de',
+      zh: 'zh-Hans',
+      auto: 'auto',
+    };
+    return map[lang] ?? lang;
+  }),
+}));
+
+// Mock Tauri HTTP plugin
+vi.mock('@tauri-apps/plugin-http', () => ({
+  fetch: vi.fn(),
+}));
+
+// Stub Supabase so importing the full providers registry (which pulls in
+// deepl.ts → @/utils/access → @/utils/supabase) doesn't instantiate a real
+// GoTrueClient on every `vi.resetModules()` round. Without this, each test
+// that dynamically imports the registry logs a "Multiple GoTrueClient
+// instances" warning from the real Supabase client.
+vi.mock('@/utils/supabase', () => ({
+  supabase: {
+    auth: { getSession: vi.fn().mockResolvedValue({ data: { session: null } }) },
+    from: vi.fn(),
+  },
+}));
+
+vi.stubGlobal('fetch', vi.fn());
+
 import { isTranslatorAvailable, getTranslatorDisplayLabel } from '@/services/translators/providers';
 import type { TranslationProvider } from '@/services/translators/types';
 
