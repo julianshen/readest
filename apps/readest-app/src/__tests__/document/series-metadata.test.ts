@@ -46,7 +46,12 @@ const makeCbzFixture = async ({
     await writer.add(comicInfoPath, new TextReader(comicInfo));
   }
   const blob = await writer.close();
-  return new File([blob], 'page-count.cbz', { type: 'application/vnd.comicbook+zip' });
+  // zip.js yields a Blob from another realm (Node's); jsdom's File constructor
+  // doesn't recognize it as a BlobPart and stringifies it to "[object Blob]".
+  // Hand over raw bytes instead so the File holds the actual archive.
+  return new File([await blob.arrayBuffer()], 'page-count.cbz', {
+    type: 'application/vnd.comicbook+zip',
+  });
 };
 
 describe('Calibre series metadata', () => {
