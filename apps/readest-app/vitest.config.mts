@@ -23,6 +23,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
+    // The suite runs 300+ files in parallel forks. On loaded machines the
+    // first dynamic import() in a test can take several seconds, intermittently
+    // overrunning vitest's 5s default and failing a different test each run.
+    // 20s leaves ample headroom while still catching genuine hangs.
+    testTimeout: 20_000,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
