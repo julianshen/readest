@@ -1838,5 +1838,18 @@
   "OpenAI Configuration": "إعداد OpenAI",
   "EPD Mode": "وضع EPD",
   "Page Refresh Interval": "فترة تحديث الصفحة",
-  "API Key Required": "مفتاح API مطلوب"
+  "API Key Required": "مفتاح API مطلوب",
+  "AI Summary": "ملخص الذكاء الاصطناعي",
+  "Recap: Story So Far": "ملخص: القصة حتى الآن",
+  "Summarize This Chapter": "تلخيص هذا الفصل",
+  "Recap": "ملخص",
+  "Chapter Summary": "ملخص الفصل",
+  "You're at the very beginning — nothing to recap yet.": "أنت في البداية تمامًا — لا شيء لتلخيصه بعد.",
+  "Generating recap — this may take a minute...": "جارٍ إنشاء الملخص — قد يستغرق ذلك دقيقة...",
+  "Summarizing chapter — this may take a moment...": "جارٍ تلخيص الفصل — قد يستغرق ذلك لحظة...",
+  "Configure an AI provider in Settings → AI Assistant first": "يرجى أولاً تهيئة مزود الذكاء الاصطناعي في الإعدادات ← مساعد الذكاء الاصطناعي",
+  "Summary failed. Please try again.": "فشل إنشاء الملخص. يرجى المحاولة مرة أخرى.",
+  "OpenAI API Key": "مفتاح API لـ OpenAI",
+  "OpenAI Base URL": "عنوان URL الأساسي لـ OpenAI",
+  "OpenAI Model": "نموذج OpenAI"
 }

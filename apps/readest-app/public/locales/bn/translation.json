@@ -1706,5 +1706,18 @@
   "OpenAI Configuration": "OpenAI কনফিগারেশন",
   "EPD Mode": "EPD মোড",
   "Page Refresh Interval": "পৃষ্ঠা রিফ্রেশ বিরতি",
-  "API Key Required": "API কী প্রয়োজন"
+  "API Key Required": "API কী প্রয়োজন",
+  "AI Summary": "AI সারসংক্ষেপ",
+  "Recap: Story So Far": "পুনরাবৃত্তি: এখন পর্যন্ত গল্প",
+  "Summarize This Chapter": "এই অধ্যায়টি সারসংক্ষেপ করুন",
+  "Recap": "পুনরাবৃত্তি",
+  "Chapter Summary": "অধ্যায় সারসংক্ষেপ",
+  "You're at the very beginning — nothing to recap yet.": "আপনি একদম শুরুতে আছেন — এখনও পুনরাবৃত্তির কিছু নেই।",
+  "Generating recap — this may take a minute...": "পুনরাবৃত্তি তৈরি হচ্ছে — এটি এক মিনিট সময় নিতে পারে...",
+  "Summarizing chapter — this may take a moment...": "অধ্যায় সারসংক্ষেপ হচ্ছে — এটি কিছুটা সময় নিতে পারে...",
+  "Configure an AI provider in Settings → AI Assistant first": "প্রথমে সেটিংস → AI সহকারীতে একটি AI সরবরাহকারী কনফিগার করুন",
+  "Summary failed. Please try again.": "সারসংক্ষেপ ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+  "OpenAI API Key": "OpenAI API কী",
+  "OpenAI Base URL": "OpenAI বেস URL",
+  "OpenAI Model": "OpenAI মডেল"
 }

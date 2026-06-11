@@ -1739,5 +1739,18 @@
   "OpenAI Configuration": "Configurare OpenAI",
   "EPD Mode": "Mod EPD",
   "Page Refresh Interval": "Interval de reîmprospătare a paginii",
-  "API Key Required": "Cheie API necesară"
+  "API Key Required": "Cheie API necesară",
+  "AI Summary": "Rezumat AI",
+  "Recap: Story So Far": "Recapitulare: povestea până acum",
+  "Summarize This Chapter": "Rezumați acest capitol",
+  "Recap": "Recapitulare",
+  "Chapter Summary": "Rezumatul capitolului",
+  "You're at the very beginning — nothing to recap yet.": "Ești chiar la început — nu există nimic de recapitulat încă.",
+  "Generating recap — this may take a minute...": "Se generează rezumatul — acest lucru poate dura un minut...",
+  "Summarizing chapter — this may take a moment...": "Se rezumă capitolul — acest lucru poate dura o clipă...",
+  "Configure an AI provider in Settings → AI Assistant first": "Mai întâi configurați un furnizor AI în Setări → Asistent AI",
+  "Summary failed. Please try again.": "Rezumatul a eșuat. Vă rugăm să încercați din nou.",
+  "OpenAI API Key": "Cheie API OpenAI",
+  "OpenAI Base URL": "URL de bază OpenAI",
+  "OpenAI Model": "Model OpenAI"
 }

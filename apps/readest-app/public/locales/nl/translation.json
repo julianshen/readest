@@ -1706,5 +1706,18 @@
   "OpenAI Configuration": "OpenAI-configuratie",
   "EPD Mode": "EPD-modus",
   "Page Refresh Interval": "Interval voor paginavernieuwing",
-  "API Key Required": "API-sleutel vereist"
+  "API Key Required": "API-sleutel vereist",
+  "AI Summary": "AI-samenvatting",
+  "Recap: Story So Far": "Terugblik: het verhaal tot nu toe",
+  "Summarize This Chapter": "Dit hoofdstuk samenvatten",
+  "Recap": "Terugblik",
+  "Chapter Summary": "Hoofdstuksamenvatting",
+  "You're at the very beginning — nothing to recap yet.": "Je bent helemaal aan het begin — er is nog niets samen te vatten.",
+  "Generating recap — this may take a minute...": "Samenvatting wordt gegenereerd — dit kan een minuut duren...",
+  "Summarizing chapter — this may take a moment...": "Hoofdstuk wordt samengevat — dit kan even duren...",
+  "Configure an AI provider in Settings → AI Assistant first": "Configureer eerst een AI-provider via Instellingen → AI-assistent",
+  "Summary failed. Please try again.": "Samenvatting mislukt. Probeer het opnieuw.",
+  "OpenAI API Key": "OpenAI API-sleutel",
+  "OpenAI Base URL": "OpenAI basis-URL",
+  "OpenAI Model": "OpenAI-model"
 }

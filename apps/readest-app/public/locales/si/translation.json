@@ -1706,5 +1706,18 @@
   "OpenAI Configuration": "OpenAI වින්‍යාසය",
   "EPD Mode": "EPD ප්‍රකාරය",
   "Page Refresh Interval": "පිටු නවීකරණ පරතරය",
-  "API Key Required": "API යතුර අවශ්‍යයි"
+  "API Key Required": "API යතුර අවශ්‍යයි",
+  "AI Summary": "AI සාරාංශය",
+  "Recap: Story So Far": "නැවත සාරාංශය: මෙතෙක් කතාව",
+  "Summarize This Chapter": "මෙම පරිච්ඡේදය සාරාංශ කරන්න",
+  "Recap": "නැවත සාරාංශය",
+  "Chapter Summary": "පරිච්ඡේද සාරාංශය",
+  "You're at the very beginning — nothing to recap yet.": "ඔබ ආරම්භයේම සිටී — තවම සාරාංශ කිරීමට කිසිවක් නැත.",
+  "Generating recap — this may take a minute...": "නැවත සාරාංශය ජනනය කෙරේ — මිනිත්තුවක් ගත විය හැකිය...",
+  "Summarizing chapter — this may take a moment...": "පරිච්ඡේදය සාරාංශ කෙරේ — මොහොතක් ගත විය හැකිය...",
+  "Configure an AI provider in Settings → AI Assistant first": "පළමුව සැකසුම් → AI සහායක හි AI සපයන්නෙකු වින්‍යාස කරන්න",
+  "Summary failed. Please try again.": "සාරාංශය අසාර්ථක විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+  "OpenAI API Key": "OpenAI API යතුර",
+  "OpenAI Base URL": "OpenAI මූල URL",
+  "OpenAI Model": "OpenAI ආකෘතිය"
 }

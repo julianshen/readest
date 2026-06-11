@@ -1706,5 +1706,18 @@
   "OpenAI Configuration": "OpenAI கட்டமைப்பு",
   "EPD Mode": "EPD முறை",
   "Page Refresh Interval": "பக்க புதுப்பிப்பு இடைவெளி",
-  "API Key Required": "API விசை தேவை"
+  "API Key Required": "API விசை தேவை",
+  "AI Summary": "AI சுருக்கம்",
+  "Recap: Story So Far": "சுருக்கம்: இதுவரை கதை",
+  "Summarize This Chapter": "இந்த அத்தியாயத்தை சுருக்குக",
+  "Recap": "சுருக்கம்",
+  "Chapter Summary": "அத்தியாயச் சுருக்கம்",
+  "You're at the very beginning — nothing to recap yet.": "நீங்கள் தொடக்கத்திலேயே இருக்கிறீர்கள் — இன்னும் சுருக்கத்திற்கு எதுவும் இல்லை.",
+  "Generating recap — this may take a minute...": "சுருக்கம் உருவாக்கப்படுகிறது — இது ஒரு நிமிடம் ஆகலாம்...",
+  "Summarizing chapter — this may take a moment...": "அத்தியாயம் சுருக்கப்படுகிறது — இது ஒரு கணம் ஆகலாம்...",
+  "Configure an AI provider in Settings → AI Assistant first": "முதலில் அமைப்புகள் → AI உதவியாளரில் ஒரு AI வழங்குநரை உள்ளமைக்கவும்",
+  "Summary failed. Please try again.": "சுருக்கம் தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.",
+  "OpenAI API Key": "OpenAI API திறவுகோல்",
+  "OpenAI Base URL": "OpenAI அடிப்படை URL",
+  "OpenAI Model": "OpenAI மாதிரி"
 }

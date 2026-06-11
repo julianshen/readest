@@ -1706,5 +1706,18 @@
   "OpenAI Configuration": "OpenAI Yapılandırması",
   "EPD Mode": "EPD Modu",
   "Page Refresh Interval": "Sayfa Yenileme Aralığı",
-  "API Key Required": "API Anahtarı Gerekli"
+  "API Key Required": "API Anahtarı Gerekli",
+  "AI Summary": "AI Özeti",
+  "Recap: Story So Far": "Özet: Şimdiye Kadar Olanlar",
+  "Summarize This Chapter": "Bu Bölümü Özetle",
+  "Recap": "Özet",
+  "Chapter Summary": "Bölüm Özeti",
+  "You're at the very beginning — nothing to recap yet.": "En başındasınız — henüz özetlenecek bir şey yok.",
+  "Generating recap — this may take a minute...": "Özet oluşturuluyor — bu bir dakika sürebilir...",
+  "Summarizing chapter — this may take a moment...": "Bölüm özetleniyor — bu bir süre alabilir...",
+  "Configure an AI provider in Settings → AI Assistant first": "Önce Ayarlar → AI Asistanı bölümünden bir AI sağlayıcısı yapılandırın",
+  "Summary failed. Please try again.": "Özet oluşturma başarısız. Lütfen tekrar deneyin.",
+  "OpenAI API Key": "OpenAI API Anahtarı",
+  "OpenAI Base URL": "OpenAI Temel URL",
+  "OpenAI Model": "OpenAI Modeli"
 }

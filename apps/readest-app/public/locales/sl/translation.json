@@ -1772,5 +1772,18 @@
   "OpenAI Configuration": "Konfiguracija OpenAI",
   "EPD Mode": "Način EPD",
   "Page Refresh Interval": "Interval osveževanja strani",
-  "API Key Required": "Zahtevan API-ključ"
+  "API Key Required": "Zahtevan API-ključ",
+  "AI Summary": "Povzetek AI",
+  "Recap: Story So Far": "Povzetek: zgodba do sedaj",
+  "Summarize This Chapter": "Povzemi to poglavje",
+  "Recap": "Povzetek",
+  "Chapter Summary": "Povzetek poglavja",
+  "You're at the very beginning — nothing to recap yet.": "Ste na samem začetku — zaenkrat ni ničesar za povzemanje.",
+  "Generating recap — this may take a minute...": "Ustvarjanje povzetka — to lahko traja minuto...",
+  "Summarizing chapter — this may take a moment...": "Povzemanje poglavja — to lahko traja trenutek...",
+  "Configure an AI provider in Settings → AI Assistant first": "Najprej konfigurirajte ponudnika AI v Nastavitve → AI asistent",
+  "Summary failed. Please try again.": "Povzetek ni uspel. Prosimo, poskusite znova.",
+  "OpenAI API Key": "OpenAI API ključ",
+  "OpenAI Base URL": "OpenAI osnovna URL",
+  "OpenAI Model": "OpenAI model"
 }

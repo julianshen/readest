@@ -1673,5 +1673,18 @@
   "OpenAI Configuration": "Cấu hình OpenAI",
   "EPD Mode": "Chế độ EPD",
   "Page Refresh Interval": "Khoảng thời gian làm mới trang",
-  "API Key Required": "Yêu cầu khóa API"
+  "API Key Required": "Yêu cầu khóa API",
+  "AI Summary": "Tóm tắt AI",
+  "Recap: Story So Far": "Tóm tắt: Câu chuyện đến nay",
+  "Summarize This Chapter": "Tóm tắt chương này",
+  "Recap": "Tóm tắt",
+  "Chapter Summary": "Tóm tắt chương",
+  "You're at the very beginning — nothing to recap yet.": "Bạn đang ở ngay phần đầu — chưa có gì để tóm tắt.",
+  "Generating recap — this may take a minute...": "Đang tạo tóm tắt — quá trình này có thể mất một phút...",
+  "Summarizing chapter — this may take a moment...": "Đang tóm tắt chương — quá trình này có thể mất một chút...",
+  "Configure an AI provider in Settings → AI Assistant first": "Vui lòng cấu hình nhà cung cấp AI trong Cài đặt → Trợ lý AI trước",
+  "Summary failed. Please try again.": "Tóm tắt thất bại. Vui lòng thử lại.",
+  "OpenAI API Key": "Khóa API OpenAI",
+  "OpenAI Base URL": "URL cơ sở OpenAI",
+  "OpenAI Model": "Mô hình OpenAI"
 }

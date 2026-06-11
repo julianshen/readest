@@ -1739,5 +1739,18 @@
   "OpenAI Configuration": "Configuration OpenAI",
   "EPD Mode": "Mode EPD",
   "Page Refresh Interval": "Intervalle de rafraîchissement de la page",
-  "API Key Required": "Clé API requise"
+  "API Key Required": "Clé API requise",
+  "AI Summary": "Résumé IA",
+  "Recap: Story So Far": "Récap : l'histoire jusqu'ici",
+  "Summarize This Chapter": "Résumer ce chapitre",
+  "Recap": "Récap",
+  "Chapter Summary": "Résumé du chapitre",
+  "You're at the very beginning — nothing to recap yet.": "Vous êtes au tout début — rien à résumer pour l'instant.",
+  "Generating recap — this may take a minute...": "Génération du résumé en cours — cela peut prendre une minute...",
+  "Summarizing chapter — this may take a moment...": "Résumé du chapitre en cours — cela peut prendre un moment...",
+  "Configure an AI provider in Settings → AI Assistant first": "Veuillez d'abord configurer un fournisseur IA dans Paramètres → Assistant IA",
+  "Summary failed. Please try again.": "Échec du résumé. Veuillez réessayer.",
+  "OpenAI API Key": "Clé API OpenAI",
+  "OpenAI Base URL": "URL de base OpenAI",
+  "OpenAI Model": "Modèle OpenAI"
 }

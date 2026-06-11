@@ -1673,5 +1673,18 @@
   "OpenAI Configuration": "OpenAI 設定",
   "EPD Mode": "EPD モード",
   "Page Refresh Interval": "ページ更新間隔",
-  "API Key Required": "APIキーが必要です"
+  "API Key Required": "APIキーが必要です",
+  "AI Summary": "AI 要約",
+  "Recap: Story So Far": "あらすじ：これまでのお話",
+  "Summarize This Chapter": "この章を要約する",
+  "Recap": "あらすじ",
+  "Chapter Summary": "章の要約",
+  "You're at the very beginning — nothing to recap yet.": "まだ最初のページです — あらすじはありません。",
+  "Generating recap — this may take a minute...": "あらすじを生成中 — しばらくお待ちください...",
+  "Summarizing chapter — this may take a moment...": "章を要約中 — しばらくお待ちください...",
+  "Configure an AI provider in Settings → AI Assistant first": "まず設定 → AI アシスタントで AI プロバイダーを設定してください",
+  "Summary failed. Please try again.": "要約に失敗しました。もう一度お試しください。",
+  "OpenAI API Key": "OpenAI API キー",
+  "OpenAI Base URL": "OpenAI ベース URL",
+  "OpenAI Model": "OpenAI モデル"
 }
