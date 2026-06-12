@@ -1686,5 +1686,5 @@
   "OpenAI API Key": "OpenAI API 키",
   "OpenAI Base URL": "OpenAI 기본 URL",
   "OpenAI Model": "OpenAI 모델",
-  "Not Configured": "__STRING_NOT_TRANSLATED__"
+  "Not Configured": "구성되지 않음"
 }

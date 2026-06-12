@@ -1686,5 +1686,5 @@
   "OpenAI API Key": "OpenAI API Key",
   "OpenAI Base URL": "OpenAI Base URL",
   "OpenAI Model": "OpenAI Model",
-  "Not Configured": "__STRING_NOT_TRANSLATED__"
+  "Not Configured": "ยังไม่ได้กำหนดค่า"
 }

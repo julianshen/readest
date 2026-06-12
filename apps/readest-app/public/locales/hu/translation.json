@@ -1719,5 +1719,5 @@
   "OpenAI API Key": "OpenAI API-kulcs",
   "OpenAI Base URL": "OpenAI alap URL",
   "OpenAI Model": "OpenAI modell",
-  "Not Configured": "__STRING_NOT_TRANSLATED__"
+  "Not Configured": "Nincs beállítva"
 }

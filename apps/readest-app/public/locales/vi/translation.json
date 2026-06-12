@@ -1686,5 +1686,5 @@
   "OpenAI API Key": "Khóa API OpenAI",
   "OpenAI Base URL": "URL cơ sở OpenAI",
   "OpenAI Model": "Mô hình OpenAI",
-  "Not Configured": "__STRING_NOT_TRANSLATED__"
+  "Not Configured": "Chưa cấu hình"
 }

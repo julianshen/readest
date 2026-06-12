@@ -1686,5 +1686,5 @@
   "OpenAI API Key": "Kunci API OpenAI",
   "OpenAI Base URL": "URL Dasar OpenAI",
   "OpenAI Model": "Model OpenAI",
-  "Not Configured": "__STRING_NOT_TRANSLATED__"
+  "Not Configured": "Belum dikonfigurasi"
 }

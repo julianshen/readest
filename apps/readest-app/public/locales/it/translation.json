@@ -1752,5 +1752,5 @@
   "OpenAI API Key": "Chiave API OpenAI",
   "OpenAI Base URL": "URL base OpenAI",
   "OpenAI Model": "Modello OpenAI",
-  "Not Configured": "__STRING_NOT_TRANSLATED__"
+  "Not Configured": "Non configurato"
 }

@@ -1686,5 +1686,5 @@
   "OpenAI API Key": "OpenAI API 密钥",
   "OpenAI Base URL": "OpenAI 基础 URL",
   "OpenAI Model": "OpenAI 模型",
-  "Not Configured": "__STRING_NOT_TRANSLATED__"
+  "Not Configured": "未配置"
 }
