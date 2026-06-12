@@ -6,6 +6,7 @@ import { useAIChatStore } from '@/store/aiChatStore';
 import { useOpenAIInNotebook } from './useOpenAIInNotebook';
 import { summarizeChapter, recapToPosition, SummaryErrorCodes } from '@/services/ai/summaryService';
 import { eventDispatcher } from '@/utils/event';
+import { getLocale } from '@/utils/misc';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export function useAISummary(bookKey: string) {
@@ -52,6 +53,7 @@ export function useAISummary(bookKey: string) {
             bookDoc,
             bookHash: book.hash,
             bookTitle: book.title,
+            uiLanguage: getLocale(),
             aiSettings,
           };
           const text =
