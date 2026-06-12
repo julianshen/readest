@@ -1793,5 +1793,8 @@
   "AI answer language": "Язык ответов ИИ",
   "Book language": "Язык книги",
   "App language": "Язык приложения",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Задаёт язык для сводок ИИ, обзоров и функций Объяснить/Определить для выделенного текста. Упростить всегда использует язык книги."
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Задаёт язык для сводок ИИ, обзоров и функций Объяснить/Определить для выделенного текста. Упростить всегда использует язык книги.",
+  "Explain": "Объяснить",
+  "Simplify": "Упростить",
+  "Define": "Определить"
 }

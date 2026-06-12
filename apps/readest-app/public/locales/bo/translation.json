@@ -1694,5 +1694,8 @@
   "AI answer language": "AI ལན་གྱི་སྐད་ཡིག",
   "Book language": "དཔེ་ཆའི་སྐད་ཡིག",
   "App language": "གློག་ཆས་སྒྲིག་ལག་གི་སྐད་ཡིག",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "བདམས་པའི་ཡི་གེའི་ AI ཟིན་བྲིས། ཁ་བསྡུས། དང་བཤད་པ/ངོ་སྤྲོད་ཀྱི་སྐད་ཡིག་གཏན་འཁེལ་བྱེད། སྟབས་བདེ་བཟོ་བ་ཤེས་གཞིར་དཔེ་ཆའི་སྐད་ཡིག་རྟག་ཏུ་སྤྱོད།"
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "བདམས་པའི་ཡི་གེའི་ AI ཟིན་བྲིས། ཁ་བསྡུས། དང་བཤད་པ/ངོ་སྤྲོད་ཀྱི་སྐད་ཡིག་གཏན་འཁེལ་བྱེད། སྟབས་བདེ་བཟོ་བ་ཤེས་གཞིར་དཔེ་ཆའི་སྐད་ཡིག་རྟག་ཏུ་སྤྱོད།",
+  "Explain": "བཤད་པ།",
+  "Simplify": "སྟབས་བདེར་བཟོ།",
+  "Define": "ངེས་བྱེད།"
 }

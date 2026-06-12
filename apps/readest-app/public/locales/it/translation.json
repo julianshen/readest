@@ -1760,5 +1760,8 @@
   "AI answer language": "Lingua risposta AI",
   "Book language": "Lingua del libro",
   "App language": "Lingua dell'app",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Imposta la lingua per riepiloghi AI, ricapitolazioni e Spiega/Definisci sul testo selezionato. Semplifica usa sempre la lingua del libro."
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Imposta la lingua per riepiloghi AI, ricapitolazioni e Spiega/Definisci sul testo selezionato. Semplifica usa sempre la lingua del libro.",
+  "Explain": "Spiegare",
+  "Simplify": "Semplificare",
+  "Define": "Definire"
 }

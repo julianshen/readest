@@ -1694,5 +1694,8 @@
   "AI answer language": "AI 답변 언어",
   "Book language": "도서 언어",
   "App language": "앱 언어",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "선택한 텍스트의 AI 요약, 복습 및 설명/정의 언어를 설정합니다. 간소화는 항상 도서의 언어를 사용합니다."
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "선택한 텍스트의 AI 요약, 복습 및 설명/정의 언어를 설정합니다. 간소화는 항상 도서의 언어를 사용합니다.",
+  "Explain": "설명",
+  "Simplify": "단순화",
+  "Define": "정의"
 }

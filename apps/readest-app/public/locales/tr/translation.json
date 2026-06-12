@@ -1727,5 +1727,8 @@
   "AI answer language": "AI yanıt dili",
   "Book language": "Kitap dili",
   "App language": "Uygulama dili",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Seçili metin üzerinde AI özetleri, özeti ve Açıkla/Tanımla için dili ayarlar. Sadeleştir her zaman kitabın dilini kullanır."
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Seçili metin üzerinde AI özetleri, özeti ve Açıkla/Tanımla için dili ayarlar. Sadeleştir her zaman kitabın dilini kullanır.",
+  "Explain": "Açıkla",
+  "Simplify": "Basitleştir",
+  "Define": "Tanımla"
 }

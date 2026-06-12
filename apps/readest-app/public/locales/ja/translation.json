@@ -1694,5 +1694,8 @@
   "AI answer language": "AI回答言語",
   "Book language": "書籍の言語",
   "App language": "アプリの言語",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "選択したテキストのAI要約・振り返り・説明/定義の言語を設定します。簡略化は常に書籍の言語を使用します。"
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "選択したテキストのAI要約・振り返り・説明/定義の言語を設定します。簡略化は常に書籍の言語を使用します。",
+  "Explain": "説明",
+  "Simplify": "簡略化",
+  "Define": "定義"
 }

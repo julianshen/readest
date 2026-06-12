@@ -26,11 +26,7 @@ interface SelectionAIPopupProps {
   onDismiss: () => void;
 }
 
-const ACTIONS: { key: SelectionAction; label: string }[] = [
-  { key: 'explain', label: 'Explain' },
-  { key: 'simplify', label: 'Simplify' },
-  { key: 'define', label: 'Define' },
-];
+const ACTIONS: SelectionAction[] = ['explain', 'simplify', 'define'];
 
 const SelectionAIPopup: React.FC<SelectionAIPopupProps> = ({
   bookKey,
@@ -48,6 +44,17 @@ const SelectionAIPopup: React.FC<SelectionAIPopupProps> = ({
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState('');
   const [streaming, setStreaming] = useState(false);
+
+  const actionLabel = (action: SelectionAction): string => {
+    switch (action) {
+      case 'explain':
+        return _('Explain');
+      case 'simplify':
+        return _('Simplify');
+      case 'define':
+        return _('Define');
+    }
+  };
 
   const run = async (action: SelectionAction) => {
     const bookData = getBookData(bookKey);
@@ -103,12 +110,12 @@ const SelectionAIPopup: React.FC<SelectionAIPopupProps> = ({
           <PiSparkle className='not-eink:text-gray-400 h-4 w-4 text-base-content' />
           {ACTIONS.map((a) => (
             <button
-              key={a.key}
-              className={`btn btn-ghost btn-xs not-eink:text-gray-400 not-eink:hover:bg-gray-600 not-eink:hover:text-white ${active === a.key ? 'btn-active not-eink:!text-white' : ''}`}
+              key={a}
+              className={`btn btn-ghost btn-xs not-eink:text-gray-400 not-eink:hover:bg-gray-600 not-eink:hover:text-white ${active === a ? 'btn-active not-eink:!text-white' : ''}`}
               disabled={streaming}
-              onClick={() => run(a.key)}
+              onClick={() => run(a)}
             >
-              {_(a.label)}
+              {actionLabel(a)}
             </button>
           ))}
         </div>

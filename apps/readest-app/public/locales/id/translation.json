@@ -1694,5 +1694,8 @@
   "AI answer language": "Bahasa jawaban AI",
   "Book language": "Bahasa buku",
   "App language": "Bahasa aplikasi",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Mengatur bahasa untuk ringkasan AI, rekap, dan Jelaskan/Definisikan pada teks yang dipilih. Sederhanakan selalu menggunakan bahasa buku."
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Mengatur bahasa untuk ringkasan AI, rekap, dan Jelaskan/Definisikan pada teks yang dipilih. Sederhanakan selalu menggunakan bahasa buku.",
+  "Explain": "Jelaskan",
+  "Simplify": "Sederhanakan",
+  "Define": "Definisikan"
 }

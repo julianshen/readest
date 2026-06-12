@@ -1727,5 +1727,8 @@
   "AI answer language": "AI பதில் மொழி",
   "Book language": "புத்தக மொழி",
   "App language": "பயன்பாட்டு மொழி",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "தேர்ந்தெடுத்த உரையில் AI சுருக்கங்கள், மீட்டுரை மற்றும் விளக்கு/வரையறு ஆகியவற்றுக்கான மொழியை அமைக்கிறது. எளிமைப்படுத்துவது எப்போதும் புத்தகத்தின் மொழியைப் பயன்படுத்துகிறது."
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "தேர்ந்தெடுத்த உரையில் AI சுருக்கங்கள், மீட்டுரை மற்றும் விளக்கு/வரையறு ஆகியவற்றுக்கான மொழியை அமைக்கிறது. எளிமைப்படுத்துவது எப்போதும் புத்தகத்தின் மொழியைப் பயன்படுத்துகிறது.",
+  "Explain": "விளக்கு",
+  "Simplify": "எளிதாக்கு",
+  "Define": "வரையறு"
 }
