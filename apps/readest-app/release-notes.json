@@ -1,5 +1,13 @@
 {
   "releases": {
+    "0.11.8": {
+      "date": "2026-06-12",
+      "notes": [
+        "AI: Select any passage and tap the new sparkle button to Explain, Simplify, or Define it — answers stream into an inline popup, using only the text you've already read (no spoilers)",
+        "AI: New 'AI answer language' setting (Settings > AI Assistant) — choose whether summaries, recaps, and Explain/Define answer in the book's language or the app's language",
+        "Translation: Translated the AI translator's availability label across all languages"
+      ]
+    },
     "0.11.7": {
       "date": "2026-06-12",
       "notes": [
