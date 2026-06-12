@@ -66,12 +66,9 @@ const summarizeText = async (
   args: SummaryArgs,
   chapterTitle: string,
   text: string,
+  language: string,
 ): Promise<string> => {
-  const system = buildChapterSummaryPrompt(
-    args.bookTitle,
-    chapterTitle,
-    resolveAnswerLanguageName(args.aiSettings.answerLanguage, args.bookDoc, args.uiLanguage),
-  );
+  const system = buildChapterSummaryPrompt(args.bookTitle, chapterTitle, language);
 
   if (text.length <= MAX_SINGLE_CALL_CHARS) {
     const { text: result } = await generateText({
@@ -113,7 +110,12 @@ const summarizeChapterWithModel = async (
 ): Promise<string> => {
   const text = await sectionText(args.bookDoc, args.sectionIndex);
   if (!text) throw new Error(SummaryErrorCodes.CHAPTER_UNREADABLE);
-  const contentHash = hashContent(text);
+  const language = resolveAnswerLanguageName(
+    args.aiSettings.answerLanguage,
+    args.bookDoc,
+    args.uiLanguage,
+  );
+  const contentHash = hashContent(`${language}\n${text}`);
   const cached = await aiStore.getChapterSummary(args.bookHash, args.sectionIndex);
   if (cached && cached.contentHash === contentHash) return cached.summary;
 
@@ -122,6 +124,7 @@ const summarizeChapterWithModel = async (
     args,
     getChapterTitle(args.bookDoc.toc, args.sectionIndex),
     text,
+    language,
   );
   const entry: ChapterSummary = {
     key: chapterSummaryKey(args.bookHash, args.sectionIndex),

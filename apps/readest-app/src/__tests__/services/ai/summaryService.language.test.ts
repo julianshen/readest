@@ -73,3 +73,35 @@ describe('summaryService answer language', () => {
     expect(generateTextMock.mock.calls[0]![0].system).toContain('English');
   });
 });
+
+describe('summaryService language-aware cache invalidation', () => {
+  beforeEach(() => {
+    generateTextMock.mockReset();
+    cache.clear();
+    generateTextMock.mockResolvedValue({ text: 'summary' });
+  });
+
+  it('invalidates cached summary when answer language changes', async () => {
+    // First call with 'book' language (Japanese for this doc) → populates cache
+    await summarizeChapter(baseArgs('book'));
+    expect(generateTextMock).toHaveBeenCalledTimes(1);
+
+    generateTextMock.mockClear();
+
+    // Second call with 'app' language (English) → different hash → cache miss
+    await summarizeChapter(baseArgs('app'));
+    expect(generateTextMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns cached summary when language is unchanged', async () => {
+    // Populate cache with 'book' language
+    await summarizeChapter(baseArgs('book'));
+    expect(generateTextMock).toHaveBeenCalledTimes(1);
+
+    generateTextMock.mockClear();
+
+    // Same language again → cache hit → generateText NOT called
+    await summarizeChapter(baseArgs('book'));
+    expect(generateTextMock).not.toHaveBeenCalled();
+  });
+});

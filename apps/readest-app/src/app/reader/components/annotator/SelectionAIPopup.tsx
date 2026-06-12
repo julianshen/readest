@@ -87,9 +87,9 @@ const SelectionAIPopup: React.FC<SelectionAIPopupProps> = ({
   };
 
   const handleCopy = async () => {
-    if (!answer) return;
+    if (!answer || !navigator.clipboard) return;
     try {
-      await navigator.clipboard?.writeText(answer);
+      await navigator.clipboard.writeText(answer);
       eventDispatcher.dispatch('toast', {
         type: 'info',
         timeout: 2000,
