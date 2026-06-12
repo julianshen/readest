@@ -95,3 +95,36 @@ export function buildRecapPrompt(bookTitle: string, language: string): string {
     `Write the recap in ${language}, regardless of the language of the provided summaries.`
   );
 }
+
+/**
+ * System prompt for explaining a selected passage. The passage is marked with
+ * « » inside the provided context (user message); this returns only the system
+ * turn. `language` is the resolved answer language name.
+ */
+export function buildExplainPrompt(language: string): string {
+  return (
+    `A reader has marked a passage (wrapped in « ») within text from a book. ` +
+    `Using ONLY the provided text — never outside knowledge of the book — explain what the ` +
+    `marked passage means in its context. Be concise: at most 120 words. ` +
+    `No preamble, no markdown headings. Write the explanation in ${language}.`
+  );
+}
+
+/** System prompt for defining a marked word/phrase in context. */
+export function buildDefinePrompt(language: string): string {
+  return (
+    `A reader has marked a word or phrase (wrapped in « ») within text from a book. ` +
+    `Using ONLY the provided text for context — never outside knowledge — explain what the ` +
+    `marked word or phrase means as it is used here. Be concise: a sentence or two. ` +
+    `No preamble, no markdown headings. Write the definition in ${language}.`
+  );
+}
+
+/** System prompt for simplifying a marked passage. `language` is the book language. */
+export function buildSimplifyPrompt(language: string): string {
+  return (
+    `A reader has marked a passage (wrapped in « ») within text from a book. ` +
+    `Rewrite ONLY the marked passage in simpler, plainer ${language}, preserving its meaning. ` +
+    `Output only the rewritten passage — no preamble, no quotation marks, no markdown.`
+  );
+}
