@@ -245,6 +245,33 @@ export const getBookDirFromLanguage = (language: string | string[] | undefined) 
   return getDirFromLanguage(lang);
 };
 
+// Derives the per-document vertical/rtl flags used by pagination tap zones.
+// Mirrors the historical inline logic in FoliateViewer.docLoadHandler, plus
+// the fixed-layout term: comic pages carry no text direction, so RTL manga
+// (book.dir set from ComicInfo.xml or the reading-direction setting) must
+// flow through book.dir.
+export const deriveDocDirection = ({
+  writingDir,
+  uiRtl,
+  writingMode,
+  isFixedLayout,
+  bookDir,
+}: {
+  writingDir: { vertical: boolean; rtl: boolean } | undefined;
+  uiRtl: boolean;
+  writingMode: WritingMode;
+  isFixedLayout: boolean;
+  bookDir: string | undefined;
+}): { vertical: boolean; rtl: boolean } => ({
+  vertical: writingDir?.vertical || writingMode.includes('vertical') || false,
+  rtl:
+    writingDir?.rtl ||
+    uiRtl ||
+    writingMode.includes('rl') ||
+    (isFixedLayout && bookDir === 'rtl') ||
+    false,
+});
+
 const getTitleForHash = (title: string | LanguageMap) => {
   return typeof title === 'string' ? title : formatLanguageMap(title, true);
 };

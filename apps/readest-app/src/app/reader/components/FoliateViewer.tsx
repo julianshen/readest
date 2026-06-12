@@ -42,7 +42,11 @@ import {
 import { applyScrollableStyle, applyTableTouchScroll } from '@/utils/scrollable';
 import { mountAdditionalFonts, mountCustomFont } from '@/styles/fonts';
 import { layoutWarichu, relayoutWarichu } from '@/utils/warichu';
-import { getBookDirFromLanguage, getBookDirFromWritingMode } from '@/utils/book';
+import {
+  deriveDocDirection,
+  getBookDirFromLanguage,
+  getBookDirFromWritingMode,
+} from '@/utils/book';
 import { getIndexFromCfi } from '@/utils/cfi';
 import { useUICSS } from '@/hooks/useUICSS';
 import {
@@ -234,13 +238,13 @@ const FoliateViewer: React.FC<{
       const viewSettings = getViewSettings(bookKey)!;
       const bookData = getBookData(bookKey)!;
 
-      const newVertical =
-        writingDir?.vertical || viewSettings.writingMode.includes('vertical') || false;
-      const newRtl =
-        writingDir?.rtl ||
-        getDirFromUILanguage() === 'rtl' ||
-        viewSettings.writingMode.includes('rl') ||
-        false;
+      const { vertical: newVertical, rtl: newRtl } = deriveDocDirection({
+        writingDir: writingDir || undefined,
+        uiRtl: getDirFromUILanguage() === 'rtl',
+        writingMode: viewSettings.writingMode,
+        isFixedLayout: !!bookData?.isFixedLayout,
+        bookDir: bookDoc.dir,
+      });
       if (viewSettings.vertical !== newVertical || viewSettings.rtl !== newRtl) {
         viewSettings.vertical = newVertical;
         viewSettings.rtl = newRtl;
