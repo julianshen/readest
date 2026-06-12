@@ -1719,5 +1719,13 @@
   "OpenAI API Key": "OpenAI API-sleutel",
   "OpenAI Base URL": "OpenAI basis-URL",
   "OpenAI Model": "OpenAI-model",
-  "Not Configured": "Niet geconfigureerd"
+  "Not Configured": "Niet geconfigureerd",
+  "Ask AI": "Vraag AI",
+  "Ask AI about the selection": "Vraag AI over de selectie",
+  "Couldn't generate — try again": "Kon niet genereren — probeer opnieuw",
+  "Pick an action above.": "Kies een actie hierboven.",
+  "AI answer language": "AI-antwoordtaal",
+  "Book language": "Boektaal",
+  "App language": "App-taal",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Stelt de taal in voor AI-samenvattingen, terugblikken en Uitleggen/Definiëren op geselecteerde tekst. Vereenvoudigen gebruikt altijd de taal van het boek."
 }

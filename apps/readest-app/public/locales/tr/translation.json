@@ -1719,5 +1719,13 @@
   "OpenAI API Key": "OpenAI API Anahtarı",
   "OpenAI Base URL": "OpenAI Temel URL",
   "OpenAI Model": "OpenAI Modeli",
-  "Not Configured": "Yapılandırılmadı"
+  "Not Configured": "Yapılandırılmadı",
+  "Ask AI": "AI'ya sor",
+  "Ask AI about the selection": "Seçili metin hakkında AI'ya sor",
+  "Couldn't generate — try again": "Oluşturulamadı — tekrar dene",
+  "Pick an action above.": "Yukarıdan bir eylem seçin.",
+  "AI answer language": "AI yanıt dili",
+  "Book language": "Kitap dili",
+  "App language": "Uygulama dili",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Seçili metin üzerinde AI özetleri, özeti ve Açıkla/Tanımla için dili ayarlar. Sadeleştir her zaman kitabın dilini kullanır."
 }

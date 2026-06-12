@@ -1719,5 +1719,13 @@
   "OpenAI API Key": "OpenAI API कुंजी",
   "OpenAI Base URL": "OpenAI बेस URL",
   "OpenAI Model": "OpenAI मॉडल",
-  "Not Configured": "कॉन्फ़िगर नहीं किया गया"
+  "Not Configured": "कॉन्फ़िगर नहीं किया गया",
+  "Ask AI": "AI से पूछें",
+  "Ask AI about the selection": "चयनित पाठ के बारे में AI से पूछें",
+  "Couldn't generate — try again": "उत्पन्न नहीं हो सका — पुनः प्रयास करें",
+  "Pick an action above.": "ऊपर से एक क्रिया चुनें।",
+  "AI answer language": "AI उत्तर भाषा",
+  "Book language": "पुस्तक भाषा",
+  "App language": "ऐप भाषा",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "चयनित पाठ पर AI सारांश, पुनरावृत्ति और समझाएं/परिभाषित करें की भाषा सेट करता है। सरल बनाएं हमेशा पुस्तक की भाषा उपयोग करता है।"
 }

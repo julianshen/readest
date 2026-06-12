@@ -1719,5 +1719,13 @@
   "OpenAI API Key": "OpenAI API යතුර",
   "OpenAI Base URL": "OpenAI මූල URL",
   "OpenAI Model": "OpenAI ආකෘතිය",
-  "Not Configured": "වින්‍යාස කර නැත"
+  "Not Configured": "වින්‍යාස කර නැත",
+  "Ask AI": "AI ගෙන් විමසන්න",
+  "Ask AI about the selection": "තෝරාගත් පෙළ ගැන AI ගෙන් විමසන්න",
+  "Couldn't generate — try again": "ජනනය කළ නොහැකිය — නැවත උත්සාහ කරන්න",
+  "Pick an action above.": "ඉහළින් ක්‍රියාවක් තෝරන්න.",
+  "AI answer language": "AI පිළිතුරු භාෂාව",
+  "Book language": "පොතේ භාෂාව",
+  "App language": "යෙදුමේ භාෂාව",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "තෝරාගත් පෙළ සඳහා AI සාරාංශ, ප්‍රතිනිර්දේශ සහ පැහැදිලි/අර්ථදක්වන්නේ කුමන භාෂාවෙන්ද යන්න සකසයි. සරල කිරීම සෑමවිටම පොතේ භාෂාව භාවිතා කරයි."
 }

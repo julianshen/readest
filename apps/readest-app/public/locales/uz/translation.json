@@ -1719,5 +1719,13 @@
   "OpenAI API Key": "OpenAI API kaliti",
   "OpenAI Base URL": "OpenAI asosiy URL",
   "OpenAI Model": "OpenAI modeli",
-  "Not Configured": "Sozlanmagan"
+  "Not Configured": "Sozlanmagan",
+  "Ask AI": "AI dan so'rash",
+  "Ask AI about the selection": "Tanlangan matn haqida AI dan so'rash",
+  "Couldn't generate — try again": "Yaratib bo'lmadi — qayta urinib ko'ring",
+  "Pick an action above.": "Yuqoridan harakat tanlang.",
+  "AI answer language": "AI javob tili",
+  "Book language": "Kitob tili",
+  "App language": "Ilova tili",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Tanlangan matn uchun AI xulosalari, takrorlashlar va Tushuntirish/Aniqlash uchun tilni belgilaydi. Soddalashtirish har doim kitob tilidan foydalanadi."
 }

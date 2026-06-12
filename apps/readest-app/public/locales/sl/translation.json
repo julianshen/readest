@@ -1785,5 +1785,13 @@
   "OpenAI API Key": "OpenAI API ključ",
   "OpenAI Base URL": "OpenAI osnovna URL",
   "OpenAI Model": "OpenAI model",
-  "Not Configured": "Ni nastavljeno"
+  "Not Configured": "Ni nastavljeno",
+  "Ask AI": "Vprašaj AI",
+  "Ask AI about the selection": "Vprašaj AI o izboru",
+  "Couldn't generate — try again": "Generiranje ni uspelo — poskusi znova",
+  "Pick an action above.": "Izberi dejanje zgoraj.",
+  "AI answer language": "Jezik odgovora AI",
+  "Book language": "Jezik knjige",
+  "App language": "Jezik aplikacije",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Nastavi jezik za povzetke AI, ponovitve in Pojasni/Definiraj na izbranem besedilu. Poenostavitev vedno uporablja jezik knjige."
 }

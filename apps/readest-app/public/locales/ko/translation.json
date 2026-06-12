@@ -1686,5 +1686,13 @@
   "OpenAI API Key": "OpenAI API 키",
   "OpenAI Base URL": "OpenAI 기본 URL",
   "OpenAI Model": "OpenAI 모델",
-  "Not Configured": "구성되지 않음"
+  "Not Configured": "구성되지 않음",
+  "Ask AI": "AI에게 질문",
+  "Ask AI about the selection": "선택한 텍스트에 대해 AI에게 질문",
+  "Couldn't generate — try again": "생성할 수 없습니다 — 다시 시도하세요",
+  "Pick an action above.": "위에서 작업을 선택하세요.",
+  "AI answer language": "AI 답변 언어",
+  "Book language": "도서 언어",
+  "App language": "앱 언어",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "선택한 텍스트의 AI 요약, 복습 및 설명/정의 언어를 설정합니다. 간소화는 항상 도서의 언어를 사용합니다."
 }

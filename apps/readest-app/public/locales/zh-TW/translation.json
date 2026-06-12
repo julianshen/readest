@@ -1686,5 +1686,13 @@
   "OpenAI API Key": "OpenAI API 金鑰",
   "OpenAI Base URL": "OpenAI 基礎 URL",
   "OpenAI Model": "OpenAI 模型",
-  "Not Configured": "未設定"
+  "Not Configured": "未設定",
+  "Ask AI": "詢問 AI",
+  "Ask AI about the selection": "就所選文字詢問 AI",
+  "Couldn't generate — try again": "無法生成 — 請再試一次",
+  "Pick an action above.": "請從上方選擇一個操作。",
+  "AI answer language": "AI 回答語言",
+  "Book language": "書籍語言",
+  "App language": "應用程式語言",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "設定所選文字的 AI 摘要、回顧及解釋/定義的語言。簡化始終使用書籍語言。"
 }

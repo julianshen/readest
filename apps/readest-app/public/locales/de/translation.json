@@ -1719,5 +1719,13 @@
   "OpenAI API Key": "OpenAI API-Schlüssel",
   "OpenAI Base URL": "OpenAI Basis-URL",
   "OpenAI Model": "OpenAI-Modell",
-  "Not Configured": "Nicht konfiguriert"
+  "Not Configured": "Nicht konfiguriert",
+  "Ask AI": "KI fragen",
+  "Ask AI about the selection": "KI zur Auswahl befragen",
+  "Couldn't generate — try again": "Konnte nicht generieren — erneut versuchen",
+  "Pick an action above.": "Wähle oben eine Aktion aus.",
+  "AI answer language": "KI-Antwortsprache",
+  "Book language": "Buchsprache",
+  "App language": "App-Sprache",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Legt die Sprache für KI-Zusammenfassungen, Rückblicke und Erklären/Definieren bei markiertem Text fest. Vereinfachen verwendet immer die Sprache des Buches."
 }
