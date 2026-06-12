@@ -14,7 +14,14 @@ import { DEFAULT_AI_SETTINGS, GATEWAY_MODELS, MODEL_PRICING } from '@/services/a
 import type { AISettings, AIProviderName } from '@/services/ai/types';
 import { exportReedyMetricsBundle } from '@/services/reedy/instrumentation';
 import { isTauriAppPlatform } from '@/services/environment';
-import { BoxedList, SettingLabel, SettingsRow, SettingsSwitchRow } from './primitives';
+import {
+  BoxedList,
+  SettingLabel,
+  SettingsRow,
+  SettingsSelect,
+  SettingsSwitchRow,
+  Tips,
+} from './primitives';
 
 type ConnectionStatus = 'idle' | 'testing' | 'success' | 'error';
 type CustomModelStatus = 'idle' | 'validating' | 'valid' | 'invalid';
@@ -460,7 +467,24 @@ const AIPanel: React.FC = () => {
           checked={enabled}
           onChange={() => setEnabled(!enabled)}
         />
+        <SettingsRow label={_('AI answer language')} asLabel>
+          <SettingsSelect
+            value={settings.aiSettings?.answerLanguage ?? 'book'}
+            ariaLabel={_('AI answer language')}
+            options={[
+              { value: 'book', label: _('Book language') },
+              { value: 'app', label: _('App language') },
+            ]}
+            onChange={(e) => saveAiSetting('answerLanguage', e.target.value as 'book' | 'app')}
+          />
+        </SettingsRow>
       </BoxedList>
+
+      <Tips>
+        {_(
+          "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.",
+        )}
+      </Tips>
 
       <BoxedList title={_('Provider')} className={disabledSection}>
         <SettingsRow label={_('Ollama (Local)')} asLabel>
