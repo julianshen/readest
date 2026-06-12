@@ -1793,7 +1793,7 @@
   "AI answer language": "Jezik odgovora AI",
   "Book language": "Jezik knjige",
   "App language": "Jezik aplikacije",
-  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Nastavi jezik za povzetke AI, ponovitve in Pojasni/Definiraj na izbranem besedilu. Poenostavitev vedno uporablja jezik knjige.",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Nastavi jezik za AI povzetke, obnove in Razloži/Definiraj za izbrano besedilo. Poenostavi vedno uporablja jezik knjige.",
   "Explain": "Razloži",
   "Simplify": "Poenostavi",
   "Define": "Definiraj"
