@@ -66,6 +66,8 @@ import AnnotationPopup from './AnnotationPopup';
 import DictionaryPopup from './DictionaryPopup';
 import DictionarySheet from './DictionarySheet';
 import TranslatorPopup from './TranslatorPopup';
+import SelectionAIPopup from './SelectionAIPopup';
+import { isAIAssistantConfigured } from '@/services/ai/providers';
 import useShortcuts from '@/hooks/useShortcuts';
 import ProofreadPopup from './ProofreadPopup';
 import { setProofreadRulesVisibility } from '@/app/reader/components/ProofreadRules';
@@ -119,11 +121,13 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   const [showAnnotPopup, setShowAnnotPopup] = useState(false);
   const [showDictionaryPopup, setShowDictionaryPopup] = useState(false);
   const [showDeepLPopup, setShowDeepLPopup] = useState(false);
+  const [showSelectionAIPopup, setShowSelectionAIPopup] = useState(false);
   const [showProofreadPopup, setShowProofreadPopup] = useState(false);
   const [trianglePosition, setTrianglePosition] = useState<Position>();
   const [annotPopupPosition, setAnnotPopupPosition] = useState<Position>();
   const [dictPopupPosition, setDictPopupPosition] = useState<Position>();
   const [translatorPopupPosition, setTranslatorPopupPosition] = useState<Position>();
+  const [selectionAIPopupPosition, setSelectionAIPopupPosition] = useState<Position>();
   const [proofreadPopupPosition, setProofreadPopupPosition] = useState<Position>();
   const [highlightOptionsVisible, setHighlightOptionsVisible] = useState(false);
   const [showAnnotationNotes, setShowAnnotationNotes] = useState(false);
@@ -155,7 +159,11 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   const deferredQuickActionRef = useRef(createDeferredActionState());
 
   const showingPopup =
-    showAnnotPopup || showDictionaryPopup || showDeepLPopup || showProofreadPopup;
+    showAnnotPopup ||
+    showDictionaryPopup ||
+    showDeepLPopup ||
+    showSelectionAIPopup ||
+    showProofreadPopup;
 
   const popupPadding = useResponsiveSize(10);
   const trianglePadding = popupPadding * 2 + 6;
@@ -168,6 +176,8 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   const dictPopupHeight = Math.min(360, maxHeight);
   const transPopupWidth = Math.min(480, maxWidth);
   const transPopupHeight = Math.min(265, maxHeight);
+  const selectionAIPopupWidth = Math.min(300, maxWidth);
+  const selectionAIPopupHeight = Math.min(240, maxHeight);
   const proofreadPopupWidth = Math.min(440, maxWidth);
   const proofreadPopupHeight = Math.min(200, maxHeight);
   const annotPopupWidth = Math.min(useResponsiveSize(300), maxWidth);
@@ -206,6 +216,13 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       transPopupHeight,
       popupPadding,
     );
+    const selectionAIPopupPos = getPopupPosition(
+      triangPos,
+      rect,
+      selectionAIPopupWidth,
+      selectionAIPopupHeight,
+      popupPadding,
+    );
     const proofreadPopupPos = getPopupPosition(
       triangPos,
       rect,
@@ -217,6 +234,7 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
     setAnnotPopupPosition(annotPopupPos);
     setDictPopupPosition(dictPopupPos);
     setTranslatorPopupPosition(transPopupPos);
+    setSelectionAIPopupPosition(selectionAIPopupPos);
     setProofreadPopupPosition(proofreadPopupPos);
     setTrianglePosition(triangPos);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -258,6 +276,7 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       setShowAnnotPopup(false);
       setShowDictionaryPopup(false);
       setShowDeepLPopup(false);
+      setShowSelectionAIPopup(false);
       setShowProofreadPopup(false);
       setEditingAnnotation(null);
     }, 500),
@@ -597,6 +616,9 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
         case 'translate':
           handleTranslation();
           break;
+        case 'ai':
+          handleSelectionAI();
+          break;
         case 'tts':
           handleSpeakText(true);
           break;
@@ -644,6 +666,13 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
         transPopupHeight,
         popupPadding,
       );
+      const selectionAIPopupPos = getPopupPosition(
+        triangPos,
+        rect,
+        selectionAIPopupWidth,
+        selectionAIPopupHeight,
+        popupPadding,
+      );
       const proofreadPopupPos = getPopupPosition(
         triangPos,
         rect,
@@ -655,6 +684,7 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       setAnnotPopupPosition(annotPopupPos);
       setDictPopupPosition(dictPopupPos);
       setTranslatorPopupPosition(transPopupPos);
+      setSelectionAIPopupPosition(selectionAIPopupPos);
       setProofreadPopupPosition(proofreadPopupPos);
       setTrianglePosition(triangPos);
 
@@ -725,6 +755,7 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
     }
     setShowAnnotPopup(true);
     setShowDeepLPopup(false);
+    setShowSelectionAIPopup(false);
     setShowDictionaryPopup(false);
   };
 
@@ -959,7 +990,15 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   const handleTranslation = () => {
     if (!selection || !selection.text) return;
     setShowAnnotPopup(false);
+    setShowSelectionAIPopup(false);
     setShowDeepLPopup(true);
+  };
+
+  const handleSelectionAI = () => {
+    if (!selection || !selection.text) return;
+    setShowAnnotPopup(false);
+    setShowDeepLPopup(false);
+    setShowSelectionAIPopup(true);
   };
 
   const handleSpeakText = async (oneTime = false) => {
@@ -1302,49 +1341,54 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
     !!selection?.text &&
     selection.text.trim().length > 0;
   const globalToggleActive = !!currentAnnotation?.global;
-  const toolButtons = annotationToolButtons.map(({ type, label, Icon }) => {
-    switch (type) {
-      case 'copy':
-        return { tooltipText: _(label), Icon, onClick: handleCopy };
-      case 'highlight':
-        return {
-          tooltipText: selectionAnnotated ? _('Delete Highlight') : _(label),
-          Icon: selectionAnnotated ? RiDeleteBinLine : Icon,
-          onClick: handleHighlight,
-        };
-      case 'annotate':
-        return {
-          tooltipText: _(label),
-          Icon,
-          onClick: handleAnnotate,
-        };
-      case 'search':
-        return {
-          tooltipText: _(label),
-          Icon,
-          onClick: handleSearch,
-        };
-      case 'dictionary':
-        return { tooltipText: _(label), Icon, onClick: handleDictionary };
-      case 'translate':
-        return { tooltipText: _(label), Icon, onClick: handleTranslation };
-      case 'tts':
-        return {
-          tooltipText: _(label),
-          Icon,
-          onClick: handleSpeakText,
-        };
-      case 'proofread':
-        return {
-          tooltipText: _(label),
-          Icon,
-          onClick: handleProofread,
-          disabled: bookData.book?.format !== 'EPUB',
-        };
-      default:
-        return { tooltipText: '', Icon, onClick: () => {} };
-    }
-  });
+  const aiAvailable = isAIAssistantConfigured(settings.aiSettings);
+  const toolButtons = annotationToolButtons
+    .filter((b) => b.type !== 'ai' || aiAvailable)
+    .map(({ type, label, Icon }) => {
+      switch (type) {
+        case 'copy':
+          return { tooltipText: _(label), Icon, onClick: handleCopy };
+        case 'highlight':
+          return {
+            tooltipText: selectionAnnotated ? _('Delete Highlight') : _(label),
+            Icon: selectionAnnotated ? RiDeleteBinLine : Icon,
+            onClick: handleHighlight,
+          };
+        case 'annotate':
+          return {
+            tooltipText: _(label),
+            Icon,
+            onClick: handleAnnotate,
+          };
+        case 'search':
+          return {
+            tooltipText: _(label),
+            Icon,
+            onClick: handleSearch,
+          };
+        case 'dictionary':
+          return { tooltipText: _(label), Icon, onClick: handleDictionary };
+        case 'translate':
+          return { tooltipText: _(label), Icon, onClick: handleTranslation };
+        case 'ai':
+          return { tooltipText: _(label), Icon, onClick: handleSelectionAI };
+        case 'tts':
+          return {
+            tooltipText: _(label),
+            Icon,
+            onClick: handleSpeakText,
+          };
+        case 'proofread':
+          return {
+            tooltipText: _(label),
+            Icon,
+            onClick: handleProofread,
+            disabled: bookData.book?.format !== 'EPUB',
+          };
+        default:
+          return { tooltipText: '', Icon, onClick: () => {} };
+      }
+    });
 
   return (
     <div ref={containerRef} role='toolbar' tabIndex={-1}>
@@ -1394,6 +1438,17 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
           trianglePosition={trianglePosition}
           popupWidth={transPopupWidth}
           popupHeight={transPopupHeight}
+          onDismiss={handleDismissPopupAndSelection}
+        />
+      )}
+      {showSelectionAIPopup && trianglePosition && selectionAIPopupPosition && selection && (
+        <SelectionAIPopup
+          bookKey={bookKey}
+          selection={selection}
+          position={selectionAIPopupPosition}
+          trianglePosition={trianglePosition}
+          popupWidth={selectionAIPopupWidth}
+          popupHeight={selectionAIPopupHeight}
           onDismiss={handleDismissPopupAndSelection}
         />
       )}

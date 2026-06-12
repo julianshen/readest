@@ -1686,5 +1686,16 @@
   "OpenAI API Key": "OpenAI API ལྡེ་མིག",
   "OpenAI Base URL": "OpenAI གཞི་རྩའི་URL",
   "OpenAI Model": "OpenAI དཔེ་གཞི།",
-  "Not Configured": "སྒྲིག་འགོད་མ་བྱས།"
+  "Not Configured": "སྒྲིག་འགོད་མ་བྱས།",
+  "Ask AI": "AI ལ་དྲི་བ་འདྲི།",
+  "Ask AI about the selection": "བདམས་པའི་ཡི་གེའི་སྐོར་ AI ལ་དྲི་བ་འདྲི།",
+  "Couldn't generate — try again": "བསྐྲུན་མ་ཐུབ་པས། — ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།",
+  "Pick an action above.": "གོང་གི་བྱ་སྤྱོད་ཞིག་བདམས།",
+  "AI answer language": "AI ལན་གྱི་སྐད་ཡིག",
+  "Book language": "དཔེ་ཆའི་སྐད་ཡིག",
+  "App language": "གློག་ཆས་སྒྲིག་ལག་གི་སྐད་ཡིག",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "བདམས་པའི་ཡི་གེའི་ AI ཟིན་བྲིས། ཁ་བསྡུས། དང་བཤད་པ/ངོ་སྤྲོད་ཀྱི་སྐད་ཡིག་གཏན་འཁེལ་བྱེད། སྟབས་བདེ་བཟོ་བ་ཤེས་གཞིར་དཔེ་ཆའི་སྐད་ཡིག་རྟག་ཏུ་སྤྱོད།",
+  "Explain": "བཤད་པ།",
+  "Simplify": "སྟབས་བདེར་བཟོ།",
+  "Define": "ངེས་བྱེད།"
 }

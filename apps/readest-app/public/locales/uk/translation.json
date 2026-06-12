@@ -1785,5 +1785,16 @@
   "OpenAI API Key": "Ключ API OpenAI",
   "OpenAI Base URL": "Базовий URL OpenAI",
   "OpenAI Model": "Модель OpenAI",
-  "Not Configured": "Не налаштовано"
+  "Not Configured": "Не налаштовано",
+  "Ask AI": "Запитати ШІ",
+  "Ask AI about the selection": "Запитати ШІ про виділений текст",
+  "Couldn't generate — try again": "Не вдалося згенерувати — спробуйте ще раз",
+  "Pick an action above.": "Оберіть дію вище.",
+  "AI answer language": "Мова відповідей ШІ",
+  "Book language": "Мова книги",
+  "App language": "Мова додатку",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Задає мову для зведень ШІ, оглядів і функцій Пояснити/Визначити для виділеного тексту. Спростити завжди використовує мову книги.",
+  "Explain": "Пояснити",
+  "Simplify": "Спростити",
+  "Define": "Визначити"
 }

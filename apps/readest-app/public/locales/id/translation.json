@@ -1686,5 +1686,16 @@
   "OpenAI API Key": "Kunci API OpenAI",
   "OpenAI Base URL": "URL Dasar OpenAI",
   "OpenAI Model": "Model OpenAI",
-  "Not Configured": "Belum dikonfigurasi"
+  "Not Configured": "Belum dikonfigurasi",
+  "Ask AI": "Tanya AI",
+  "Ask AI about the selection": "Tanya AI tentang teks yang dipilih",
+  "Couldn't generate — try again": "Gagal membuat — coba lagi",
+  "Pick an action above.": "Pilih tindakan di atas.",
+  "AI answer language": "Bahasa jawaban AI",
+  "Book language": "Bahasa buku",
+  "App language": "Bahasa aplikasi",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Mengatur bahasa untuk ringkasan AI, rekap, dan Jelaskan/Definisikan pada teks yang dipilih. Sederhanakan selalu menggunakan bahasa buku.",
+  "Explain": "Jelaskan",
+  "Simplify": "Sederhanakan",
+  "Define": "Definisikan"
 }

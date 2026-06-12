@@ -1686,5 +1686,16 @@
   "OpenAI API Key": "OpenAI API Key",
   "OpenAI Base URL": "OpenAI Base URL",
   "OpenAI Model": "OpenAI Model",
-  "Not Configured": "ยังไม่ได้กำหนดค่า"
+  "Not Configured": "ยังไม่ได้กำหนดค่า",
+  "Ask AI": "ถาม AI",
+  "Ask AI about the selection": "ถาม AI เกี่ยวกับข้อความที่เลือก",
+  "Couldn't generate — try again": "ไม่สามารถสร้างได้ — ลองอีกครั้ง",
+  "Pick an action above.": "เลือกการกระทำจากด้านบน",
+  "AI answer language": "ภาษาคำตอบ AI",
+  "Book language": "ภาษาของหนังสือ",
+  "App language": "ภาษาของแอป",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "ตั้งค่าภาษาสำหรับสรุป AI, การทบทวน และอธิบาย/กำหนดบนข้อความที่เลือก ฟีเจอร์ทำให้เข้าใจง่ายจะใช้ภาษาของหนังสือเสมอ",
+  "Explain": "อธิบาย",
+  "Simplify": "ทำให้ง่ายขึ้น",
+  "Define": "นิยาม"
 }

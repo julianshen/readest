@@ -29,3 +29,16 @@ export function getAIProvider(settings: AISettings): AIProvider {
       throw new Error(`Unknown provider: ${settings.provider}`);
   }
 }
+
+// True when the assistant is enabled AND the selected provider has the
+// credentials it needs (getAIProvider throws otherwise). Used to gate UI that
+// triggers AI calls (e.g. the selection-toolbar AI button).
+export function isAIAssistantConfigured(settings: AISettings | undefined): boolean {
+  if (!settings?.enabled) return false;
+  try {
+    getAIProvider(settings);
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -1686,5 +1686,16 @@
   "OpenAI API Key": "Khóa API OpenAI",
   "OpenAI Base URL": "URL cơ sở OpenAI",
   "OpenAI Model": "Mô hình OpenAI",
-  "Not Configured": "Chưa cấu hình"
+  "Not Configured": "Chưa cấu hình",
+  "Ask AI": "Hỏi AI",
+  "Ask AI about the selection": "Hỏi AI về văn bản đã chọn",
+  "Couldn't generate — try again": "Không thể tạo — thử lại",
+  "Pick an action above.": "Chọn một hành động ở trên.",
+  "AI answer language": "Ngôn ngữ câu trả lời AI",
+  "Book language": "Ngôn ngữ sách",
+  "App language": "Ngôn ngữ ứng dụng",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Đặt ngôn ngữ cho các bản tóm tắt AI, ôn tập và Giải thích/Định nghĩa trên văn bản đã chọn. Đơn giản hóa luôn sử dụng ngôn ngữ của sách.",
+  "Explain": "Giải thích",
+  "Simplify": "Đơn giản hóa",
+  "Define": "Định nghĩa"
 }

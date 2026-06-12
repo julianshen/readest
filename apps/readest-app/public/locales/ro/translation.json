@@ -1752,5 +1752,16 @@
   "OpenAI API Key": "Cheie API OpenAI",
   "OpenAI Base URL": "URL de bază OpenAI",
   "OpenAI Model": "Model OpenAI",
-  "Not Configured": "Neconfigurat"
+  "Not Configured": "Neconfigurat",
+  "Ask AI": "Întreabă AI",
+  "Ask AI about the selection": "Întreabă AI despre selecție",
+  "Couldn't generate — try again": "Nu s-a putut genera — încearcă din nou",
+  "Pick an action above.": "Alege o acțiune de mai sus.",
+  "AI answer language": "Limba răspunsului AI",
+  "Book language": "Limba cărții",
+  "App language": "Limba aplicației",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Setează limba pentru rezumatele AI, recapitulările și Explică/Definește pe textul selectat. Simplificare folosește întotdeauna limba cărții.",
+  "Explain": "Explică",
+  "Simplify": "Simplifică",
+  "Define": "Definește"
 }

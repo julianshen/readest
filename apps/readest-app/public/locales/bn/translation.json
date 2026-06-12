@@ -1719,5 +1719,16 @@
   "OpenAI API Key": "OpenAI API কী",
   "OpenAI Base URL": "OpenAI বেস URL",
   "OpenAI Model": "OpenAI মডেল",
-  "Not Configured": "কনফিগার করা হয়নি"
+  "Not Configured": "কনফিগার করা হয়নি",
+  "Ask AI": "AI-কে জিজ্ঞেস করুন",
+  "Ask AI about the selection": "নির্বাচিত পাঠ্য সম্পর্কে AI-কে জিজ্ঞেস করুন",
+  "Couldn't generate — try again": "তৈরি করা যায়নি — আবার চেষ্টা করুন",
+  "Pick an action above.": "উপরে থেকে একটি ক্রিয়া বেছে নিন।",
+  "AI answer language": "AI উত্তরের ভাষা",
+  "Book language": "বইয়ের ভাষা",
+  "App language": "অ্যাপের ভাষা",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "নির্বাচিত পাঠ্যের AI সারসংক্ষেপ, পুনরাবৃত্তি এবং ব্যাখ্যা/সংজ্ঞার ভাষা নির্ধারণ করে। সরলীকরণ সর্বদা বইয়ের ভাষা ব্যবহার করে।",
+  "Explain": "ব্যাখ্যা করুন",
+  "Simplify": "সরলীকরণ করুন",
+  "Define": "সংজ্ঞা দিন"
 }

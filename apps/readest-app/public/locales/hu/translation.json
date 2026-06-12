@@ -1719,5 +1719,16 @@
   "OpenAI API Key": "OpenAI API-kulcs",
   "OpenAI Base URL": "OpenAI alap URL",
   "OpenAI Model": "OpenAI modell",
-  "Not Configured": "Nincs beállítva"
+  "Not Configured": "Nincs beállítva",
+  "Ask AI": "Kérdezd az AI-t",
+  "Ask AI about the selection": "Kérdezd az AI-t a kijelölésről",
+  "Couldn't generate — try again": "Nem sikerült generálni — próbáld újra",
+  "Pick an action above.": "Válassz egy műveletet fentről.",
+  "AI answer language": "AI válasz nyelve",
+  "Book language": "Könyv nyelve",
+  "App language": "Alkalmazás nyelve",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Beállítja az AI összefoglalók, visszatekintők és a kijelölt szövegre vonatkozó Magyarázat/Definíció nyelvét. Az egyszerűsítés mindig a könyv nyelvét használja.",
+  "Explain": "Magyarázat",
+  "Simplify": "Egyszerűsítés",
+  "Define": "Definíció"
 }

@@ -7,8 +7,7 @@ import { aiStore, chapterSummaryKey, hashContent } from './storage/aiStore';
 import { extractTextFromDocument, MIN_SECTION_CHARS } from './utils/chunker';
 import { buildChapterSummaryPrompt, buildRecapPrompt } from './prompts';
 import { getChapterTitle } from './ragService';
-import { getPrimaryLanguage } from '@/utils/book';
-import { getLanguageName } from '@/utils/lang';
+import { resolveAnswerLanguageName } from './answerLanguage';
 
 // ≈6k tokens of input per call; above this a chapter is map-reduced.
 const MAX_SINGLE_CALL_CHARS = 24_000;
@@ -23,13 +22,9 @@ interface SummaryArgs {
   bookDoc: BookDoc;
   bookHash: string;
   bookTitle: string;
+  uiLanguage: string;
   aiSettings: AISettings;
 }
-
-// The book's primary language as a human-readable name (e.g. "Japanese"),
-// used to pin summary/recap output to the language the book is written in.
-const bookLanguageName = (bookDoc: BookDoc): string =>
-  getLanguageName(getPrimaryLanguage(bookDoc.metadata.language));
 
 const getModelOrThrow = (aiSettings: AISettings): LanguageModel => {
   try {
@@ -71,12 +66,9 @@ const summarizeText = async (
   args: SummaryArgs,
   chapterTitle: string,
   text: string,
+  language: string,
 ): Promise<string> => {
-  const system = buildChapterSummaryPrompt(
-    args.bookTitle,
-    chapterTitle,
-    bookLanguageName(args.bookDoc),
-  );
+  const system = buildChapterSummaryPrompt(args.bookTitle, chapterTitle, language);
 
   if (text.length <= MAX_SINGLE_CALL_CHARS) {
     const { text: result } = await generateText({
@@ -118,7 +110,12 @@ const summarizeChapterWithModel = async (
 ): Promise<string> => {
   const text = await sectionText(args.bookDoc, args.sectionIndex);
   if (!text) throw new Error(SummaryErrorCodes.CHAPTER_UNREADABLE);
-  const contentHash = hashContent(text);
+  const language = resolveAnswerLanguageName(
+    args.aiSettings.answerLanguage,
+    args.bookDoc,
+    args.uiLanguage,
+  );
+  const contentHash = hashContent(`${language}\n${text}`);
   const cached = await aiStore.getChapterSummary(args.bookHash, args.sectionIndex);
   if (cached && cached.contentHash === contentHash) return cached.summary;
 
@@ -127,6 +124,7 @@ const summarizeChapterWithModel = async (
     args,
     getChapterTitle(args.bookDoc.toc, args.sectionIndex),
     text,
+    language,
   );
   const entry: ChapterSummary = {
     key: chapterSummaryKey(args.bookHash, args.sectionIndex),
@@ -166,7 +164,10 @@ export async function recapToPosition(
   }
   const { text } = await generateText({
     model,
-    system: buildRecapPrompt(args.bookTitle, bookLanguageName(args.bookDoc)),
+    system: buildRecapPrompt(
+      args.bookTitle,
+      resolveAnswerLanguageName(args.aiSettings.answerLanguage, args.bookDoc, args.uiLanguage),
+    ),
     prompt: parts.join('\n\n'),
     temperature: 0.4,
   });

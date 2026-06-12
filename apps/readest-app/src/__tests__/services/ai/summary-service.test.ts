@@ -66,6 +66,7 @@ describe('summarizeChapter', () => {
       bookDoc,
       bookHash: 'h1',
       bookTitle: 'Test Book',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       sectionIndex: 0,
     });
@@ -80,6 +81,7 @@ describe('summarizeChapter', () => {
       bookDoc,
       bookHash: 'h1',
       bookTitle: 'Test Book',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       sectionIndex: 0,
     });
@@ -93,6 +95,7 @@ describe('summarizeChapter', () => {
       bookDoc,
       bookHash: 'h2',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       sectionIndex: 0,
     });
@@ -103,6 +106,7 @@ describe('summarizeChapter', () => {
       bookDoc,
       bookHash: 'h2',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       sectionIndex: 0,
     });
@@ -116,6 +120,7 @@ describe('summarizeChapter', () => {
       bookDoc,
       bookHash: 'h3',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       sectionIndex: 0,
     });
@@ -129,6 +134,7 @@ describe('summarizeChapter', () => {
         bookDoc,
         bookHash: 'h4',
         bookTitle: 'T',
+        uiLanguage: 'en-US',
         aiSettings: {} as never,
         sectionIndex: 0,
       }),
@@ -142,6 +148,7 @@ describe('summarizeChapter', () => {
       bookDoc,
       bookHash: 'h9',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       sectionIndex: 0,
     });
@@ -156,6 +163,7 @@ describe('recapToPosition', () => {
       bookDoc,
       bookHash: 'h5',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       currentSectionIndex: 2,
     });
@@ -171,6 +179,7 @@ describe('recapToPosition', () => {
       bookDoc,
       bookHash: 'h6',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       currentSectionIndex: 2,
     });
@@ -179,6 +188,7 @@ describe('recapToPosition', () => {
       bookDoc,
       bookHash: 'h6',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       currentSectionIndex: 3,
     });
@@ -195,6 +205,7 @@ describe('recapToPosition', () => {
       bookDoc,
       bookHash: 'h7',
       bookTitle: 'T',
+      uiLanguage: 'en-US',
       aiSettings: SETTINGS,
       currentSectionIndex: 2,
     });
@@ -210,6 +221,7 @@ describe('recapToPosition', () => {
         bookDoc,
         bookHash: 'h8',
         bookTitle: 'T',
+        uiLanguage: 'en-US',
         aiSettings: {} as never,
         currentSectionIndex: 2,
       }),
@@ -224,6 +236,7 @@ describe('recapToPosition', () => {
         bookDoc,
         bookHash: 'h10',
         bookTitle: 'T',
+        uiLanguage: 'en-US',
         aiSettings: SETTINGS,
         currentSectionIndex: 0,
       }),

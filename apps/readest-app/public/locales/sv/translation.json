@@ -1719,5 +1719,16 @@
   "OpenAI API Key": "OpenAI API-nyckel",
   "OpenAI Base URL": "OpenAI bas-URL",
   "OpenAI Model": "OpenAI-modell",
-  "Not Configured": "Inte konfigurerad"
+  "Not Configured": "Inte konfigurerad",
+  "Ask AI": "Fråga AI",
+  "Ask AI about the selection": "Fråga AI om markeringen",
+  "Couldn't generate — try again": "Kunde inte generera — försök igen",
+  "Pick an action above.": "Välj en åtgärd ovan.",
+  "AI answer language": "AI-svarsspråk",
+  "Book language": "Bokspråk",
+  "App language": "Appspråk",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Ställer in språket för AI-sammanfattningar, återblickar och Förklara/Definiera på markerad text. Förenkla använder alltid bokens språk.",
+  "Explain": "Förklara",
+  "Simplify": "Förenkla",
+  "Define": "Definiera"
 }

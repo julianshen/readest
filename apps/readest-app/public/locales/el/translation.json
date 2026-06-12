@@ -1719,5 +1719,16 @@
   "OpenAI API Key": "Κλειδί API OpenAI",
   "OpenAI Base URL": "Βασική URL OpenAI",
   "OpenAI Model": "Μοντέλο OpenAI",
-  "Not Configured": "Δεν έχει διαμορφωθεί"
+  "Not Configured": "Δεν έχει διαμορφωθεί",
+  "Ask AI": "Ερώτηση στο AI",
+  "Ask AI about the selection": "Ρώτησε το AI για την επιλογή",
+  "Couldn't generate — try again": "Αδύνατη η δημιουργία — δοκίμασε ξανά",
+  "Pick an action above.": "Επέλεξε μια ενέργεια παραπάνω.",
+  "AI answer language": "Γλώσσα απάντησης AI",
+  "Book language": "Γλώσσα βιβλίου",
+  "App language": "Γλώσσα εφαρμογής",
+  "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Ορίζει τη γλώσσα για περιλήψεις AI, ανακεφαλαιώσεις και Εξήγηση/Ορισμό στο επιλεγμένο κείμενο. Η απλοποίηση χρησιμοποιεί πάντα τη γλώσσα του βιβλίου.",
+  "Explain": "Εξήγηση",
+  "Simplify": "Απλοποίηση",
+  "Define": "Ορισμός"
 }

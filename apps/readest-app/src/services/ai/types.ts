@@ -49,6 +49,13 @@ export interface AISettings {
   indexingMode: 'on-demand' | 'background';
 
   /**
+   * Output language for AI summaries/recap and selected-text Explain/Define.
+   * `book` (default) uses the book's language; `app` uses the UI language.
+   * Selected-text "Simplify" always uses the book's language regardless.
+   */
+  answerLanguage?: 'book' | 'app';
+
+  /**
    * Reedy MVP retrieval (Turso vector + Tantivy FTS + CFI citations).
    * MVP is desktop-only — the runtime gate in `selectBackend()` enforces
    * isTauri() regardless of this flag. UI in M1.8 disables the toggle on web.
