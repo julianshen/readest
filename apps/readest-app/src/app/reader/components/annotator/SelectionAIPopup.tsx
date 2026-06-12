@@ -86,13 +86,18 @@ const SelectionAIPopup: React.FC<SelectionAIPopupProps> = ({
     }
   };
 
-  const handleCopy = () => {
-    if (answer) navigator.clipboard?.writeText(answer);
-    eventDispatcher.dispatch('toast', {
-      type: 'info',
-      timeout: 2000,
-      message: _('Copied'),
-    });
+  const handleCopy = async () => {
+    if (!answer) return;
+    try {
+      await navigator.clipboard?.writeText(answer);
+      eventDispatcher.dispatch('toast', {
+        type: 'info',
+        timeout: 2000,
+        message: _('Copied'),
+      });
+    } catch {
+      // clipboard unavailable — silently ignore
+    }
   };
 
   return (

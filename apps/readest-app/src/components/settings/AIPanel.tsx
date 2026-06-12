@@ -467,7 +467,7 @@ const AIPanel: React.FC = () => {
           checked={enabled}
           onChange={() => setEnabled(!enabled)}
         />
-        <SettingsRow label={_('AI answer language')} asLabel>
+        <SettingsRow label={_('AI answer language')} asLabel className={disabledSection}>
           <SettingsSelect
             value={settings.aiSettings?.answerLanguage ?? 'book'}
             ariaLabel={_('AI answer language')}

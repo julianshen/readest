@@ -990,12 +990,14 @@ const Annotator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   const handleTranslation = () => {
     if (!selection || !selection.text) return;
     setShowAnnotPopup(false);
+    setShowSelectionAIPopup(false);
     setShowDeepLPopup(true);
   };
 
   const handleSelectionAI = () => {
     if (!selection || !selection.text) return;
     setShowAnnotPopup(false);
+    setShowDeepLPopup(false);
     setShowSelectionAIPopup(true);
   };
 
