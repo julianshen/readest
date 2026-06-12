@@ -95,16 +95,16 @@ const SelectionAIPopup: React.FC<SelectionAIPopupProps> = ({
         minHeight={popupHeight}
         position={position}
         trianglePosition={trianglePosition}
-        className='select-text flex flex-col bg-base-200'
-        triangleClassName='text-base-200'
+        className='not-eink:text-gray-400 select-text flex flex-col bg-gray-700'
+        triangleClassName='text-gray-700'
         onDismiss={onDismiss}
       >
-        <div className='flex items-center gap-1 border-b border-base-300 p-2'>
-          <PiSparkle className='h-4 w-4 text-base-content/70' />
+        <div className='not-eink:border-gray-500/30 flex items-center gap-1 border-b border-base-300 p-2'>
+          <PiSparkle className='not-eink:text-gray-400 h-4 w-4 text-base-content' />
           {ACTIONS.map((a) => (
             <button
               key={a.key}
-              className={`btn btn-ghost btn-xs ${active === a.key ? 'btn-active' : ''}`}
+              className={`btn btn-ghost btn-xs not-eink:text-gray-400 not-eink:hover:bg-gray-600 not-eink:hover:text-white ${active === a.key ? 'btn-active not-eink:!text-white' : ''}`}
               disabled={streaming}
               onClick={() => run(a.key)}
             >
@@ -112,21 +112,26 @@ const SelectionAIPopup: React.FC<SelectionAIPopupProps> = ({
             </button>
           ))}
         </div>
-        <div className='min-h-12 flex-1 overflow-y-auto p-3 font-sans text-sm text-base-content'>
+        <div className='not-eink:text-gray-300 min-h-12 flex-1 overflow-y-auto p-3 font-sans text-sm text-base-content'>
           {error ? (
             <span className='text-error'>{error}</span>
           ) : active ? (
             <span className='whitespace-pre-wrap'>
               {answer}
-              {streaming && <span className='opacity-50'>▍</span>}
+              {streaming && <span className='not-eink:opacity-50'>▍</span>}
             </span>
           ) : (
-            <span className='text-base-content/50'>{_('Pick an action above.')}</span>
+            <span className='not-eink:text-gray-500 text-base-content'>
+              {_('Pick an action above.')}
+            </span>
           )}
         </div>
         {answer && !streaming && (
-          <div className='flex justify-end gap-2 border-t border-base-300 p-2'>
-            <button className='btn btn-ghost btn-xs' onClick={handleCopy}>
+          <div className='not-eink:border-gray-500/30 flex justify-end gap-2 border-t border-base-300 p-2'>
+            <button
+              className='btn btn-ghost btn-xs not-eink:text-gray-400 not-eink:hover:bg-gray-600 not-eink:hover:text-white'
+              onClick={handleCopy}
+            >
               <FiCopy className='h-3.5 w-3.5' /> {_('Copy')}
             </button>
           </div>
