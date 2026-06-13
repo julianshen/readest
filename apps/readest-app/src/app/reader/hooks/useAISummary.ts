@@ -2,10 +2,11 @@ import { useCallback, useRef } from 'react';
 import { useReaderStore } from '@/store/readerStore';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useNotebookStore } from '@/store/notebookStore';
+import { useAIChatStore } from '@/store/aiChatStore';
 import { eventDispatcher } from '@/utils/event';
 import { useTranslation } from '@/hooks/useTranslation';
 
-const PROMPTS: Record<string, string> = {
+const PROMPTS: Record<'recap' | 'chapter', string> = {
   recap:
     'Please recap what I have read so far in this book, covering the story up to where I am now. Write a flowing narrative — key events, character developments, and where we left off.',
   chapter:
@@ -17,6 +18,7 @@ export function useAISummary(bookKey: string) {
   const { getProgress } = useReaderStore();
   const { getBookData } = useBookDataStore();
   const { setNotebookVisible, setNotebookActiveTab } = useNotebookStore();
+  const { setPendingPrompt } = useAIChatStore();
   const busyRef = useRef(false);
 
   const run = useCallback(
@@ -43,16 +45,12 @@ export function useAISummary(bookKey: string) {
           return;
         }
 
-        // Open the notebook panel
+        // Open the notebook panel — this causes CopilotMvpAssistant to mount.
+        // The prompt is written to the store first so CopilotMvpAssistant can
+        // pick it up in a useEffect regardless of mount timing.
+        setPendingPrompt(PROMPTS[kind]);
         setNotebookVisible(true);
         setNotebookActiveTab('ai');
-
-        // Dispatch an event that the AI chat component listens for.
-        // The component injects the prompt as a user message and the AI
-        // responds naturally through the streaming chat flow.
-        eventDispatcher.dispatch('ai-assistant-request', {
-          prompt: PROMPTS[kind],
-        });
       } finally {
         busyRef.current = false;
       }

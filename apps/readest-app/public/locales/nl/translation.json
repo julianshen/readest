@@ -1729,7 +1729,7 @@
   "Left to Right": "Links naar rechts",
   "Right to Left": "Rechts naar links",
   "Error: ": "Fout: ",
-  "Ask about this book...": "Stel een vraag over dit boek...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stel vragen over \"{{bookTitle}}\" en krijg AI-antwoorden met relevante passages.",
-  "Stop": "Stoppen"
+  "Ask about this book...": "Vraag over dit boek...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stel vragen over \"{{bookTitle}}\" en krijg AI-gestuurde antwoorden met relevante passages.",
+  "Stop": "Stop"
 }

@@ -1695,8 +1695,8 @@
   "Reading Direction": "阅读方向",
   "Left to Right": "从左到右",
   "Right to Left": "从右到左",
-  "Error: ": "错误：",
-  "Ask about this book...": "询问关于本书的问题…",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "就《{{bookTitle}}》提问，获取由 AI 生成的回答及相关段落。",
+  "Error: ": "错误: ",
+  "Ask about this book...": "询问关于这本书...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "就\"{{bookTitle}}\"提问，获取AI驱动的答案及相关段落。",
   "Stop": "停止"
 }

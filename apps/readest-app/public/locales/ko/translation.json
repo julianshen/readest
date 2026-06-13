@@ -1697,6 +1697,6 @@
   "Right to Left": "오른쪽에서 왼쪽",
   "Error: ": "오류: ",
   "Ask about this book...": "이 책에 대해 질문하기...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\"에 대해 질문하고 관련 구절과 함께 AI 답변을 받아보세요.",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\"에 대해 질문하고 AI가 관련 구절과 함께 답변을 제공합니다.",
   "Stop": "중지"
 }

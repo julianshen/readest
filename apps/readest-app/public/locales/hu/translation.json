@@ -1729,7 +1729,7 @@
   "Left to Right": "Balról jobbra",
   "Right to Left": "Jobbról balra",
   "Error: ": "Hiba: ",
-  "Ask about this book...": "Kérdezz erről a könyvről...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Tegyél fel kérdéseket a(z) „{{bookTitle}}” könyvről, és kapj MI-válaszokat a kapcsolódó részletekkel.",
+  "Ask about this book...": "Kérdezzen erről a könyvről...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Tegyen fel kérdéseket a(z) „{{bookTitle}}” könyvről, és kapjon AI-alapú válaszokat releváns részekkel.",
   "Stop": "Leállítás"
 }

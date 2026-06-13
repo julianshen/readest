@@ -1696,7 +1696,7 @@
   "Left to Right": "གཡོན་ནས་གཡས།",
   "Right to Left": "གཡས་ནས་གཡོན།",
   "Error: ": "ནོར་འཁྲུལ། ",
-  "Ask about this book...": "དེབ་འདིའི་སྐོར་ལ་དྲིས། ...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" ཡི་སྐོར་ལ་དྲི་བ་བཏང་ནས་འབྲེལ་ཡོད་ཚིག་ཆ་དང་བཅས་ AI ལན་ཐོབ།",
-  "Stop": "མཚམས་འཇོག"
+  "Ask about this book...": "དཔེ་དེབ་འདིའི་སྐོར་ལ་དྲིས།...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" ཡི་སྐོར་ལ་དྲི་བ་ཞུས་ཏེ་འབྲེལ་ཡོད་ཚིག་སྒྲོམ་དང་མཉམ་དུ་AI-གྱིས་ལན་འདེབས་ཐོབ།",
+  "Stop": "འགོག"
 }

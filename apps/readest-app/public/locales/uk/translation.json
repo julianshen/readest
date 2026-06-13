@@ -1795,7 +1795,7 @@
   "Left to Right": "Зліва направо",
   "Right to Left": "Справа наліво",
   "Error: ": "Помилка: ",
-  "Ask about this book...": "Запитайте про цю книгу...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Ставте запитання про «{{bookTitle}}» та отримуйте відповіді ШІ з відповідними уривками.",
+  "Ask about this book...": "Запитати про цю книгу...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Задавайте запитання про «{{bookTitle}}» та отримуйте відповіді на основі ШІ з відповідними уривками.",
   "Stop": "Зупинити"
 }

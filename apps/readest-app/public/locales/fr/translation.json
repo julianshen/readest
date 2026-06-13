@@ -1762,7 +1762,7 @@
   "Left to Right": "De gauche à droite",
   "Right to Left": "De droite à gauche",
   "Error: ": "Erreur : ",
-  "Ask about this book...": "Poser une question sur ce livre…",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Posez des questions sur « {{bookTitle}} » et obtenez des réponses générées par l’IA avec les passages pertinents.",
+  "Ask about this book...": "Poser une question sur ce livre...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Posez des questions sur \"{{bookTitle}}\" et obtenez des réponses alimentées par l'IA avec des passages pertinents.",
   "Stop": "Arrêter"
 }

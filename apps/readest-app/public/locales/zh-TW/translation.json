@@ -1696,7 +1696,7 @@
   "Left to Right": "從左到右",
   "Right to Left": "從右到左",
   "Error: ": "錯誤：",
-  "Ask about this book...": "詢問關於本書的問題…",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "就《{{bookTitle}}》提問，獲取由 AI 生成的回答與相關段落。",
+  "Ask about this book...": "詢問關於這本書……",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "詢問關於「{{bookTitle}}」的問題，並透過人工智能取得答案及相關段落。",
   "Stop": "停止"
 }

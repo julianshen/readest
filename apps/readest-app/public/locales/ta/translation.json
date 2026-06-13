@@ -1729,7 +1729,7 @@
   "Left to Right": "இடமிருந்து வலம்",
   "Right to Left": "வலமிருந்து இடம்",
   "Error: ": "பிழை: ",
-  "Ask about this book...": "இந்த புத்தகம் குறித்து கேளுங்கள்...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" குறித்து கேள்விகள் கேட்டு, தொடர்புடைய பகுதிகளுடன் AI பதில்களைப் பெறுங்கள்.",
+  "Ask about this book...": "இந்த புத்தகத்தைப் பற்றி கேளுங்கள்...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" பற்றி கேள்விகள் கேட்டு, தொடர்புடைய பகுதிகளுடன் AI-இயக்க பதில்களைப் பெறுங்கள்.",
   "Stop": "நிறுத்து"
 }

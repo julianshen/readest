@@ -1729,7 +1729,7 @@
   "Left to Right": "Links nach rechts",
   "Right to Left": "Rechts nach links",
   "Error: ": "Fehler: ",
-  "Ask about this book...": "Stellen Sie eine Frage zu diesem Buch …",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stellen Sie Fragen zu „{{bookTitle}}“ und erhalten Sie KI-gestützte Antworten mit relevanten Passagen.",
+  "Ask about this book...": "Fragen Sie zu diesem Buch...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stellen Sie Fragen zu \"{{bookTitle}}\" und erhalten Sie KI-gestützte Antworten mit relevanten Passagen.",
   "Stop": "Stopp"
 }

@@ -1729,7 +1729,7 @@
   "Left to Right": "Soldan sağa",
   "Right to Left": "Sağdan sola",
   "Error: ": "Hata: ",
-  "Ask about this book...": "Bu kitap hakkında soru sorun...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" hakkında sorular sorun ve ilgili pasajlarla yapay zekâ yanıtları alın.",
+  "Ask about this book...": "Bu kitap hakkında sor...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" hakkında sorular sorun ve ilgili pasajlarla AI destekli yanıtlar alın.",
   "Stop": "Durdur"
 }

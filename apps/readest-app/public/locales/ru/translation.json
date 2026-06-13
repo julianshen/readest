@@ -1795,7 +1795,7 @@
   "Left to Right": "Слева направо",
   "Right to Left": "Справа налево",
   "Error: ": "Ошибка: ",
-  "Ask about this book...": "Спросите об этой книге...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Задавайте вопросы о «{{bookTitle}}» и получайте ответы ИИ с релевантными фрагментами.",
-  "Stop": "Остановить"
+  "Ask about this book...": "Спросить об этой книге...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Задавайте вопросы о «{{bookTitle}}» и получайте ответы на основе ИИ с соответствующими отрывками.",
+  "Stop": "Стоп"
 }

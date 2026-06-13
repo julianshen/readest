@@ -22,7 +22,6 @@ import { isTauriAppPlatform } from '@/services/environment';
 import type { AppService } from '@/types/system';
 import { getAIProvider } from '@/services/ai/providers';
 import { buildSystemPrompt } from '@/services/ai/prompts';
-import { eventDispatcher } from '@/utils/event';
 
 import { ReedyAssistant } from '@/services/reedy/ui/ReedyAssistant';
 import type { ReadingContextSnapshot } from '@/services/reedy/tools/builtins/types';
@@ -85,7 +84,7 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
   const { settings } = useSettingsStore();
   const { getBookData } = useBookDataStore();
   const { getProgress } = useReaderStore();
-  const { conversations, loadConversations } = useAIChatStore();
+  const { conversations, loadConversations, pendingPrompt, setPendingPrompt } = useAIChatStore();
   const bookData = getBookData(bookKey);
   const progress = getProgress(bookKey);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -219,7 +218,10 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
             const next = [...prev];
             const last = next[next.length - 1];
             if (last && last.role === 'assistant') {
-              next[next.length - 1] = { ...last, content: _(`Error: ${(e as Error).message}`) };
+              next[next.length - 1] = {
+                ...last,
+                content: `${_('Error: ')}${(e as Error).message}`,
+              };
             }
             return next;
           });
@@ -253,19 +255,14 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
     [handleSend],
   );
 
-  // ---- Listen for AI Summary / external assistant requests ----
+  // ---- Consume pending prompt from store (e.g. AI Summary) ----
   useEffect(() => {
-    const handler = async (event: CustomEvent) => {
-      const { prompt } = event.detail ?? {};
-      if (typeof prompt === 'string') {
-        sendMessage(prompt);
-      }
-    };
-    eventDispatcher.on('ai-assistant-request', handler);
-    return () => {
-      eventDispatcher.off('ai-assistant-request', handler);
-    };
-  }, [sendMessage]);
+    if (pendingPrompt && !isGenerating) {
+      const p = pendingPrompt;
+      setPendingPrompt(null);
+      sendMessage(p);
+    }
+  }, [pendingPrompt, isGenerating, sendMessage, setPendingPrompt]);
 
   // ---- Guard: AI not enabled ----
   if (!aiSettings?.enabled) {

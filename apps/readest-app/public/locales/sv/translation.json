@@ -1729,7 +1729,7 @@
   "Left to Right": "Vänster till höger",
   "Right to Left": "Höger till vänster",
   "Error: ": "Fel: ",
-  "Ask about this book...": "Fråga om den här boken...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Ställ frågor om ”{{bookTitle}}” och få AI-svar med relevanta avsnitt.",
-  "Stop": "Stoppa"
+  "Ask about this book...": "Fråga om denna bok...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Ställ frågor om \"{{bookTitle}}\" och få AI-drivna svar med relevanta avsnitt.",
+  "Stop": "Stopp"
 }

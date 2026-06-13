@@ -1730,6 +1730,6 @@
   "Right to Left": "Από δεξιά προς τα αριστερά",
   "Error: ": "Σφάλμα: ",
   "Ask about this book...": "Ρωτήστε για αυτό το βιβλίο...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Κάντε ερωτήσεις για το «{{bookTitle}}» και λάβετε απαντήσεις AI με σχετικά αποσπάσματα.",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Κάντε ερωτήσεις για το \"{{bookTitle}}\" και λάβετε απαντήσεις με τεχνητή νοημοσύνη και σχετικά αποσπάσματα.",
   "Stop": "Διακοπή"
 }

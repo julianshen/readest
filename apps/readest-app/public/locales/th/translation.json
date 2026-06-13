@@ -1697,6 +1697,6 @@
   "Right to Left": "ขวาไปซ้าย",
   "Error: ": "ข้อผิดพลาด: ",
   "Ask about this book...": "ถามเกี่ยวกับหนังสือเล่มนี้...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "ถามคำถามเกี่ยวกับ \"{{bookTitle}}\" และรับคำตอบจาก AI พร้อมข้อความที่เกี่ยวข้อง",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "ถามคำถามเกี่ยวกับ \"{{bookTitle}}\" และรับคำตอบที่ขับเคลื่อนด้วย AI พร้อมข้อความที่เกี่ยวข้อง",
   "Stop": "หยุด"
 }

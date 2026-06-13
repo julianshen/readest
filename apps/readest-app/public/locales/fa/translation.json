@@ -1730,6 +1730,6 @@
   "Right to Left": "از راست به چپ",
   "Error: ": "خطا: ",
   "Ask about this book...": "درباره این کتاب بپرسید...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "درباره «{{bookTitle}}» سؤال بپرسید و پاسخ‌های مبتنی بر هوش مصنوعی همراه با بخش‌های مرتبط دریافت کنید.",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "درباره \"{{bookTitle}}\" سوال بپرسید و پاسخ‌های مبتنی بر هوش مصنوعی با قطعات مرتبط دریافت کنید.",
   "Stop": "توقف"
 }

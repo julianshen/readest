@@ -1729,7 +1729,7 @@
   "Left to Right": "Chapdan o‘ngga",
   "Right to Left": "O‘ngdan chapga",
   "Error: ": "Xato: ",
-  "Ask about this book...": "Ushbu kitob haqida so‘rang...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" haqida savollar bering va tegishli parchalar bilan AI javoblarini oling.",
-  "Stop": "To‘xtatish"
+  "Ask about this book...": "Ushbu kitob haqida so'rang...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "«\"{{bookTitle}}\"» kitobi haqida savollar bering va tegishli parchalar bilan AI tomonidan javoblar oling.",
+  "Stop": "To'xtatish"
 }
