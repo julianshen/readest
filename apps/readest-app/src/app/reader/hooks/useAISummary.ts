@@ -33,12 +33,14 @@ export function useAISummary(bookKey: string) {
           kind === 'recap'
             ? `${_('Recap')} — ${book.title}`
             : `${_('Chapter Summary')} — ${book.title}`;
-        const conversationId = await openAIInNotebook({
-          bookHash: book.hash,
-          newConversationTitle: title,
-        });
-        if (!conversationId) return;
 
+        // Open the notebook panel first for immediate visual feedback, but
+        // DON'T create the conversation yet — the assistant-ui runtime won't
+        // pick up messages added after initialization, leaving a blank panel.
+        // Instead we show the "Ask about this book" empty state + composer
+        // while generating, then create the conversation with the message
+        // pre-loaded so the runtime initializes with the summary in place.
+        openAIInNotebook();
         eventDispatcher.dispatch('toast', {
           type: 'info',
           message:
@@ -60,7 +62,17 @@ export function useAISummary(bookKey: string) {
             kind === 'recap'
               ? await recapToPosition({ ...args, currentSectionIndex: sectionIndex })
               : await summarizeChapter({ ...args, sectionIndex });
-          await addMessage({ conversationId, role: 'assistant', content: text });
+
+          // Summary generated — now create the conversation and add the message.
+          // The conversation is created AFTER the text is ready, so the
+          // assistant-ui runtime sees the message on first load.
+          const conversationId = await openAIInNotebook({
+            bookHash: book.hash,
+            newConversationTitle: title,
+          });
+          if (conversationId) {
+            await addMessage({ conversationId, role: 'assistant', content: text });
+          }
         } catch (e) {
           if ((e as Error).message === SummaryErrorCodes.NOT_CONFIGURED) {
             eventDispatcher.dispatch('toast', {
@@ -70,19 +82,26 @@ export function useAISummary(bookKey: string) {
             return;
           }
           if ((e as Error).message === SummaryErrorCodes.NOTHING_TO_RECAP) {
-            await addMessage({
-              conversationId,
-              role: 'assistant',
-              content: _("You're at the very beginning — nothing to recap yet."),
+            // No conversation yet — show a toast instead of adding a message
+            eventDispatcher.dispatch('toast', {
+              type: 'info',
+              message: _("You're at the very beginning — nothing to recap yet."),
             });
             return;
           }
-          // CHAPTER_UNREADABLE and provider failures both land here by design
-          await addMessage({
-            conversationId,
-            role: 'assistant',
-            content: _('Summary failed. Please try again.'),
+          // CHAPTER_UNREADABLE and provider failures: create a conversation
+          // with the error text so the user sees it in the panel.
+          const conversationId = await openAIInNotebook({
+            bookHash: book.hash,
+            newConversationTitle: title,
           });
+          if (conversationId) {
+            await addMessage({
+              conversationId,
+              role: 'assistant',
+              content: _('Summary failed. Please try again.'),
+            });
+          }
         }
       } finally {
         busyRef.current = false;

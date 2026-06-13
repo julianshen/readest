@@ -179,6 +179,19 @@ export const Thread: FC<ThreadProps> = ({
         </ThreadPrimitive.Empty>
       )}
 
+      {/*
+        When a conversation exists but the thread has no messages yet (e.g.
+        initial load), show the composer so the panel isn't blank. This
+        avoids the "whole panel is empty" state.
+      */}
+      {hasActiveConversation && (
+        <ThreadPrimitive.Empty>
+          <div className='animate-in fade-in flex h-full flex-col items-center justify-center duration-300'>
+            <Composer onClear={onClear} onResetIndex={onResetIndex} />
+          </div>
+        </ThreadPrimitive.Empty>
+      )}
+
       <AssistantIf condition={(s) => s.thread.isEmpty === false}>
         <div
           className={cn(

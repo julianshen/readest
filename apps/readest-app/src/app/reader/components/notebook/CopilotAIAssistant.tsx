@@ -1,0 +1,518 @@
+'use client';
+
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Markdown } from '@copilotkit/react-ui';
+import { streamText } from 'ai';
+
+import { useTranslation } from '@/hooks/useTranslation';
+import { useSettingsStore } from '@/store/settingsStore';
+import { useBookDataStore } from '@/store/bookDataStore';
+import { useReaderStore } from '@/store/readerStore';
+import { useAIChatStore } from '@/store/aiChatStore';
+import { aiLogger } from '@/services/ai';
+import {
+  LegacyIdbBackend,
+  ReedyBackend,
+  selectBackend,
+  type RetrievalBackend,
+} from '@/services/ai/adapters';
+import type { EmbeddingProgress } from '@/services/ai/types';
+import { useEnv } from '@/context/EnvContext';
+import { isTauriAppPlatform } from '@/services/environment';
+import type { AppService } from '@/types/system';
+import { getAIProvider } from '@/services/ai/providers';
+import { buildSystemPrompt } from '@/services/ai/prompts';
+
+import { ReedyAssistant } from '@/services/reedy/ui/ReedyAssistant';
+import type { ReadingContextSnapshot } from '@/services/reedy/tools/builtins/types';
+
+import { Button } from '@/components/ui/button';
+import {
+  Loader2Icon,
+  BookOpenIcon,
+  SendHorizonalIcon,
+  SparklesIcon,
+  StopCircleIcon,
+} from 'lucide-react';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface CopilotAIAssistantProps {
+  bookKey: string;
+}
+
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
+// ---------------------------------------------------------------------------
+// Entry point
+// ---------------------------------------------------------------------------
+
+const CopilotAIAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
+  const { appService } = useEnv();
+  const { settings } = useSettingsStore();
+  const { getBookData } = useBookDataStore();
+  const bookData = getBookData(bookKey);
+
+  const useAgentRuntime =
+    settings?.aiSettings?.reedy?.enabled === true &&
+    settings?.aiSettings?.reedy?.runtime === 'agent' &&
+    !!appService &&
+    isTauriAppPlatform() &&
+    !!bookData?.bookDoc;
+
+  if (useAgentRuntime) {
+    return <ReedyAgentAssistantBridge bookKey={bookKey} />;
+  }
+
+  return <CopilotMvpAssistant bookKey={bookKey} />;
+};
+
+// ---------------------------------------------------------------------------
+// MVP chat assistant — CopilotKit Markdown + custom chat state
+// ---------------------------------------------------------------------------
+
+const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
+  const _ = useTranslation();
+  const { appService } = useEnv();
+  const { settings } = useSettingsStore();
+  const { getBookData } = useBookDataStore();
+  const { getProgress } = useReaderStore();
+  const { conversations, loadConversations } = useAIChatStore();
+  const bookData = getBookData(bookKey);
+  const progress = getProgress(bookKey);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isIndexing, setIsIndexing] = useState(false);
+  const [indexProgress, setIndexProgress] = useState<EmbeddingProgress | null>(null);
+  const [indexed, setIndexed] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const bookHash = bookKey.split('-')[0] || '';
+  const bookTitle = bookData?.book?.title || 'Unknown';
+  const authorName = bookData?.book?.author || '';
+  const currentPage = progress?.pageinfo?.current ?? 0;
+  const aiSettings = settings?.aiSettings;
+
+  const backend = useMemo<RetrievalBackend | null>(() => {
+    if (!aiSettings) return null;
+    const legacy = new LegacyIdbBackend(aiSettings);
+    const reedy: RetrievalBackend | null =
+      appService && isTauriAppPlatform()
+        ? new ReedyBackend(appService as AppService, aiSettings)
+        : null;
+    return selectBackend({ settings: aiSettings, isTauri: isTauriAppPlatform(), legacy, reedy });
+  }, [aiSettings, appService]);
+
+  useEffect(() => {
+    if (bookHash) loadConversations(bookHash);
+    if (bookHash && backend) {
+      backend
+        .isIndexed(bookHash)
+        .then((result) => {
+          setIndexed(result);
+          setIsLoading(false);
+        })
+        .catch(() => setIsLoading(false));
+    } else if (!backend) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
+  }, [bookHash, backend, loadConversations]);
+
+  const handleIndex = useCallback(async () => {
+    if (!bookData?.bookDoc || !aiSettings || !backend) return;
+    setIsIndexing(true);
+    try {
+      await backend.indexBook(bookData.bookDoc, bookHash, { onProgress: setIndexProgress });
+      setIndexed(true);
+    } catch (e) {
+      aiLogger.rag.indexError(bookHash, (e as Error).message);
+    } finally {
+      setIsIndexing(false);
+      setIndexProgress(null);
+    }
+  }, [bookData?.bookDoc, bookHash, aiSettings, backend]);
+
+  const handleSend = useCallback(async () => {
+    const text = input.trim();
+    if (!text || !aiSettings || isGenerating) return;
+    setInput('');
+
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: text,
+      timestamp: Date.now(),
+    };
+
+    const assistantMsg: ChatMessage = {
+      id: `assistant-${Date.now()}`,
+      role: 'assistant',
+      content: '',
+      timestamp: Date.now(),
+    };
+
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    setIsGenerating(true);
+
+    const abortController = new AbortController();
+    abortRef.current = abortController;
+
+    try {
+      const provider = getAIProvider(aiSettings);
+      const model = provider.getModel();
+      const systemPrompt = buildSystemPrompt(bookTitle, authorName, [], currentPage);
+
+      let chunks = '';
+      if (backend && (await backend.isIndexed(bookHash))) {
+        try {
+          const results =
+            (await backend.searchForSystemPrompt?.(text, bookHash, {
+              topK: aiSettings.maxContextChunks || 5,
+              spoilerBoundPosition: aiSettings.spoilerProtection ? currentPage : undefined,
+            })) ?? [];
+          chunks = results.map((c) => c.text).join('\n\n');
+        } catch (e) {
+          aiLogger.chat.error(`RAG failed: ${(e as Error).message}`);
+        }
+      }
+
+      const finalSystem = chunks
+        ? `${systemPrompt}\n\nRelevant passages from the book:\n${chunks}`
+        : systemPrompt;
+
+      const result = streamText({
+        model,
+        system: finalSystem,
+        messages: [{ role: 'user' as const, content: text }],
+        abortSignal: abortController.signal,
+      });
+
+      let accumulated = '';
+      for await (const part of result.textStream) {
+        accumulated += part;
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === 'assistant') {
+            next[next.length - 1] = { ...last, content: accumulated };
+          }
+          return next;
+        });
+      }
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        aiLogger.chat.error(`Chat failed: ${(e as Error).message}`);
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === 'assistant') {
+            next[next.length - 1] = { ...last, content: _(`Error: ${(e as Error).message}`) };
+          }
+          return next;
+        });
+      }
+    } finally {
+      setIsGenerating(false);
+      abortRef.current = null;
+    }
+  }, [input, aiSettings, bookTitle, authorName, currentPage, backend, bookHash, isGenerating, _]);
+
+  const handleStop = useCallback(() => {
+    abortRef.current?.abort();
+    setIsGenerating(false);
+    abortRef.current = null;
+  }, []);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend],
+  );
+
+  // ---- Guard: AI not enabled ----
+  if (!aiSettings?.enabled) {
+    return (
+      <div className='flex h-full items-center justify-center p-4'>
+        <p className='text-muted-foreground text-sm'>{_('Enable AI in Settings')}</p>
+      </div>
+    );
+  }
+
+  if (isLoading) return null;
+
+  const progressPercent =
+    indexProgress?.phase === 'embedding' && indexProgress.total > 0
+      ? Math.round((indexProgress.current / indexProgress.total) * 100)
+      : 0;
+
+  // ---- Not yet indexed, no existing conversations ----
+  if (!indexed && !isIndexing && conversations.length === 0) {
+    return (
+      <div className='flex h-full flex-col items-center justify-center gap-3 p-4 text-center'>
+        <div className='bg-primary/10 rounded-full p-3'>
+          <BookOpenIcon className='text-primary size-6' />
+        </div>
+        <div>
+          <h3 className='text-foreground mb-0.5 text-sm font-medium'>{_('Index This Book')}</h3>
+          <p className='text-muted-foreground text-xs'>
+            {_('Enable AI search and chat for this book')}
+          </p>
+        </div>
+        <Button onClick={handleIndex} size='sm' className='h-8 text-xs'>
+          <BookOpenIcon className='mr-1.5 size-3.5' />
+          {_('Start Indexing')}
+        </Button>
+      </div>
+    );
+  }
+
+  // ---- Indexing in progress ----
+  if (isIndexing) {
+    return (
+      <div className='flex h-full flex-col items-center justify-center gap-3 p-4 text-center'>
+        <Loader2Icon className='text-primary size-6 animate-spin' />
+        <div>
+          <p className='text-foreground mb-1 text-sm font-medium'>{_('Indexing book...')}</p>
+          <p className='text-muted-foreground text-xs'>
+            {indexProgress?.phase === 'embedding'
+              ? `${indexProgress.current} / ${indexProgress.total} chunks`
+              : _('Preparing...')}
+          </p>
+        </div>
+        <div className='bg-muted h-1.5 w-32 overflow-hidden rounded-full'>
+          <div
+            className='bg-primary h-full transition-all duration-300'
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Chat interface ----
+  return (
+    <div className='flex h-full flex-col'>
+      <ChatMessages
+        messages={messages}
+        isGenerating={isGenerating}
+        onStop={handleStop}
+        bookTitle={bookTitle}
+      />
+      <ChatInput
+        input={input}
+        setInput={setInput}
+        onSend={handleSend}
+        isGenerating={isGenerating}
+        onKeyDown={handleKeyDown}
+        inputRef={inputRef}
+        placeholder={_('Ask about this book...')}
+      />
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Chat message list
+// ---------------------------------------------------------------------------
+
+const ChatMessages = ({
+  messages,
+  isGenerating,
+  onStop,
+  bookTitle,
+}: {
+  messages: ChatMessage[];
+  isGenerating: boolean;
+  onStop: () => void;
+  bookTitle: string;
+}) => {
+  const _ = useTranslation();
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  if (messages.length === 0) {
+    return (
+      <div className='flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center'>
+        <div className='bg-primary/10 rounded-full p-3'>
+          <SparklesIcon className='text-primary size-6' />
+        </div>
+        <p className='text-muted-foreground max-w-xs text-xs leading-relaxed'>
+          {_('Ask questions about "%s" and get AI-powered answers with relevant passages.', [
+            bookTitle,
+          ])}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className='flex-1 space-y-4 overflow-y-auto p-4'>
+      {messages.map((msg) => (
+        <div key={msg.id} className='group'>
+          {msg.role === 'user' ? (
+            <div className='flex justify-end'>
+              <div className='bg-primary/10 text-foreground max-w-[85%] rounded-2xl px-4 py-2.5 text-sm'>
+                {msg.content}
+              </div>
+            </div>
+          ) : (
+            <div className='flex items-start gap-2'>
+              <div className='bg-muted flex size-7 shrink-0 items-center justify-center rounded-full'>
+                <SparklesIcon className='text-primary size-3.5' />
+              </div>
+              <div className='text-foreground min-w-0 flex-1 text-sm leading-relaxed'>
+                {msg.content ? (
+                  <Markdown content={msg.content} />
+                ) : (
+                  <span className='text-muted-foreground italic'>...</span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {isGenerating && (
+        <div className='flex justify-center'>
+          <button
+            onClick={onStop}
+            className='bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors'
+          >
+            <StopCircleIcon className='size-3.5' />
+            {_('Stop')}
+          </button>
+        </div>
+      )}
+
+      <div ref={bottomRef} />
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Chat input
+// ---------------------------------------------------------------------------
+
+const ChatInput = ({
+  input,
+  setInput,
+  onSend,
+  isGenerating,
+  onKeyDown,
+  inputRef,
+  placeholder,
+}: {
+  input: string;
+  setInput: (v: string) => void;
+  onSend: () => void;
+  isGenerating: boolean;
+  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  inputRef: React.RefObject<HTMLTextAreaElement | null>;
+  placeholder: string;
+}) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setInput(e.target.value);
+      // Auto-resize
+      if (inputRef.current) {
+        inputRef.current.style.height = 'auto';
+        inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 160)}px`;
+      }
+    },
+    [setInput, inputRef],
+  );
+
+  return (
+    <div className='border-border/40 bg-background flex-shrink-0 border-t p-3'>
+      <div className='border-border/60 bg-muted/50 flex items-end gap-2 rounded-xl border p-2'>
+        <textarea
+          ref={inputRef}
+          value={input}
+          onChange={handleChange}
+          onKeyDown={onKeyDown}
+          placeholder={placeholder}
+          rows={1}
+          disabled={isGenerating}
+          className='placeholder:text-muted-foreground/50 max-h-[160px] min-h-[24px] flex-1 resize-none bg-transparent px-1 py-0.5 text-sm outline-none disabled:opacity-50'
+        />
+        <button
+          onClick={onSend}
+          disabled={!input.trim() || isGenerating}
+          className='bg-primary text-primary-foreground hover:bg-primary/90 flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors disabled:opacity-40'
+        >
+          <SendHorizonalIcon className='size-4' />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Reedy agent bridge (Phase 4)
+// ---------------------------------------------------------------------------
+
+const ReedyAgentAssistantBridge = ({ bookKey }: CopilotAIAssistantProps) => {
+  const { appService } = useEnv();
+  const { settings } = useSettingsStore();
+  const { getBookData } = useBookDataStore();
+  const { getProgress, getView } = useReaderStore();
+  const bookData = getBookData(bookKey);
+  const progress = getProgress(bookKey);
+
+  const bookHash = bookKey.split('-')[0] || '';
+  const aiSettings = settings?.aiSettings;
+
+  const readingContext = useMemo<ReadingContextSnapshot>(
+    () => ({
+      cfi: progress?.location ?? null,
+      sectionIndex: progress?.section?.current ?? 0,
+      chapterTitle: progress?.sectionLabel ?? null,
+      pageNumber: progress?.pageinfo?.current ?? 0,
+    }),
+    [progress],
+  );
+
+  const handleNavigate = useCallback(
+    (cfi: string) => {
+      getView(bookKey)?.goTo(cfi);
+    },
+    [bookKey, getView],
+  );
+
+  if (!aiSettings || !appService || !bookData?.bookDoc) return null;
+
+  return (
+    <ReedyAssistant
+      appService={appService as AppService}
+      bookDoc={bookData.bookDoc}
+      bookHash={bookHash}
+      bookKey={bookKey}
+      aiSettings={aiSettings}
+      readingContext={readingContext}
+      onNavigateToCfi={handleNavigate}
+    />
+  );
+};
+
+export { CopilotAIAssistant, ReedyAgentAssistantBridge };
+export default CopilotAIAssistant;
