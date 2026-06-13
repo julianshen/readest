@@ -1,20 +1,22 @@
 import { useCallback, useRef } from 'react';
 import { useReaderStore } from '@/store/readerStore';
 import { useBookDataStore } from '@/store/bookDataStore';
-import { useSettingsStore } from '@/store/settingsStore';
-import { useAIChatStore } from '@/store/aiChatStore';
-import { useOpenAIInNotebook } from './useOpenAIInNotebook';
-import { summarizeChapter, recapToPosition, SummaryErrorCodes } from '@/services/ai/summaryService';
+import { useNotebookStore } from '@/store/notebookStore';
 import { eventDispatcher } from '@/utils/event';
-import { getLocale } from '@/utils/misc';
 import { useTranslation } from '@/hooks/useTranslation';
+
+const PROMPTS: Record<string, string> = {
+  recap:
+    'Please recap what I have read so far in this book, covering the story up to where I am now. Write a flowing narrative — key events, character developments, and where we left off.',
+  chapter:
+    'Please provide a concise summary of the chapter I am currently reading. Cover the key events, characters, and important details in the order they occur.',
+};
 
 export function useAISummary(bookKey: string) {
   const _ = useTranslation();
   const { getProgress } = useReaderStore();
   const { getBookData } = useBookDataStore();
-  const { addMessage } = useAIChatStore();
-  const { openAIInNotebook } = useOpenAIInNotebook();
+  const { setNotebookVisible, setNotebookActiveTab } = useNotebookStore();
   const busyRef = useRef(false);
 
   const run = useCallback(
@@ -23,86 +25,34 @@ export function useAISummary(bookKey: string) {
       busyRef.current = true;
       try {
         const bookData = getBookData(bookKey);
-        const bookDoc = bookData?.bookDoc;
         const book = bookData?.book;
         const progress = getProgress(bookKey);
         const sectionIndex = progress?.index ?? 0;
-        if (!bookDoc || !book) return;
 
-        const title =
-          kind === 'recap'
-            ? `${_('Recap')} — ${book.title}`
-            : `${_('Chapter Summary')} — ${book.title}`;
-
-        // Open the notebook panel first for immediate visual feedback, but
-        // DON'T create the conversation yet — the assistant-ui runtime won't
-        // pick up messages added after initialization, leaving a blank panel.
-        // Instead we show the "Ask about this book" empty state + composer
-        // while generating, then create the conversation with the message
-        // pre-loaded so the runtime initializes with the summary in place.
-        openAIInNotebook();
-        eventDispatcher.dispatch('toast', {
-          type: 'info',
-          message:
-            kind === 'recap'
-              ? _('Generating recap — this may take a minute...')
-              : _('Summarizing chapter — this may take a moment...'),
-        });
-
-        try {
-          const aiSettings = useSettingsStore.getState().settings.aiSettings;
-          const args = {
-            bookDoc,
-            bookHash: book.hash,
-            bookTitle: book.title,
-            uiLanguage: getLocale(),
-            aiSettings,
-          };
-          const text =
-            kind === 'recap'
-              ? await recapToPosition({ ...args, currentSectionIndex: sectionIndex })
-              : await summarizeChapter({ ...args, sectionIndex });
-
-          // Summary generated — now create the conversation and add the message.
-          // The conversation is created AFTER the text is ready, so the
-          // assistant-ui runtime sees the message on first load.
-          const conversationId = await openAIInNotebook({
-            bookHash: book.hash,
-            newConversationTitle: title,
-          });
-          if (conversationId) {
-            await addMessage({ conversationId, role: 'assistant', content: text });
-          }
-        } catch (e) {
-          if ((e as Error).message === SummaryErrorCodes.NOT_CONFIGURED) {
-            eventDispatcher.dispatch('toast', {
-              type: 'warning',
-              message: _('Configure an AI provider in Settings → AI Assistant first'),
-            });
-            return;
-          }
-          if ((e as Error).message === SummaryErrorCodes.NOTHING_TO_RECAP) {
-            // No conversation yet — show a toast instead of adding a message
-            eventDispatcher.dispatch('toast', {
-              type: 'info',
-              message: _("You're at the very beginning — nothing to recap yet."),
-            });
-            return;
-          }
-          // CHAPTER_UNREADABLE and provider failures: create a conversation
-          // with the error text so the user sees it in the panel.
-          const conversationId = await openAIInNotebook({
-            bookHash: book.hash,
-            newConversationTitle: title,
-          });
-          if (conversationId) {
-            await addMessage({
-              conversationId,
-              role: 'assistant',
-              content: _('Summary failed. Please try again.'),
-            });
-          }
+        if (!book) {
+          busyRef.current = false;
+          return;
         }
+
+        // If at the very beginning, there's nothing to recap
+        if (kind === 'recap' && sectionIndex <= 0) {
+          eventDispatcher.dispatch('toast', {
+            type: 'info',
+            message: _("You're at the very beginning \u2014 nothing to recap yet."),
+          });
+          return;
+        }
+
+        // Open the notebook panel
+        setNotebookVisible(true);
+        setNotebookActiveTab('ai');
+
+        // Dispatch an event that the AI chat component listens for.
+        // The component injects the prompt as a user message and the AI
+        // responds naturally through the streaming chat flow.
+        eventDispatcher.dispatch('ai-assistant-request', {
+          prompt: PROMPTS[kind],
+        });
       } finally {
         busyRef.current = false;
       }

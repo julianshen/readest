@@ -22,6 +22,7 @@ import { isTauriAppPlatform } from '@/services/environment';
 import type { AppService } from '@/types/system';
 import { getAIProvider } from '@/services/ai/providers';
 import { buildSystemPrompt } from '@/services/ai/prompts';
+import { eventDispatcher } from '@/utils/event';
 
 import { ReedyAssistant } from '@/services/reedy/ui/ReedyAssistant';
 import type { ReadingContextSnapshot } from '@/services/reedy/tools/builtins/types';
@@ -145,90 +146,96 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
     }
   }, [bookData?.bookDoc, bookHash, aiSettings, backend]);
 
-  const handleSend = useCallback(async () => {
-    const text = input.trim();
-    if (!text || !aiSettings || isGenerating) return;
-    setInput('');
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text || !aiSettings || isGenerating) return;
 
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: text,
-      timestamp: Date.now(),
-    };
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content: text,
+        timestamp: Date.now(),
+      };
 
-    const assistantMsg: ChatMessage = {
-      id: `assistant-${Date.now()}`,
-      role: 'assistant',
-      content: '',
-      timestamp: Date.now(),
-    };
+      const assistantMsg: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+      };
 
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
-    setIsGenerating(true);
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setIsGenerating(true);
 
-    const abortController = new AbortController();
-    abortRef.current = abortController;
+      const abortController = new AbortController();
+      abortRef.current = abortController;
 
-    try {
-      const provider = getAIProvider(aiSettings);
-      const model = provider.getModel();
-      const systemPrompt = buildSystemPrompt(bookTitle, authorName, [], currentPage);
+      try {
+        const provider = getAIProvider(aiSettings);
+        const model = provider.getModel();
+        const systemPrompt = buildSystemPrompt(bookTitle, authorName, [], currentPage);
 
-      let chunks = '';
-      if (backend && (await backend.isIndexed(bookHash))) {
-        try {
-          const results =
-            (await backend.searchForSystemPrompt?.(text, bookHash, {
-              topK: aiSettings.maxContextChunks || 5,
-              spoilerBoundPosition: aiSettings.spoilerProtection ? currentPage : undefined,
-            })) ?? [];
-          chunks = results.map((c) => c.text).join('\n\n');
-        } catch (e) {
-          aiLogger.chat.error(`RAG failed: ${(e as Error).message}`);
+        let chunks = '';
+        if (backend && (await backend.isIndexed(bookHash))) {
+          try {
+            const results =
+              (await backend.searchForSystemPrompt?.(text, bookHash, {
+                topK: aiSettings.maxContextChunks || 5,
+                spoilerBoundPosition: aiSettings.spoilerProtection ? currentPage : undefined,
+              })) ?? [];
+            chunks = results.map((c) => c.text).join('\n\n');
+          } catch (e) {
+            aiLogger.chat.error(`RAG failed: ${(e as Error).message}`);
+          }
         }
-      }
 
-      const finalSystem = chunks
-        ? `${systemPrompt}\n\nRelevant passages from the book:\n${chunks}`
-        : systemPrompt;
+        const finalSystem = chunks
+          ? `${systemPrompt}\n\nRelevant passages from the book:\n${chunks}`
+          : systemPrompt;
 
-      const result = streamText({
-        model,
-        system: finalSystem,
-        messages: [{ role: 'user' as const, content: text }],
-        abortSignal: abortController.signal,
-      });
-
-      let accumulated = '';
-      for await (const part of result.textStream) {
-        accumulated += part;
-        setMessages((prev) => {
-          const next = [...prev];
-          const last = next[next.length - 1];
-          if (last && last.role === 'assistant') {
-            next[next.length - 1] = { ...last, content: accumulated };
-          }
-          return next;
+        const result = streamText({
+          model,
+          system: finalSystem,
+          messages: [{ role: 'user' as const, content: text }],
+          abortSignal: abortController.signal,
         });
+
+        let accumulated = '';
+        for await (const part of result.textStream) {
+          accumulated += part;
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last && last.role === 'assistant') {
+              next[next.length - 1] = { ...last, content: accumulated };
+            }
+            return next;
+          });
+        }
+      } catch (e) {
+        if ((e as Error).name !== 'AbortError') {
+          aiLogger.chat.error(`Chat failed: ${(e as Error).message}`);
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last && last.role === 'assistant') {
+              next[next.length - 1] = { ...last, content: _(`Error: ${(e as Error).message}`) };
+            }
+            return next;
+          });
+        }
+      } finally {
+        setIsGenerating(false);
+        abortRef.current = null;
       }
-    } catch (e) {
-      if ((e as Error).name !== 'AbortError') {
-        aiLogger.chat.error(`Chat failed: ${(e as Error).message}`);
-        setMessages((prev) => {
-          const next = [...prev];
-          const last = next[next.length - 1];
-          if (last && last.role === 'assistant') {
-            next[next.length - 1] = { ...last, content: _(`Error: ${(e as Error).message}`) };
-          }
-          return next;
-        });
-      }
-    } finally {
-      setIsGenerating(false);
-      abortRef.current = null;
-    }
-  }, [input, aiSettings, bookTitle, authorName, currentPage, backend, bookHash, isGenerating, _]);
+    },
+    [input, aiSettings, bookTitle, authorName, currentPage, backend, bookHash, isGenerating, _],
+  );
+
+  const handleSend = useCallback(() => {
+    sendMessage(input.trim());
+    setInput('');
+  }, [sendMessage, input]);
 
   const handleStop = useCallback(() => {
     abortRef.current?.abort();
@@ -245,6 +252,20 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
     },
     [handleSend],
   );
+
+  // ---- Listen for AI Summary / external assistant requests ----
+  useEffect(() => {
+    const handler = async (event: CustomEvent) => {
+      const { prompt } = event.detail ?? {};
+      if (typeof prompt === 'string') {
+        sendMessage(prompt);
+      }
+    };
+    eventDispatcher.on('ai-assistant-request', handler);
+    return () => {
+      eventDispatcher.off('ai-assistant-request', handler);
+    };
+  }, [sendMessage]);
 
   // ---- Guard: AI not enabled ----
   if (!aiSettings?.enabled) {
