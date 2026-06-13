@@ -1215,15 +1215,15 @@ export const composeImageFilter = ({
   grayscale = false,
   invert = false,
 }: {
-  contrast?: number;
-  brightness?: number;
-  grayscale?: boolean;
-  invert?: boolean;
+  contrast?: number | null;
+  brightness?: number | null;
+  grayscale?: boolean | null;
+  invert?: boolean | null;
 }): string => {
   const parts: string[] = [];
   if (invert) parts.push('invert(100%)');
-  if (contrast !== 100) parts.push(`contrast(${contrast}%)`);
-  if (brightness !== 100) parts.push(`brightness(${brightness}%)`);
+  if (contrast != null && contrast !== 100) parts.push(`contrast(${contrast}%)`);
+  if (brightness != null && brightness !== 100) parts.push(`brightness(${brightness}%)`);
   if (grayscale) parts.push('grayscale(1)');
   return parts.length ? `filter: ${parts.join(' ')};` : '';
 };

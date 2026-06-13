@@ -32,4 +32,10 @@ describe('composeImageFilter', () => {
       composeImageFilter({ contrast: 100, brightness: 100, grayscale: false, invert: true }),
     ).toBe('filter: invert(100%);');
   });
+
+  it('ignores null contrast/brightness (corrupted config)', () => {
+    expect(
+      composeImageFilter({ contrast: null, brightness: null, grayscale: null, invert: false }),
+    ).toBe('');
+  });
 });

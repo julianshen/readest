@@ -18,6 +18,7 @@ import { useCustomTextureStore } from '@/store/customTextureStore';
 import { queueReplicaBinaryUpload } from '@/services/sync/replicaBinaryUpload';
 import { saveViewSettings } from '@/helpers/settings';
 import { manageSyntaxHighlighting } from '@/utils/highlightjs';
+import { applyFixedlayoutStyles } from '@/utils/style';
 import { SettingsPanelPanelProp } from './SettingsDialog';
 import { useFileSelector } from '@/hooks/useFileSelector';
 import { PREDEFINED_TEXTURES } from '@/styles/textures';
@@ -93,6 +94,9 @@ const ColorPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset
     resetToDefaults({
       overrideColor: setOverrideColor,
       invertImgColorInDark: setInvertImgColorInDark,
+      imageContrast: setImageContrast,
+      imageBrightness: setImageBrightness,
+      imageGrayscale: setImageGrayscale,
       highlightOpacity: setHighlightOpacity,
       codeHighlighting: setcodeHighlighting,
       codeLanguage: setCodeLanguage,
@@ -154,19 +158,31 @@ const ColorPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset
   }, [invertImgColorInDark]);
 
   useEffect(() => {
+    if (imageContrast === (viewSettings.imageContrast ?? 100)) return;
     saveViewSettings(envConfig, bookKey, 'imageContrast', imageContrast, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageContrast]);
 
   useEffect(() => {
+    if (imageBrightness === (viewSettings.imageBrightness ?? 100)) return;
     saveViewSettings(envConfig, bookKey, 'imageBrightness', imageBrightness, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageBrightness]);
 
   useEffect(() => {
+    if (imageGrayscale === (viewSettings.imageGrayscale ?? false)) return;
     saveViewSettings(envConfig, bookKey, 'imageGrayscale', imageGrayscale, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageGrayscale]);
+
+  useEffect(() => {
+    const view = getView(bookKey);
+    const vs = getViewSettings(bookKey);
+    if (!view?.renderer?.getContents || !vs) return;
+    const merged = { ...vs, imageContrast, imageBrightness, imageGrayscale };
+    view.renderer.getContents().forEach(({ doc }) => applyFixedlayoutStyles(doc, merged));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageContrast, imageBrightness, imageGrayscale]);
 
   useEffect(() => {
     if (overrideColor === viewSettings.overrideColor) return;
