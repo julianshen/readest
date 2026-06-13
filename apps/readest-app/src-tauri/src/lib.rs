@@ -23,6 +23,7 @@ use tauri_plugin_fs::FsExt;
 #[cfg(desktop)]
 use tauri::{Listener, Url};
 mod clip_url;
+mod comic_parser;
 mod dir_scanner;
 #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
 mod discord_rpc;
@@ -277,6 +278,7 @@ pub fn run() {
             epub_parser::parse_epub_full,
             mobi_parser::parse_mobi_metadata,
             mobi_parser::extract_mobi_cover_full,
+            comic_parser::convert_to_cbz,
             #[cfg(target_os = "macos")]
             macos::safari_auth::auth_with_safari,
             #[cfg(target_os = "macos")]
