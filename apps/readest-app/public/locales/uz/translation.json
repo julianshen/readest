@@ -1725,8 +1725,8 @@
   "Explain": "Tushuntirish",
   "Simplify": "Soddalashtirish",
   "Define": "Ta'riflash",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Xato: ",
+  "Ask about this book...": "Ushbu kitob haqida so'rang...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "«\"{{bookTitle}}\"» kitobi haqida savollar bering va tegishli parchalar bilan AI tomonidan javoblar oling.",
+  "Stop": "To'xtatish"
 }

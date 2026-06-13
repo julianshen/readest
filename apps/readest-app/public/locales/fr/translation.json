@@ -1758,8 +1758,8 @@
   "Explain": "Expliquer",
   "Simplify": "Simplifier",
   "Define": "Définir",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Erreur : ",
+  "Ask about this book...": "Poser une question sur ce livre...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Posez des questions sur \"{{bookTitle}}\" et obtenez des réponses alimentées par l'IA avec des passages pertinents.",
+  "Stop": "Arrêter"
 }

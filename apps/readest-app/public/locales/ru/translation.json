@@ -1791,8 +1791,8 @@
   "Explain": "Объяснить",
   "Simplify": "Упростить",
   "Define": "Определить",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Ошибка: ",
+  "Ask about this book...": "Спросить об этой книге...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Задавайте вопросы о «{{bookTitle}}» и получайте ответы на основе ИИ с соответствующими отрывками.",
+  "Stop": "Стоп"
 }

@@ -1758,8 +1758,8 @@
   "Explain": "Explică",
   "Simplify": "Simplifică",
   "Define": "Definește",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Eroare: ",
+  "Ask about this book...": "Întreabă despre această carte...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Pune întrebări despre „{{bookTitle}}” și primește răspunsuri bazate pe inteligență artificială, cu pasaje relevante.",
+  "Stop": "Oprește"
 }

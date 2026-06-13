@@ -1857,8 +1857,8 @@
   "Explain": "شرح",
   "Simplify": "تبسيط",
   "Define": "تعريف",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "خطأ: ",
+  "Ask about this book...": "اسأل عن هذا الكتاب...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "اطرح أسئلة حول \"{{bookTitle}}\" واحصل على إجابات مدعومة بالذكاء الاصطناعي مع مقاطع ذات صلة.",
+  "Stop": "إيقاف"
 }

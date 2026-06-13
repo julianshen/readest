@@ -1692,8 +1692,8 @@
   "Explain": "བཤད་པ།",
   "Simplify": "སྟབས་བདེར་བཟོ།",
   "Define": "ངེས་བྱེད།",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "ནོར་འཁྲུལ། ",
+  "Ask about this book...": "དཔེ་དེབ་འདིའི་སྐོར་ལ་དྲིས།...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" ཡི་སྐོར་ལ་དྲི་བ་ཞུས་ཏེ་འབྲེལ་ཡོད་ཚིག་སྒྲོམ་དང་མཉམ་དུ་AI-གྱིས་ལན་འདེབས་ཐོབ།",
+  "Stop": "འགོག"
 }

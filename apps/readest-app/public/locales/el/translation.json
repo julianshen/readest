@@ -1725,8 +1725,8 @@
   "Explain": "Εξήγηση",
   "Simplify": "Απλοποίηση",
   "Define": "Ορισμός",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Σφάλμα: ",
+  "Ask about this book...": "Ρωτήστε για αυτό το βιβλίο...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Κάντε ερωτήσεις για το \"{{bookTitle}}\" και λάβετε απαντήσεις με τεχνητή νοημοσύνη και σχετικά αποσπάσματα.",
+  "Stop": "Διακοπή"
 }

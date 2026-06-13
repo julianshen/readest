@@ -1725,8 +1725,8 @@
   "Explain": "ব্যাখ্যা করুন",
   "Simplify": "সরলীকরণ করুন",
   "Define": "সংজ্ঞা দিন",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "ত্রুটি: ",
+  "Ask about this book...": "এই বই সম্পর্কে জিজ্ঞাসা করুন...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" সম্পর্কে প্রশ্ন জিজ্ঞাসা করুন এবং প্রাসঙ্গিক অনুচ্ছেদ সহ AI-চালিত উত্তর পান।",
+  "Stop": "থামুন"
 }

@@ -1791,8 +1791,8 @@
   "Explain": "Пояснити",
   "Simplify": "Спростити",
   "Define": "Визначити",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Помилка: ",
+  "Ask about this book...": "Запитати про цю книгу...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Задавайте запитання про «{{bookTitle}}» та отримуйте відповіді на основі ШІ з відповідними уривками.",
+  "Stop": "Зупинити"
 }

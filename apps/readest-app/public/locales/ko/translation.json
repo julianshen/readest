@@ -1692,8 +1692,8 @@
   "Explain": "설명",
   "Simplify": "단순화",
   "Define": "정의",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "오류: ",
+  "Ask about this book...": "이 책에 대해 질문하기...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\"에 대해 질문하고 AI가 관련 구절과 함께 답변을 제공합니다.",
+  "Stop": "중지"
 }

@@ -1692,8 +1692,8 @@
   "Explain": "อธิบาย",
   "Simplify": "ทำให้ง่ายขึ้น",
   "Define": "นิยาม",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "ข้อผิดพลาด: ",
+  "Ask about this book...": "ถามเกี่ยวกับหนังสือเล่มนี้...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "ถามคำถามเกี่ยวกับ \"{{bookTitle}}\" และรับคำตอบที่ขับเคลื่อนด้วย AI พร้อมข้อความที่เกี่ยวข้อง",
+  "Stop": "หยุด"
 }

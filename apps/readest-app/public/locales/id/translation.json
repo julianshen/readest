@@ -1692,8 +1692,8 @@
   "Explain": "Jelaskan",
   "Simplify": "Sederhanakan",
   "Define": "Definisikan",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Kesalahan: ",
+  "Ask about this book...": "Tanya tentang buku ini...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Ajukan pertanyaan tentang \"{{bookTitle}}\" dan dapatkan jawaban bertenaga AI dengan bagian yang relevan.",
+  "Stop": "Berhenti"
 }

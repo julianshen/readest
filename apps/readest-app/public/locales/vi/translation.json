@@ -1692,8 +1692,8 @@
   "Explain": "Giải thích",
   "Simplify": "Đơn giản hóa",
   "Define": "Định nghĩa",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Lỗi: ",
+  "Ask about this book...": "Hỏi về cuốn sách này...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Hỏi câu hỏi về \"{{bookTitle}}\" và nhận câu trả lời từ AI kèm các đoạn văn liên quan.",
+  "Stop": "Dừng"
 }

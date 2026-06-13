@@ -1725,8 +1725,8 @@
   "Explain": "Uitleggen",
   "Simplify": "Vereenvoudigen",
   "Define": "Definiëren",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Fout: ",
+  "Ask about this book...": "Vraag over dit boek...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stel vragen over \"{{bookTitle}}\" en krijg AI-gestuurde antwoorden met relevante passages.",
+  "Stop": "Stop"
 }

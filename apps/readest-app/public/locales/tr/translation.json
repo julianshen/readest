@@ -1725,8 +1725,8 @@
   "Explain": "Açıkla",
   "Simplify": "Basitleştir",
   "Define": "Tanımla",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Hata: ",
+  "Ask about this book...": "Bu kitap hakkında sor...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" hakkında sorular sorun ve ilgili pasajlarla AI destekli yanıtlar alın.",
+  "Stop": "Durdur"
 }

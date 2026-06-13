@@ -1791,8 +1791,8 @@
   "Explain": "Razloži",
   "Simplify": "Poenostavi",
   "Define": "Definiraj",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Napaka: ",
+  "Ask about this book...": "Vprašaj o tej knjigi...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Postavljajte vprašanja o »{{bookTitle}}« in prejmite odgovore, ki jih poganja umetna inteligenca, z ustreznimi odlomki.",
+  "Stop": "Ustavi"
 }

@@ -1725,8 +1725,8 @@
   "Explain": "Förklara",
   "Simplify": "Förenkla",
   "Define": "Definiera",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "Fel: ",
+  "Ask about this book...": "Fråga om denna bok...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Ställ frågor om \"{{bookTitle}}\" och få AI-drivna svar med relevanta avsnitt.",
+  "Stop": "Stopp"
 }

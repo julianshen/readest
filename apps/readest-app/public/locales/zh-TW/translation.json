@@ -1692,8 +1692,8 @@
   "Explain": "解釋",
   "Simplify": "簡化",
   "Define": "定義",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "錯誤：",
+  "Ask about this book...": "詢問關於這本書……",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "詢問關於「{{bookTitle}}」的問題，並透過人工智能取得答案及相關段落。",
+  "Stop": "停止"
 }

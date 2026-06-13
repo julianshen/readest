@@ -218,7 +218,10 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
             const next = [...prev];
             const last = next[next.length - 1];
             if (last && last.role === 'assistant') {
-              next[next.length - 1] = { ...last, content: _(`Error: ${(e as Error).message}`) };
+              next[next.length - 1] = {
+                ...last,
+                content: `${_('Error: ')}${(e as Error).message}`,
+              };
             }
             return next;
           });

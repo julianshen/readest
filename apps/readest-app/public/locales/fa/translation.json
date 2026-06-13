@@ -1725,8 +1725,8 @@
   "Explain": "توضیح",
   "Simplify": "ساده‌سازی",
   "Define": "تعریف",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "خطا: ",
+  "Ask about this book...": "درباره این کتاب بپرسید...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "درباره \"{{bookTitle}}\" سوال بپرسید و پاسخ‌های مبتنی بر هوش مصنوعی با قطعات مرتبط دریافت کنید.",
+  "Stop": "توقف"
 }

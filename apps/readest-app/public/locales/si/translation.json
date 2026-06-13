@@ -1725,8 +1725,8 @@
   "Explain": "පැහැදිලි කරන්න",
   "Simplify": "සරල කරන්න",
   "Define": "අර්ථ දක්වන්න",
-  "Error: ": "__STRING_NOT_TRANSLATED__",
-  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
-  "Stop": "__STRING_NOT_TRANSLATED__"
+  "Error: ": "දෝෂය: ",
+  "Ask about this book...": "මෙම පොත ගැන විමසන්න...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "“{{bookTitle}}” පිළිබඳ ප්‍රශ්න අසන්න සහ අදාළ ඡේද සමඟ AI-බලගැන්වූ පිළිතුරු ලබා ගන්න.",
+  "Stop": "නවත්වන්න"
 }
