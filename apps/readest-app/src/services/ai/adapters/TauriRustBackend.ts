@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { embed } from 'ai';
 import type { BookDoc } from '@/libs/document';
+import { stubTranslation } from '@/utils/misc';
 import type { AISettings, EmbeddingProgress, ScoredChunk } from '../types';
 import type { BackendIndexOptions, RetrievalBackend } from './retrievalBackend';
 import {
@@ -49,13 +50,15 @@ export class TauriRustBackend implements RetrievalBackend {
       phase: 'embedding',
     });
 
-    // Listen for progress events from Rust
+    // Listen for progress events from Rust, scoped to this book.
     const unlisten = await listen<EmbeddingProgress>('index-progress', (event) => {
       const p = event.payload;
+      if (p.bookHash && p.bookHash !== bookHash) return;
       options?.onProgress?.({
         current: p.current,
         total: p.total,
         phase: p.phase as EmbeddingProgress['phase'],
+        bookHash: p.bookHash,
       });
     });
 
@@ -87,19 +90,29 @@ export class TauriRustBackend implements RetrievalBackend {
     bookHash: string,
     options: { topK: number; spoilerBoundPosition?: number },
   ): Promise<ScoredChunk[]> {
-    const provider = getAIProvider(this.settings);
-    const { embedding } = await embed({
-      model: provider.getEmbeddingModel(),
-      value: query,
-    });
+    try {
+      const provider = getAIProvider(this.settings);
+      const { embedding } = await embed({
+        model: provider.getEmbeddingModel(),
+        value: query,
+      });
 
-    return invoke<ScoredChunk[]>('hybrid_search', {
-      bookHash,
-      queryText: query,
-      queryEmbedding: embedding,
-      topK: options.topK,
-      maxPage: options.spoilerBoundPosition ?? null,
-    });
+      return invoke<ScoredChunk[]>('hybrid_search', {
+        bookHash,
+        queryText: query,
+        queryEmbedding: embedding,
+        topK: options.topK,
+        maxPage: options.spoilerBoundPosition ?? null,
+      });
+    } catch (e) {
+      // Fallback to BM25-only search if query embedding fails.
+      return invoke<ScoredChunk[]>('text_search', {
+        bookHash,
+        queryText: query,
+        topK: options.topK,
+        maxPage: options.spoilerBoundPosition ?? null,
+      });
+    }
   }
 
   // ---- private helpers ----
@@ -150,21 +163,21 @@ export class TauriRustBackend implements RetrievalBackend {
 // ---- metadata normalization (mirrors ragService) ----
 
 function normalizeTitle(metadata?: BookDoc['metadata']): string {
-  if (!metadata?.title) return 'Unknown';
+  if (!metadata?.title) return stubTranslation('Unknown Book');
   if (typeof metadata.title === 'string') return metadata.title;
   return (
     metadata.title['en'] ||
     metadata.title['default'] ||
     Object.values(metadata.title)[0] ||
-    'Unknown'
+    stubTranslation('Unknown Book')
   );
 }
 
 function normalizeAuthor(metadata?: BookDoc['metadata']): string {
-  if (!metadata?.author) return 'Unknown';
+  if (!metadata?.author) return stubTranslation('Unknown Author');
   if (typeof metadata.author === 'string') return metadata.author;
   const name = metadata.author.name;
-  if (!name) return 'Unknown';
+  if (!name) return stubTranslation('Unknown Author');
   if (typeof name === 'string') return name;
-  return Object.values(name)[0] || 'Unknown';
+  return Object.values(name)[0] || stubTranslation('Unknown Author');
 }

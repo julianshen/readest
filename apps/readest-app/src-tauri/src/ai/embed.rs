@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,6 +26,7 @@ struct EmbeddingData {
 }
 
 const BATCH_SIZE: usize = 100;
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(120);
 
 /// Embed texts using the configured AI provider, batching to avoid
 /// provider payload limits. Returns one float32 vector per input text.
@@ -36,7 +38,10 @@ pub async fn embed_texts(
     if texts.is_empty() {
         return Ok(vec![]);
     }
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(REQUEST_TIMEOUT)
+        .build()
+        .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
     let mut embeddings = Vec::with_capacity(texts.len());
     for batch in texts.chunks(BATCH_SIZE) {
         let body = EmbeddingRequest {
@@ -52,7 +57,9 @@ pub async fn embed_texts(
             .json(&body)
             .send()
             .await
-            .map_err(|e| format!("Embedding request failed: {}", e))?;
+            .map_err(|e| format!("Embedding request failed: {}", e))?
+            .error_for_status()
+            .map_err(|e| format!("Embedding API returned error: {}", e))?;
         let parsed: EmbeddingResponse = resp
             .json()
             .await

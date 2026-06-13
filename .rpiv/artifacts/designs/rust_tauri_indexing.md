@@ -821,7 +821,7 @@ In the app: user clicks Recap → auto-indexes (30-60s with progress bar, no UI 
 
 ## File Map
 
-```
+```text
 src-tauri/src/ai/mod.rs                       # NEW — Rust module root
 src-tauri/src/ai/storage.rs                   # NEW — SQLite schema + commands
 src-tauri/src/ai/embed.rs                     # NEW — HTTP embedding dispatch

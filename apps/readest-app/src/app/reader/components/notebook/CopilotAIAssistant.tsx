@@ -121,8 +121,7 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
       aiSettings.provider,
     );
     const legacy = new LegacyIdbBackend(aiSettings);
-    const tauriRust: RetrievalBackend | null =
-      appService && isTauri ? new TauriRustBackend(aiSettings) : null;
+    const tauriRust: RetrievalBackend | null = isTauri ? new TauriRustBackend(aiSettings) : null;
     const reedy: RetrievalBackend | null =
       appService && isTauri ? new ReedyBackend(appService as AppService, aiSettings) : null;
     const selected = selectBackend({

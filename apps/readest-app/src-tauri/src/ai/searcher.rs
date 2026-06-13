@@ -30,9 +30,107 @@ fn blob_to_vec(blob: &[u8]) -> Result<Vec<f32>, String> {
 }
 
 /// Dot-product helper for normalized vectors (cosine sim = dot).
-/// The compiler auto-vectorizes the f32 accumulation.
-fn dot_simd(a: &[f32], b: &[f32]) -> f32 {
-    a.iter().zip(b.iter()).map(|(x, y)| x * y).sum()
+/// Returns an error if the vectors have different dimensions.
+fn dot_simd(a: &[f32], b: &[f32]) -> Result<f32, String> {
+    if a.len() != b.len() {
+        return Err(format!(
+            "Embedding dimension mismatch: query={}, stored={}",
+            a.len(),
+            b.len()
+        ));
+    }
+    Ok(a.iter().zip(b.iter()).map(|(x, y)| x * y).sum())
+}
+
+/// BM25-only search via FTS5. Used as a fallback when query embedding fails.
+#[tauri::command]
+pub fn text_search(
+    book_hash: String,
+    query_text: String,
+    top_k: u32,
+    max_page: Option<u32>,
+    db: tauri::State<'_, IndexDb>,
+) -> Result<Vec<ScoredChunk>, String> {
+    let conn = db.conn.lock().map_err(|e| e.to_string())?;
+    let top_k = top_k.max(1) as usize;
+
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, section_index, chapter_title, text, page_number
+             FROM chunks WHERE book_hash = ?1
+             ORDER BY id",
+        )
+        .map_err(|e| e.to_string())?;
+
+    let rows: Vec<(i64, u32, String, String, u32)> = stmt
+        .query_map(rusqlite::params![book_hash], |row| {
+            let id: i64 = row.get(0)?;
+            let section_index: u32 = row.get(1)?;
+            let chapter_title: String = row.get(2)?;
+            let text: String = row.get(3)?;
+            let page_number: u32 = row.get(4)?;
+            Ok((id, section_index, chapter_title, text, page_number))
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?
+        .into_iter()
+        .filter(|(_, _, _, _, pn)| max_page.map_or(true, |mp| *pn <= mp))
+        .collect();
+
+    let mut bm25_stmt = conn
+        .prepare(
+            "SELECT rowid, rank FROM chunks_fts WHERE text MATCH ?1
+             AND rowid IN (SELECT id FROM chunks WHERE book_hash = ?2)
+             ORDER BY rank LIMIT ?3",
+        )
+        .map_err(|e| e.to_string())?;
+    let bm25_scores: Vec<(i64, f32)> = bm25_stmt
+        .query_map(rusqlite::params![query_text, book_hash, top_k * 3], |row| {
+            let rowid: i64 = row.get(0)?;
+            let rank: f32 = row.get(1)?;
+            Ok((rowid, rank))
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    let top_ids: std::collections::HashSet<String> = bm25_scores
+        .iter()
+        .take(top_k)
+        .map(|(id, _)| id.to_string())
+        .collect();
+
+    let mut results: Vec<ScoredChunk> = rows
+        .into_iter()
+        .filter(|(id, _, _, _, _)| top_ids.contains(&id.to_string()))
+        .map(|(id, si, ct, text, pn)| ScoredChunk {
+            id: id.to_string(),
+            book_hash: book_hash.clone(),
+            section_index: si,
+            chapter_title: ct,
+            text,
+            page_number: pn,
+            score: 0.0,
+            search_method: "bm25".into(),
+        })
+        .collect();
+
+    results.sort_by(|a, b| {
+        let ra = bm25_scores
+            .iter()
+            .find(|(id, _)| *id.to_string() == a.id)
+            .map(|(_, r)| *r)
+            .unwrap_or(f32::INFINITY);
+        let rb = bm25_scores
+            .iter()
+            .find(|(id, _)| *id.to_string() == b.id)
+            .map(|(_, r)| *r)
+            .unwrap_or(f32::INFINITY);
+        ra.total_cmp(&rb)
+    });
+
+    Ok(results)
 }
 
 /// Hybrid search: BM25 via FTS5 + vector via exact SIMD dot-product,
@@ -66,10 +164,19 @@ pub fn hybrid_search(
             let text: String = row.get(3)?;
             let embedding_blob: Vec<u8> = row.get(4)?;
             let page_number: u32 = row.get(5)?;
-            Ok((id, section_index, chapter_title, text, embedding_blob, page_number))
+            Ok((
+                id,
+                section_index,
+                chapter_title,
+                text,
+                embedding_blob,
+                page_number,
+            ))
         })
         .map_err(|e| e.to_string())?
-        .filter_map(|r| r.ok())
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?
+        .into_iter()
         .filter(|(_, _, _, _, _, pn)| max_page.map_or(true, |mp| *pn <= mp))
         .collect();
 
@@ -80,37 +187,35 @@ pub fn hybrid_search(
     // Deserialize embeddings and compute vector scores
     let mut vec_scored: Vec<(i64, u32, String, String, u32, f32)> = raw_rows
         .into_iter()
-        .map(|(id, si, ct, text, blob, pn)| {
-            let emb = blob_to_vec(&blob).unwrap_or_default();
-            let score = dot_simd(&query_embedding, &emb);
-            (id, si, ct, text, pn, score)
-        })
-        .collect();
+        .map(
+            |(id, si, ct, text, blob, pn)| -> Result<(i64, u32, String, String, u32, f32), String> {
+                let emb = blob_to_vec(&blob)?;
+                let score = dot_simd(&query_embedding, &emb)?;
+                Ok((id, si, ct, text, pn, score))
+            },
+        )
+        .collect::<Result<Vec<_>, _>>()?;
 
     // Sort by vector score descending so vec_rank reflects actual similarity
     vec_scored.sort_unstable_by(|a, b| b.5.total_cmp(&a.5));
 
     // BM25 via FTS5
-    let bm25_scores: Vec<(i64, f32)> = conn
+    let mut bm25_stmt = conn
         .prepare(
             "SELECT rowid, rank FROM chunks_fts WHERE text MATCH ?1
              AND rowid IN (SELECT id FROM chunks WHERE book_hash = ?2)
              ORDER BY rank LIMIT ?3",
         )
-        .ok()
-        .and_then(|mut stmt| {
-            stmt.query_map(
-                rusqlite::params![query_text, book_hash, top_k * 3],
-                |row| {
-                    let rowid: i64 = row.get(0)?;
-                    let rank: f32 = row.get(1)?;
-                    Ok((rowid, rank))
-                },
-            )
-            .ok()
-            .map(|rows| rows.filter_map(|r| r.ok()).collect::<Vec<_>>())
+        .map_err(|e| e.to_string())?;
+    let bm25_scores: Vec<(i64, f32)> = bm25_stmt
+        .query_map(rusqlite::params![query_text, book_hash, top_k * 3], |row| {
+            let rowid: i64 = row.get(0)?;
+            let rank: f32 = row.get(1)?;
+            Ok((rowid, rank))
         })
-        .unwrap_or_default();
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
 
     // RRF merge: 1/(60 + rank) per system, summed
     let mut combined: Vec<(String, f32)> = vec_scored
@@ -135,8 +240,11 @@ pub fn hybrid_search(
 
     combined.sort_unstable_by(|a, b| b.1.total_cmp(&a.1));
 
-    let top_ids: std::collections::HashSet<String> =
-        combined.iter().take(top_k).map(|(id, _)| id.clone()).collect();
+    let top_ids: std::collections::HashSet<String> = combined
+        .iter()
+        .take(top_k)
+        .map(|(id, _)| id.clone())
+        .collect();
 
     // Build scored chunks, keeping only top-K
     let mut results: Vec<ScoredChunk> = vec_scored

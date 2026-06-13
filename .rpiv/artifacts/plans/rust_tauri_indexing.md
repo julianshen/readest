@@ -937,7 +937,7 @@ _Backend wiring in CopilotMvpAssistant was applied atomically with the `selectBa
 - `cargo test` — Rust unit tests for storage, search, embedding
 - `tsc --noEmit` — TypeScript type checking
 - `pnpm build` — full Next.js build
-- `pnpm test` — existing AI test suite (35 tests)
+- `pnpm test` — existing AI test suite (41 tests)
 - `pnpm check:translations` — no locale regressions
 
 ### Manual Testing Steps:
@@ -980,7 +980,7 @@ _Independent post-finalization review by artifact-code-reviewer and artifact-cov
 | code | Phase 4 §1 (searcher.rs) | <n/a> | concern | code-quality | RRF uses `vec_rank = i` (insertion order) instead of ranking by dot-product score descending — BM25 rank dominates artificially | Sort `all_chunks` by `dot_simd` score descending before computing `vec_rank` | applied: restructured hybrid_search to sort by vec score before RRF |
 | code | Phase 3 §4 (TauriRustBackend.ts) + Phase 3 §1 (indexer.rs) | <n/a> | concern | code-quality | `indexBook()` calls `invoke('index_book_chunks', …)` without `listen('index-progress', …)` — progress events emitted by Rust are never received on TS side | Add `listen('index-progress', …)` via `@tauri-apps/api/event` in `indexBook` | applied: added listen('index-progress') with cleanup in finally block |
 | code | Phase 3 §1 (indexer.rs) | <n/a> | concern | code-quality | `db.conn.lock()` held for entire transaction (30-60s) — `is_book_indexed`, `hybrid_search`, etc. block | Consider `Connection::try_clone()` or async-compatible pool | dismissed: only one index operation runs at a time; concurrent read during index is rare and acceptable for alpha |
-| code | Phase 3 §1 (indexer.rs) + Phase 3 §4 (TauriRustBackend.ts) | apps/readest-app/src/services/ai/types.ts:110 | concern | code-quality | Rust emits `phase: "storing"` but TS `EmbeddingProgress` only accepts `'chunking' | 'embedding' | 'indexing'` | Change Rust phase to `"indexing"` or extend TS union | applied: changed Rust phase string from "storing" to "indexing" |
+| code | Phase 3 §1 (indexer.rs) + Phase 3 §4 (TauriRustBackend.ts) | apps/readest-app/src/services/ai/types.ts:110 | concern | code-quality | Rust emits `phase: "storing"` but TS `EmbeddingProgress` only accepts `'chunking' \| 'embedding' \| 'indexing'` | Change Rust phase to `"indexing"` or extend TS union | applied: changed Rust phase string from "storing" to "indexing" |
 | code | Phase 1 §3 (lib.rs) | apps/readest-app/src-tauri/src/lib.rs:354-357 | concern | code-quality | `.expect("Failed to initialize AI index DB")` will panic and crash app on failure | Replace with proper error propagation and graceful disable | applied: replaced expect with match + eprintln + graceful disable |
 | code | Phase 3 §4 (TauriRustBackend.ts) | apps/readest-app/src/services/ai/adapters/TauriRustBackend.ts:79 | suggestion | code-quality | `chunkBook` uses `(bookDoc as any).sections` and `(bookDoc as any).toc`, bypassing type safety | Use typed `BookDoc` parameters directly | applied: kept minimal as any for runtime shape divergence, but imports are now static top-level |
 | code | Phase 4 §1 (searcher.rs) | <n/a> | suggestion | code-quality | `blob_to_vec` uses `chunks_exact(4)` which silently discards trailing bytes on corrupted BLOB | Add length check after `blob_to_vec` to assert `blob.len() % 4 == 0` | applied: blob_to_vec now returns Result with length validation |

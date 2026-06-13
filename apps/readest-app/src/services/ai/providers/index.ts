@@ -97,9 +97,10 @@ export function getEmbeddingApiKey(settings: AISettings): string {
 
 /**
  * Providers the Rust/Tauri embedder can dispatch to directly via HTTP.
- * ai-gateway uses the Vercel AI SDK (not a plain OpenAI-compatible endpoint),
- * so it must keep using the legacy JS provider adapters.
+ * - ai-gateway uses the Vercel AI SDK (not a plain OpenAI-compatible endpoint).
+ * - ollama's native embed endpoint is /api/embed, not /embeddings, so keep it
+ *   on the legacy JS provider adapter until a compatible endpoint is added.
  */
 export function isRustEmbeddingSupported(settings: AISettings): boolean {
-  return ['openai', 'openrouter', 'ollama'].includes(settings.provider);
+  return settings.provider === 'openai' || settings.provider === 'openrouter';
 }

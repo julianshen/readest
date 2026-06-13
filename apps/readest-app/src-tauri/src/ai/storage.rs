@@ -1,4 +1,4 @@
-use rusqlite::{Connection, params};
+use rusqlite::{params, Connection};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -8,30 +8,27 @@ pub struct IndexDb {
 
 impl IndexDb {
     pub fn new(app_handle: &tauri::AppHandle) -> Self {
-        let app_dir = app_handle
-            .path()
-            .app_data_dir()
-            .map_err(|e| format!("Cannot resolve app data dir: {}", e))
-            .and_then(|dir| {
-                std::fs::create_dir_all(&dir)
-                    .map(|_| dir)
-                    .map_err(|e| e.to_string())
-            });
-        let conn = match app_dir {
-            Ok(dir) => Connection::open(dir.join("ai_index.db"))
-                .or_else(|_| Connection::open_in_memory()),
-            Err(_) => Connection::open_in_memory(),
-        };
-        let conn = conn.unwrap_or_else(|e| {
-            eprintln!("Failed to open AI index DB, using in-memory: {}", e);
-            Connection::open_in_memory().expect("In-memory SQLite must work")
+        let conn = Self::open_and_migrate(app_handle).unwrap_or_else(|e| {
+            eprintln!("AI index DB failed, using in-memory fallback: {}", e);
+            let conn = Connection::open_in_memory().expect("in-memory SQLite must work");
+            Self::migrate(&conn).expect("in-memory migration must work");
+            conn
         });
-        if let Err(e) = Self::migrate(&conn) {
-            eprintln!("AI index DB migration failed (in-memory fallback): {}", e);
-        }
         Self {
             conn: Mutex::new(conn),
         }
+    }
+
+    fn open_and_migrate(app_handle: &tauri::AppHandle) -> Result<Connection, String> {
+        let app_dir = app_handle
+            .path()
+            .app_data_dir()
+            .map_err(|e| format!("Cannot resolve app data dir: {}", e))?;
+        std::fs::create_dir_all(&app_dir).map_err(|e| e.to_string())?;
+        let db_path = app_dir.join("ai_index.db");
+        let conn = Connection::open(&db_path).map_err(|e| e.to_string())?;
+        Self::migrate(&conn)?;
+        Ok(conn)
     }
 
     fn migrate(conn: &Connection) -> Result<(), String> {
@@ -65,10 +62,7 @@ impl IndexDb {
 }
 
 #[tauri::command]
-pub fn is_book_indexed(
-    book_hash: String,
-    db: tauri::State<'_, IndexDb>,
-) -> Result<bool, String> {
+pub fn is_book_indexed(book_hash: String, db: tauri::State<'_, IndexDb>) -> Result<bool, String> {
     let conn = db.conn.lock().map_err(|e| e.to_string())?;
     let count: i64 = conn
         .query_row(
@@ -81,10 +75,7 @@ pub fn is_book_indexed(
 }
 
 #[tauri::command]
-pub fn get_chunk_count(
-    book_hash: String,
-    db: tauri::State<'_, IndexDb>,
-) -> Result<i64, String> {
+pub fn get_chunk_count(book_hash: String, db: tauri::State<'_, IndexDb>) -> Result<i64, String> {
     let conn = db.conn.lock().map_err(|e| e.to_string())?;
     conn.query_row(
         "SELECT COUNT(*) FROM chunks WHERE book_hash = ?1",
@@ -95,10 +86,7 @@ pub fn get_chunk_count(
 }
 
 #[tauri::command]
-pub fn clear_book_index(
-    book_hash: String,
-    db: tauri::State<'_, IndexDb>,
-) -> Result<(), String> {
+pub fn clear_book_index(book_hash: String, db: tauri::State<'_, IndexDb>) -> Result<(), String> {
     let mut conn = db.conn.lock().map_err(|e| e.to_string())?;
     let tx = conn.transaction().map_err(|e| e.to_string())?;
     // Delete FTS index first to avoid orphaned entries
@@ -107,8 +95,11 @@ pub fn clear_book_index(
         params![book_hash],
     )
     .map_err(|e| e.to_string())?;
-    tx.execute("DELETE FROM chunks WHERE book_hash = ?1", params![book_hash])
-        .map_err(|e| e.to_string())?;
+    tx.execute(
+        "DELETE FROM chunks WHERE book_hash = ?1",
+        params![book_hash],
+    )
+    .map_err(|e| e.to_string())?;
     tx.execute(
         "DELETE FROM index_meta WHERE book_hash = ?1",
         params![book_hash],

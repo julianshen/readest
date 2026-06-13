@@ -86,9 +86,9 @@ describe('selectBackend', () => {
     expect(out.kind).toBe('legacy-idb');
   });
 
-  it('prefers tauri-rust over legacy-idb when reedy is disabled', () => {
+  it('prefers tauri-rust over legacy-idb when reedy is disabled and provider is supported', () => {
     const out = selectBackend({
-      settings: settingsWith(false),
+      settings: { ...DEFAULT_AI_SETTINGS, enabled: true, provider: 'openrouter' },
       isTauri: true,
       legacy: fakeLegacy,
       tauriRust: fakeTauriRust,
@@ -111,6 +111,17 @@ describe('selectBackend', () => {
   it('falls back to legacy-idb on Tauri when provider is not supported by Rust embedder', () => {
     const out = selectBackend({
       settings: { ...DEFAULT_AI_SETTINGS, enabled: true, provider: 'ai-gateway' },
+      isTauri: true,
+      legacy: fakeLegacy,
+      tauriRust: fakeTauriRust,
+      reedy: null,
+    });
+    expect(out.kind).toBe('legacy-idb');
+  });
+
+  it('falls back to legacy-idb on Tauri for ollama (native /api/embed endpoint)', () => {
+    const out = selectBackend({
+      settings: { ...DEFAULT_AI_SETTINGS, enabled: true, provider: 'ollama' },
       isTauri: true,
       legacy: fakeLegacy,
       tauriRust: fakeTauriRust,

@@ -6,6 +6,7 @@ use tauri::{Emitter, State};
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexProgress {
+    pub book_hash: String,
     pub phase: String,
     pub current: u32,
     pub total: u32,
@@ -24,12 +25,17 @@ pub async fn index_book_chunks(
     db: State<'_, IndexDb>,
     app_handle: tauri::AppHandle,
 ) -> Result<(), String> {
-    let texts: Vec<String> = chunks.iter().map(|c| c.text.clone()).collect();
     let total = chunks.len() as u32;
+    if total == 0 {
+        return Err("No text chunks to index. The book may have no extractable text.".into());
+    }
+
+    let texts: Vec<String> = chunks.iter().map(|c| c.text.clone()).collect();
 
     let _ = app_handle.emit(
         "index-progress",
         &IndexProgress {
+            book_hash: book_hash.clone(),
             phase: "embedding".into(),
             current: 0,
             total,
@@ -50,11 +56,25 @@ pub async fn index_book_chunks(
     let mut conn = db.conn.lock().map_err(|e| e.to_string())?;
     let tx = conn.transaction().map_err(|e| e.to_string())?;
 
+    // Replace any existing index for this book atomically.
+    tx.execute(
+        "DELETE FROM chunks_fts WHERE rowid IN (SELECT id FROM chunks WHERE book_hash = ?1)",
+        rusqlite::params![book_hash],
+    )
+    .map_err(|e| e.to_string())?;
+    tx.execute(
+        "DELETE FROM chunks WHERE book_hash = ?1",
+        rusqlite::params![book_hash],
+    )
+    .map_err(|e| e.to_string())?;
+    tx.execute(
+        "DELETE FROM index_meta WHERE book_hash = ?1",
+        rusqlite::params![book_hash],
+    )
+    .map_err(|e| e.to_string())?;
+
     for (i, chunk) in chunks.iter().enumerate() {
-        let embedding_blob: Vec<u8> = embeddings[i]
-            .iter()
-            .flat_map(|f| f.to_le_bytes())
-            .collect();
+        let embedding_blob: Vec<u8> = embeddings[i].iter().flat_map(|f| f.to_le_bytes()).collect();
 
         tx.execute(
             "INSERT INTO chunks (book_hash, section_index, chapter_title, text, embedding, page_number)
@@ -97,6 +117,7 @@ pub async fn index_book_chunks(
     let _ = app_handle.emit(
         "index-progress",
         &IndexProgress {
+            book_hash: book_hash.clone(),
             phase: "indexing".into(),
             current: total,
             total,
