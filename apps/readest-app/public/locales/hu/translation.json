@@ -1743,5 +1743,8 @@
   "Reference Pages": "Referenciaoldalak",
   "Reference Page Count": "Referenciaoldalak száma",
   "Lookup app reset. The next lookup will ask again.": "A keresőalkalmazás visszaállítva. A következő keresésnél újra rákérdez.",
-  "System Lookup App": "Rendszer keresőalkalmazás"
+  "System Lookup App": "Rendszer keresőalkalmazás",
+  "Brightness": "Fényerő",
+  "E-Ink Boost": "E-Ink-erősítés",
+  "On": "Be"
 }

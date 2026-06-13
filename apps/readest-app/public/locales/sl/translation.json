@@ -1809,5 +1809,8 @@
   "Reference Pages": "Referenčne strani",
   "Reference Page Count": "Število referenčnih strani",
   "Lookup app reset. The next lookup will ask again.": "Aplikacija za iskanje je ponastavljena. Ob naslednjem iskanju bo znova vprašala.",
-  "System Lookup App": "Sistemska aplikacija za iskanje"
+  "System Lookup App": "Sistemska aplikacija za iskanje",
+  "Brightness": "Svetlost",
+  "E-Ink Boost": "Ojačitev E-Ink",
+  "On": "Vklopljeno"
 }

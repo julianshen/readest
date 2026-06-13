@@ -1710,5 +1710,8 @@
   "Reference Pages": "参考页码",
   "Reference Page Count": "参考总页数",
   "Lookup app reset. The next lookup will ask again.": "已重置查词应用。下次查词时将再次询问。",
-  "System Lookup App": "系统查词应用"
+  "System Lookup App": "系统查词应用",
+  "Brightness": "亮度",
+  "E-Ink Boost": "电子墨水增强",
+  "On": "开"
 }

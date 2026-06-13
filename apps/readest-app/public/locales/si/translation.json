@@ -1743,5 +1743,8 @@
   "Reference Pages": "යොමු පිටු",
   "Reference Page Count": "යොමු පිටු ගණන",
   "Lookup app reset. The next lookup will ask again.": "සෙවුම් යෙදුම යළි සකසන ලදී. ඊළඟ සෙවුමේදී නැවත අසනු ඇත.",
-  "System Lookup App": "පද්ධති සෙවුම් යෙදුම"
+  "System Lookup App": "පද්ධති සෙවුම් යෙදුම",
+  "Brightness": "දීප්තිය",
+  "E-Ink Boost": "E-Ink වැඩිදියුණුව",
+  "On": "ක්‍රියාත්මකයි"
 }

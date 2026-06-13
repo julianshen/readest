@@ -1776,5 +1776,8 @@
   "Reference Pages": "עמודי ייחוס",
   "Reference Page Count": "מספר עמודי ייחוס",
   "Lookup app reset. The next lookup will ask again.": "אפליקציית החיפוש אופסה. בחיפוש הבא תוצג שאלה שוב.",
-  "System Lookup App": "אפליקציית חיפוש מערכת"
+  "System Lookup App": "אפליקציית חיפוש מערכת",
+  "Brightness": "בהירות",
+  "E-Ink Boost": "שיפור E-Ink",
+  "On": "פעיל"
 }

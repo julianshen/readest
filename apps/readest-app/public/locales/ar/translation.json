@@ -1875,5 +1875,8 @@
   "Reference Pages": "صفحات مرجعية",
   "Reference Page Count": "عدد الصفحات المرجعية",
   "Lookup app reset. The next lookup will ask again.": "تمت إعادة تعيين تطبيق البحث. سيُطلب منك الاختيار في المرة التالية.",
-  "System Lookup App": "تطبيق البحث في النظام"
+  "System Lookup App": "تطبيق البحث في النظام",
+  "Brightness": "السطوع",
+  "E-Ink Boost": "تحسين الحبر الإلكتروني",
+  "On": "تشغيل"
 }

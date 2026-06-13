@@ -1710,5 +1710,8 @@
   "Reference Pages": "หน้าอ้างอิง",
   "Reference Page Count": "จำนวนหน้าอ้างอิง",
   "Lookup app reset. The next lookup will ask again.": "รีเซ็ตแอปค้นหาแล้ว การค้นหาครั้งถัดไปจะถามอีกครั้ง",
-  "System Lookup App": "แอปค้นหาของระบบ"
+  "System Lookup App": "แอปค้นหาของระบบ",
+  "Brightness": "ความสว่าง",
+  "E-Ink Boost": "เพิ่มประสิทธิภาพ E-Ink",
+  "On": "เปิด"
 }
