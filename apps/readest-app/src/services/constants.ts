@@ -49,6 +49,8 @@ export const SUPPORTED_BOOK_EXTS = [
   'fb2',
   'zip',
   'cbz',
+  'cbr',
+  'cb7',
   'pdf',
   'txt',
 ];
