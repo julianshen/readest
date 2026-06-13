@@ -279,6 +279,25 @@ export async function importBook(
           const txt2epub = new TxtToEpubConverter();
           ({ file: fileobj } = await txt2epub.convert({ file: fileobj }));
         }
+        // CBR/CB7 archives can't be read directly, so pre-convert them to a
+        // STORE-mode CBZ before hashing/storage; the result flows through the
+        // existing CBZ path unchanged. Converter errors propagate to the outer
+        // catch so they surface as the standard "failed to import" path.
+        if (/\.(cbr|cb7)$/i.test(filename)) {
+          const { convertArchiveToCbz } = await import('@/utils/comicConvert');
+          fileobj = await convertArchiveToCbz(fileobj, {
+            srcPath: typeof file === 'string' ? file : undefined,
+            readPathAsFile: (p) => fs.openFile(p, 'None'),
+            writeTempAndPath: async (f) => {
+              const tmpName = makeSafeFilename(f.name);
+              await fs.writeFile(tmpName, 'Temp', f);
+              const prefix = await fs.getPrefix('Temp');
+              return prefix ? `${prefix.replace(/\/+$/, '')}/${tmpName}` : tmpName;
+            },
+            deletePath: (p) => fs.removeFile(p, 'None'),
+          });
+          filename = fileobj.name; // now ends with .cbz
+        }
         if (!fileobj || fileobj.size === 0) {
           throw new Error('Invalid or empty book file');
         }
@@ -301,7 +320,7 @@ export async function importBook(
         // tests.
         let nativeBookDoc: BookDoc | undefined;
         let nativeFormat: BookFormat | undefined;
-        if (typeof file === 'string' && !/\.txt$/i.test(filename)) {
+        if (typeof file === 'string' && !/\.(txt|cbr|cb7)$/i.test(filename)) {
           const nativeEpub = await tryNativeParseEpub(file);
           if (nativeEpub) {
             nativeBookDoc = nativeEpub.bookDoc;
