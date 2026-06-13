@@ -18,9 +18,17 @@ export const repackToCbz = async (entries: ArchiveEntry[]): Promise<Blob> => {
     throw new Error('no readable pages');
   }
   const { ZipWriter, BlobWriter, Uint8ArrayReader } = await import('@zip.js/zip.js');
-  const writer = new ZipWriter(new BlobWriter('application/vnd.comicbook+zip'));
+  // Deterministic STORE packing: pin a fixed modification date and drop the
+  // extended-timestamp extra field so re-importing identical input produces
+  // byte-identical output (stable partialMD5 → library dedup works).
+  const writer = new ZipWriter(new BlobWriter('application/vnd.comicbook+zip'), {
+    extendedTimestamp: false,
+  });
   for (const e of keep) {
-    await writer.add(e.name, new Uint8ArrayReader(e.bytes), { level: 0 });
+    await writer.add(e.name, new Uint8ArrayReader(e.bytes), {
+      level: 0,
+      lastModDate: new Date(0),
+    });
   }
   return writer.close();
 };

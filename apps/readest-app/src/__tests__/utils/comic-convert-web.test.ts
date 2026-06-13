@@ -23,4 +23,15 @@ describe('repackToCbz', () => {
       'no readable pages',
     );
   });
+
+  it('is byte-deterministic across repacks (dedup-safe)', async () => {
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const entries = [
+      { name: '01.png', bytes: png },
+      { name: '02.png', bytes: png },
+    ];
+    const a = new Uint8Array(await (await repackToCbz(entries)).arrayBuffer());
+    const b = new Uint8Array(await (await repackToCbz(entries)).arrayBuffer());
+    expect(Array.from(a)).toEqual(Array.from(b));
+  });
 });

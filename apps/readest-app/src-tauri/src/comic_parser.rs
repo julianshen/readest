@@ -33,7 +33,9 @@ fn pack_cbz(mut members: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>, String> {
     let mut cursor = Cursor::new(Vec::new());
     {
         let mut zip = ZipWriter::new(&mut cursor);
-        let opts = SimpleFileOptions::default().compression_method(CompressionMethod::Stored);
+        let opts = SimpleFileOptions::default()
+            .compression_method(CompressionMethod::Stored)
+            .last_modified_time(zip::DateTime::default());
         for (name, bytes) in members {
             zip.start_file(name, opts).map_err(|e| e.to_string())?;
             zip.write_all(&bytes).map_err(|e| e.to_string())?;
@@ -151,6 +153,17 @@ mod tests {
         // assert all entries are Stored (uncompressed)
         let e = zip.by_index(0).unwrap();
         assert_eq!(e.compression(), zip::CompressionMethod::Stored);
+    }
+    #[test]
+    fn pack_is_byte_deterministic() {
+        let png = vec![0x89, 0x50, 0x4e, 0x47];
+        let members = vec![
+            ("01.png".to_string(), png.clone()),
+            ("02.png".to_string(), png.clone()),
+        ];
+        let a = pack_cbz(members.clone()).unwrap();
+        let b = pack_cbz(members).unwrap();
+        assert_eq!(a, b);
     }
     #[test]
     fn pack_rejects_imageless_archive() {
