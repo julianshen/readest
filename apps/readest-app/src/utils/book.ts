@@ -253,17 +253,19 @@ export const getBookDirFromLanguage = (language: string | string[] | undefined) 
 export const deriveDocDirection = ({
   writingDir,
   uiRtl,
-  writingMode,
+  writingMode = 'auto',
   isFixedLayout,
   bookDir,
 }: {
   writingDir: { vertical: boolean; rtl: boolean } | undefined;
   uiRtl: boolean;
-  writingMode: WritingMode;
+  writingMode?: WritingMode;
   isFixedLayout: boolean;
   bookDir: string | undefined;
 }): { vertical: boolean; rtl: boolean } => ({
-  vertical: writingDir?.vertical || writingMode.includes('vertical') || false,
+  // Fixed-layout (comic) books model direction as LTR/RTL only; never let a
+  // persisted vertical-* writingMode flip them into vertical flow.
+  vertical: writingDir?.vertical || (!isFixedLayout && writingMode.includes('vertical')) || false,
   rtl:
     writingDir?.rtl ||
     uiRtl ||

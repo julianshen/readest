@@ -44,4 +44,15 @@ describe('deriveDocDirection', () => {
   it('derives rtl from an RTL UI language', () => {
     expect(deriveDocDirection({ ...base, uiRtl: true }).rtl).toBe(true);
   });
+
+  it('does not flip fixed-layout books to vertical from a persisted vertical-rl mode', () => {
+    expect(
+      deriveDocDirection({ ...base, isFixedLayout: true, writingMode: 'vertical-rl' }),
+    ).toEqual({ vertical: false, rtl: true });
+  });
+
+  it('defaults writingMode to auto when omitted', () => {
+    const { writingMode: _writingMode, ...withoutWritingMode } = base;
+    expect(deriveDocDirection(withoutWritingMode)).toEqual({ vertical: false, rtl: false });
+  });
 });

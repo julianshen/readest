@@ -33,7 +33,7 @@ when finishing a book that belongs to a series.
 | Thumbnail generation | Lazy + on-device: an IntersectionObserver-driven grid; each visible cell calls `section.load()`, draws the image to a ~160px-wide canvas, stores the dataURL in an in-memory LRU (cap ~200 thumbs), and revokes the full-size blob URL immediately. No disk cache in v1. |
 | Grid cell | Thumbnail + page number; current page highlighted; tap → `renderer.goTo({ index })` and (on mobile) close the sidebar. RTL books lay the grid out right-to-left to match reading order. |
 | Next volume trigger | When relocation reaches the final page of a book whose `metadata.series` is set, the footer shows a dismissible "Next: <title>" pill (not a modal). Tapping opens the next volume (lowest `seriesIndex` greater than current, falling back to title sort) via the existing book-open path. |
-| Next-volume lookup | A pure helper `findNextInSeries(library, book): Book | null` in libraryUtils, reusing `createSeriesGroups`'s comparator. |
+| Next-volume lookup | A pure helper `findNextInSeries(library, book)` in libraryUtils, reusing `createSeriesGroups`'s comparator. Returns `Book \| null`. |
 | Reading-status tie-in | Opening the next volume marks the finished one `readingStatus: 'finished'` (existing field, book.ts:107) if progress is at 100%. |
 
 ## Architecture

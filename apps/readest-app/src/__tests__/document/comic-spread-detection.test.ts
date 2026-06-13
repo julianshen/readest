@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { makeComicBook } from 'foliate-js/comic-book.js';
 import { assembleSpreads, sectionNeedsRespread } from 'foliate-js/fixed-layout.js';
@@ -39,8 +39,10 @@ afterEach(() => {
 describe('comic-book wide-image spread detection', () => {
   const originalCreateObjectURL = URL.createObjectURL;
   const originalRevokeObjectURL = URL.revokeObjectURL;
-  URL.createObjectURL = () => 'blob:fake';
-  URL.revokeObjectURL = () => {};
+  beforeEach(() => {
+    URL.createObjectURL = () => 'blob:fake';
+    URL.revokeObjectURL = () => {};
+  });
   afterEach(() => {
     URL.createObjectURL = originalCreateObjectURL;
     URL.revokeObjectURL = originalRevokeObjectURL;
