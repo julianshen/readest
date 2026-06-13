@@ -107,6 +107,17 @@ describe('selectBackend', () => {
     });
     expect(out.kind).toBe('reedy');
   });
+
+  it('falls back to legacy-idb on Tauri when provider is not supported by Rust embedder', () => {
+    const out = selectBackend({
+      settings: { ...DEFAULT_AI_SETTINGS, enabled: true, provider: 'ai-gateway' },
+      isTauri: true,
+      legacy: fakeLegacy,
+      tauriRust: fakeTauriRust,
+      reedy: null,
+    });
+    expect(out.kind).toBe('legacy-idb');
+  });
 });
 
 describe('ReedySourceStore', () => {

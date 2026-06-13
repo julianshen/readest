@@ -81,5 +81,25 @@ export function getEmbeddingBaseUrl(settings: AISettings): string {
 }
 
 export function getEmbeddingApiKey(settings: AISettings): string {
-  return settings.openaiApiKey || settings.openrouterApiKey || settings.aiGatewayApiKey || '';
+  switch (settings.provider) {
+    case 'openrouter':
+      return settings.openrouterApiKey || '';
+    case 'openai':
+      return settings.openaiApiKey || '';
+    case 'ollama':
+      return '';
+    case 'ai-gateway':
+      return settings.aiGatewayApiKey || '';
+    default:
+      return '';
+  }
+}
+
+/**
+ * Providers the Rust/Tauri embedder can dispatch to directly via HTTP.
+ * ai-gateway uses the Vercel AI SDK (not a plain OpenAI-compatible endpoint),
+ * so it must keep using the legacy JS provider adapters.
+ */
+export function isRustEmbeddingSupported(settings: AISettings): boolean {
+  return ['openai', 'openrouter', 'ollama'].includes(settings.provider);
 }
