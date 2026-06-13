@@ -1731,5 +1731,17 @@
   "Error: ": "خطا: ",
   "Ask about this book...": "درباره این کتاب بپرسید...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "درباره \"{{bookTitle}}\" سوال بپرسید و پاسخ‌های مبتنی بر هوش مصنوعی با قطعات مرتبط دریافت کنید.",
-  "Stop": "توقف"
+  "Stop": "توقف",
+  "Previous word": "واژهٔ قبلی",
+  "Previous word (,)": "واژهٔ قبلی (,)",
+  "Next word": "واژهٔ بعدی",
+  "Next word (.)": "واژهٔ بعدی (.)",
+  "Start Delay": "تأخیر شروع",
+  "Off": "خاموش",
+  "Look up": "جستجو",
+  "Search on Goodreads": "جستجو در Goodreads",
+  "Reference Pages": "صفحات مرجع",
+  "Reference Page Count": "تعداد صفحات مرجع",
+  "Lookup app reset. The next lookup will ask again.": "برنامهٔ جستجو بازنشانی شد. در جستجوی بعدی دوباره پرسیده می‌شود.",
+  "System Lookup App": "برنامهٔ جستجوی سیستم"
 }

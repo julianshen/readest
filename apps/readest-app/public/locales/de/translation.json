@@ -1731,5 +1731,17 @@
   "Error: ": "Fehler: ",
   "Ask about this book...": "Fragen Sie zu diesem Buch...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stellen Sie Fragen zu \"{{bookTitle}}\" und erhalten Sie KI-gestützte Antworten mit relevanten Passagen.",
-  "Stop": "Stopp"
+  "Stop": "Stopp",
+  "Previous word": "Vorheriges Wort",
+  "Previous word (,)": "Vorheriges Wort (,)",
+  "Next word": "Nächstes Wort",
+  "Next word (.)": "Nächstes Wort (.)",
+  "Start Delay": "Startverzögerung",
+  "Off": "Aus",
+  "Look up": "Nachschlagen",
+  "Search on Goodreads": "Auf Goodreads suchen",
+  "Reference Pages": "Referenzseiten",
+  "Reference Page Count": "Anzahl der Referenzseiten",
+  "Lookup app reset. The next lookup will ask again.": "Nachschlage-App zurückgesetzt. Bei der nächsten Suche wird erneut gefragt.",
+  "System Lookup App": "System-Nachschlage-App"
 }

@@ -356,6 +356,7 @@ export const DEFAULT_VIEW_CONFIG: ViewConfig = {
   tapToToggleFooter: false,
   showPaginationButtons: false,
   progressStyle: 'fraction',
+  referencePageCount: 0,
   progressInfoMode: 'all',
 
   animated: false,

@@ -1731,5 +1731,17 @@
   "Error: ": "Fout: ",
   "Ask about this book...": "Vraag over dit boek...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stel vragen over \"{{bookTitle}}\" en krijg AI-gestuurde antwoorden met relevante passages.",
-  "Stop": "Stop"
+  "Stop": "Stop",
+  "Previous word": "Vorig woord",
+  "Previous word (,)": "Vorig woord (,)",
+  "Next word": "Volgend woord",
+  "Next word (.)": "Volgend woord (.)",
+  "Start Delay": "Startvertraging",
+  "Off": "Uit",
+  "Look up": "Opzoeken",
+  "Search on Goodreads": "Zoeken op Goodreads",
+  "Reference Pages": "Referentiepagina's",
+  "Reference Page Count": "Aantal referentiepagina's",
+  "Lookup app reset. The next lookup will ask again.": "Opzoekapp gereset. De volgende keer wordt het opnieuw gevraagd.",
+  "System Lookup App": "Systeem-opzoekapp"
 }

@@ -1797,5 +1797,17 @@
   "Error: ": "Ошибка: ",
   "Ask about this book...": "Спросить об этой книге...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Задавайте вопросы о «{{bookTitle}}» и получайте ответы на основе ИИ с соответствующими отрывками.",
-  "Stop": "Стоп"
+  "Stop": "Стоп",
+  "Previous word": "Предыдущее слово",
+  "Previous word (,)": "Предыдущее слово (,)",
+  "Next word": "Следующее слово",
+  "Next word (.)": "Следующее слово (.)",
+  "Start Delay": "Задержка старта",
+  "Off": "Выкл.",
+  "Look up": "Найти",
+  "Search on Goodreads": "Искать в Goodreads",
+  "Reference Pages": "Страницы бумажной книги",
+  "Reference Page Count": "Число страниц бумажной книги",
+  "Lookup app reset. The next lookup will ask again.": "Приложение для поиска сброшено. При следующем поиске запрос появится снова.",
+  "System Lookup App": "Системное приложение для поиска"
 }

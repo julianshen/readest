@@ -1863,5 +1863,17 @@
   "Error: ": "خطأ: ",
   "Ask about this book...": "اسأل عن هذا الكتاب...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "اطرح أسئلة حول \"{{bookTitle}}\" واحصل على إجابات مدعومة بالذكاء الاصطناعي مع مقاطع ذات صلة.",
-  "Stop": "إيقاف"
+  "Stop": "إيقاف",
+  "Previous word": "الكلمة السابقة",
+  "Previous word (,)": "الكلمة السابقة (,)",
+  "Next word": "الكلمة التالية",
+  "Next word (.)": "الكلمة التالية (.)",
+  "Start Delay": "تأخير البدء",
+  "Off": "إيقاف",
+  "Look up": "بحث",
+  "Search on Goodreads": "البحث في Goodreads",
+  "Reference Pages": "صفحات مرجعية",
+  "Reference Page Count": "عدد الصفحات المرجعية",
+  "Lookup app reset. The next lookup will ask again.": "تمت إعادة تعيين تطبيق البحث. سيُطلب منك الاختيار في المرة التالية.",
+  "System Lookup App": "تطبيق البحث في النظام"
 }

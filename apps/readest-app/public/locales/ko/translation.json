@@ -1698,5 +1698,17 @@
   "Error: ": "오류: ",
   "Ask about this book...": "이 책에 대해 질문하기...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\"에 대해 질문하고 AI가 관련 구절과 함께 답변을 제공합니다.",
-  "Stop": "중지"
+  "Stop": "중지",
+  "Previous word": "이전 단어",
+  "Previous word (,)": "이전 단어 (,)",
+  "Next word": "다음 단어",
+  "Next word (.)": "다음 단어 (.)",
+  "Start Delay": "시작 지연",
+  "Off": "끄기",
+  "Look up": "찾기",
+  "Search on Goodreads": "Goodreads에서 검색",
+  "Reference Pages": "참조 페이지",
+  "Reference Page Count": "참조 페이지 수",
+  "Lookup app reset. The next lookup will ask again.": "검색 앱을 초기화했습니다. 다음 검색 시 다시 묻습니다.",
+  "System Lookup App": "시스템 검색 앱"
 }

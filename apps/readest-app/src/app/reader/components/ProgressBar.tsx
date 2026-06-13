@@ -4,9 +4,10 @@ import { Trans } from 'react-i18next';
 import type { Insets } from '@/types/misc';
 import { useEnv } from '@/context/EnvContext';
 import { useReaderStore } from '@/store/readerStore';
+import { useBookProgress } from '@/store/readerProgressStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useBookDataStore } from '@/store/bookDataStore';
-import { formatNumber, formatProgress } from '@/utils/progress';
+import { formatNumber, formatProgress, getReferencePageInfo } from '@/utils/progress';
 import { saveViewSettings } from '@/helpers/settings';
 import { eventDispatcher } from '@/utils/event';
 import { SIZE_PER_LOC, SIZE_PER_TIME_UNIT } from '@/services/constants';
@@ -28,12 +29,15 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => {
   const _ = useTranslation();
   const { envConfig, appService } = useEnv();
-  const { getBookData } = useBookDataStore();
-  const { getProgress, getViewSettings, getView } = useReaderStore();
+  const getBookData = useBookDataStore((s) => s.getBookData);
+  const getViewSettings = useReaderStore((s) => s.getViewSettings);
+  const getView = useReaderStore((s) => s.getView);
   const view = getView(bookKey);
   const bookData = getBookData(bookKey);
   const viewSettings = getViewSettings(bookKey)!;
-  const progress = getProgress(bookKey);
+  // Reactive: this is the on-screen footer that has to refresh on every
+  // page turn. Reads from readerProgressStore only.
+  const progress = useBookProgress(bookKey);
   const { section, pageinfo } = progress || {};
 
   const showDoubleBorder = viewSettings.vertical && viewSettings.doubleBorder;
@@ -51,7 +55,18 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const lang = localStorage?.getItem('i18nextLng') || '';
   const localize = isVertical && lang.toLowerCase().startsWith('zh');
   const pageInfo = bookData?.isFixedLayout ? section : pageinfo;
-  const progressInfo = formatProgress(pageInfo?.current, pageInfo?.total, template, localize, lang);
+  const referenceInfo =
+    readingProgressStyle === 'reference'
+      ? getReferencePageInfo({
+          pageList: bookData?.bookDoc?.pageList,
+          pageItem: progress?.pageItem,
+          fraction: pageInfo && pageInfo.total > 0 ? (pageInfo.current + 1) / pageInfo.total : 0,
+          referencePageCount: viewSettings.referencePageCount,
+        })
+      : null;
+  const progressInfo = referenceInfo
+    ? `${referenceInfo.current}${isVertical ? ' · ' : ' / '}${referenceInfo.total}`
+    : formatProgress(pageInfo?.current, pageInfo?.total, template, localize, lang);
 
   const { page: current = 0, pages: total = 0 } = view?.renderer || {};
   const pagesLeft = bookData?.isFixedLayout

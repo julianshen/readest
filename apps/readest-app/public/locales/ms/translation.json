@@ -1698,5 +1698,17 @@
   "Error: ": "Ralat: ",
   "Ask about this book...": "Tanya tentang buku ini...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Tanya soalan tentang \"{{bookTitle}}\" dan dapatkan jawapan berkuasa AI dengan petikan yang relevan.",
-  "Stop": "Henti"
+  "Stop": "Henti",
+  "Previous word": "Perkataan sebelumnya",
+  "Previous word (,)": "Perkataan sebelumnya (,)",
+  "Next word": "Perkataan seterusnya",
+  "Next word (.)": "Perkataan seterusnya (.)",
+  "Start Delay": "Lengah mula",
+  "Off": "Mati",
+  "Look up": "Cari",
+  "Search on Goodreads": "Cari di Goodreads",
+  "Reference Pages": "Halaman rujukan",
+  "Reference Page Count": "Bilangan halaman rujukan",
+  "Lookup app reset. The next lookup will ask again.": "Apl carian ditetapkan semula. Carian seterusnya akan bertanya lagi.",
+  "System Lookup App": "Apl carian sistem"
 }

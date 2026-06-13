@@ -32,6 +32,9 @@ export interface TextSelection {
   href?: string;
   annotated?: boolean;
   rect?: Rect;
+  // Native Android selection handles were suppressed for this selection
+  // (Blink hyphen bounds bug, issue #1553) — the app draws its own handles.
+  handlesSuppressed?: boolean;
 }
 
 const frameRect = (frame: Frame, rect?: Rect, sx = 1, sy = 1) => {
@@ -292,9 +295,38 @@ export const getPosition = (
     ),
     dir: 'down',
   } as Position;
-  const startInView = pointIsInView(start.point);
-  const endInView = pointIsInView(end.point);
-  if (!startInView && !endInView) return { point: { x: 0, y: 0 } };
+  // Decide which selection end is on-screen by testing its UNCLAMPED line-rect
+  // midpoint against the READING FRAME (`rect`) — not the window. A cross-page
+  // selection's off-screen start maps to a negative/sidebar x that is still
+  // inside the window, so a window-based check would wrongly read it "in view"
+  // and pin the popup off the visible page (#1354).
+  const midX = (r: Rect) => (r.left + r.right) / 2;
+  const midY = (r: Rect) => (r.top + r.bottom) / 2;
+  const inFrame = (px: number, py: number) =>
+    px > rect.left && px < rect.right && py > rect.top && py < rect.bottom;
+  const startInView = inFrame(midX(first), midY(first));
+  const endInView = inFrame(midX(last), midY(last));
+  if (!startInView && !endInView) {
+    // Multi-page selection: both ends are off the visible page, but the middle
+    // may cross it. Anchor to the last on-screen line so the popup tracks the
+    // visible part of the selection.
+    const v = rects
+      .map((r) => frameRect(frame, r, sx, sy))
+      .filter((r) => inFrame(midX(r), midY(r)))
+      .at(-1);
+    if (v) {
+      return {
+        point: constrainPointWithinRect(
+          { x: midX(v) - rect.left, y: v.bottom - rect.top + 6 },
+          rect,
+          paddingPx,
+        ),
+        dir: 'down',
+      } as Position;
+    }
+    // Otherwise fall through and anchor to an end so the popup still shows
+    // (the constrained points are always within the frame, never {0,0}).
+  }
   if (!startInView) return end;
   if (!endInView) return start;
   return start.point.y > window.innerHeight - end.point.y ? start : end;
@@ -388,6 +420,218 @@ export const snapRangeToWords = (range: Range): void => {
 
   snapStartToWordBoundary();
   snapEndToWordBoundary();
+};
+
+// --- Android hyphenation selection-bounds bug (issue #1553) -----------------
+//
+// Blink's `LayoutSelection::ComputePaintingSelectionStateForCursor` compares
+// the selection's paragraph text-content offsets against each fragment's
+// `TextOffset()`. Auto/soft-hyphen fragments are layout-generated text whose
+// offsets are self-relative ({0,1}), so a touch selection starting at the
+// first character of a paragraph marks EVERY hyphen fragment in it as a
+// selection start: the native start handle is painted on the paragraph's last
+// hyphen and drag gestures re-anchor the selection base there. The helpers
+// below detect that condition so the app can repair the range and suppress
+// the broken native handles (touch handles are the only consumer of the bogus
+// bounds, so mouse/desktop selections are unaffected).
+
+const isInlineDisplay = (el: Element): boolean => {
+  const display = el.ownerDocument.defaultView?.getComputedStyle(el).display ?? '';
+  return display === 'inline' || display.startsWith('ruby');
+};
+
+// The element establishing the inline formatting context the range starts in.
+const getBlockAncestor = (node: Node): Element | null => {
+  let el: Element | null =
+    node.nodeType === Node.ELEMENT_NODE ? (node as Element) : node.parentElement;
+  while (el && isInlineDisplay(el)) {
+    el = el.parentElement;
+  }
+  return el;
+};
+
+// Whether the range starts at the first character of its paragraph's inline
+// content (leading collapsed whitespace does not count: it never reaches the
+// paragraph's laid-out text, so the selection still maps to offset 0).
+export const isRangeStartAtBlockStart = (range: Range): boolean => {
+  const block = getBlockAncestor(range.startContainer);
+  if (!block) return false;
+  const probe = (block.ownerDocument ?? document).createRange();
+  try {
+    probe.selectNodeContents(block);
+    probe.setEnd(range.startContainer, range.startOffset);
+  } catch {
+    return false;
+  }
+  return probe.toString().trim().length === 0;
+};
+
+// A generated hyphen is the only way a single text node produces two adjacent
+// boxes on the same line where the trailing one is sub-glyph narrow.
+const HYPHEN_MAX_EM = 0.6;
+const HYPHEN_ADJACENCY_PX = 2;
+
+interface RectLike {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export const hasTrailingHyphenRectPattern = (
+  rects: RectLike[],
+  emPx: number,
+  vertical: boolean,
+): boolean => {
+  for (let i = 1; i < rects.length; i++) {
+    const a = rects[i - 1]!;
+    const b = rects[i]!;
+    const sameLine = vertical
+      ? Math.abs(a.left - b.left) < Math.max(a.width, b.width) / 2
+      : Math.abs(a.top - b.top) < Math.max(a.height, b.height) / 2;
+    if (!sameLine) continue;
+    const adjacent = vertical
+      ? Math.abs(b.top - (a.top + a.height)) <= HYPHEN_ADJACENCY_PX
+      : Math.abs(b.left - (a.left + a.width)) <= HYPHEN_ADJACENCY_PX ||
+        Math.abs(a.left - (b.left + b.width)) <= HYPHEN_ADJACENCY_PX;
+    if (!adjacent) continue;
+    const size = vertical ? b.height : b.width;
+    if (size > 0 && size <= emPx * HYPHEN_MAX_EM) return true;
+  }
+  return false;
+};
+
+const blockHasGeneratedHyphens = (block: Element, vertical: boolean): boolean => {
+  const doc = block.ownerDocument;
+  const win = doc.defaultView;
+  if (!win) return false;
+  const emPx = parseFloat(win.getComputedStyle(block).fontSize) || 16;
+  const walker = doc.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+  const probe = doc.createRange();
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    if (!(node as Text).data.trim()) continue;
+    let rects: RectLike[];
+    try {
+      probe.selectNodeContents(node);
+      rects = Array.from(probe.getClientRects());
+    } catch {
+      return false;
+    }
+    if (hasTrailingHyphenRectPattern(rects, emPx, vertical)) return true;
+  }
+  return false;
+};
+
+// Whether painting this selection hits the Blink generated-hyphen bounds bug:
+// it starts at the first character of a paragraph that renders hyphens.
+export const isHyphenHandleBugProneRange = (range: Range, vertical = false): boolean => {
+  const block = getBlockAncestor(range.startContainer);
+  if (!block) return false;
+  const win = block.ownerDocument.defaultView;
+  if (!win) return false;
+  const style = win.getComputedStyle(block);
+  const mayHyphenate =
+    style.getPropertyValue('hyphens') === 'auto' ||
+    style.getPropertyValue('-webkit-hyphens') === 'auto' ||
+    (block.textContent ?? '').includes('­');
+  if (!mayHyphenate) return false;
+  if (!isRangeStartAtBlockStart(range)) return false;
+  return blockHasGeneratedHyphens(block, vertical);
+};
+
+// Rebuild a selection range between a known-good anchor and the caret at a
+// point (in `doc` viewport coordinates) — used to restore the range a
+// corrupted long-press drag was meant to produce: anchored at the
+// gesture-initial position, ending where the finger was. Snapped to word
+// boundaries like the native word-granularity drag.
+export const rangeFromAnchorToPoint = (
+  doc: Document,
+  anchorNode: Node,
+  anchorOffset: number,
+  x: number,
+  y: number,
+): Range | null => {
+  let pointNode: Node | null = null;
+  let pointOffset = 0;
+  if (doc.caretPositionFromPoint) {
+    const pos = doc.caretPositionFromPoint(x, y);
+    if (pos) {
+      pointNode = pos.offsetNode;
+      pointOffset = pos.offset;
+    }
+  } else if (doc.caretRangeFromPoint) {
+    const range = doc.caretRangeFromPoint(x, y);
+    if (range) {
+      pointNode = range.startContainer;
+      pointOffset = range.startOffset;
+    }
+  }
+  if (!pointNode) return null;
+  const range = doc.createRange();
+  try {
+    const anchorPoint = doc.createRange();
+    anchorPoint.setStart(anchorNode, anchorOffset);
+    anchorPoint.collapse(true);
+    const caretPoint = doc.createRange();
+    caretPoint.setStart(pointNode, pointOffset);
+    caretPoint.collapse(true);
+    if (anchorPoint.compareBoundaryPoints(Range.START_TO_START, caretPoint) <= 0) {
+      range.setStart(anchorNode, anchorOffset);
+      range.setEnd(pointNode, pointOffset);
+    } else {
+      range.setStart(pointNode, pointOffset);
+      range.setEnd(anchorNode, anchorOffset);
+    }
+  } catch {
+    return null;
+  }
+  if (range.collapsed) return null;
+  snapRangeToWords(range);
+  return range;
+};
+
+// During a long-press drag the bug re-anchors the selection base at the last
+// hyphen, dropping the word the gesture started on. If the gesture-initial
+// anchor fell out of the final range, rebuild [initial anchor → focus] (the
+// focus is where the finger actually went) and snap it to word boundaries
+// like the native word-granularity drag would.
+export const repairJumpedSelectionRange = (
+  sel: Selection,
+  initialNode: Node,
+  initialOffset: number,
+): Range | null => {
+  if (sel.rangeCount === 0) return null;
+  const range = sel.getRangeAt(0);
+  const { focusNode, focusOffset } = sel;
+  const doc = range.startContainer.ownerDocument;
+  if (!focusNode || !doc) return null;
+  try {
+    if (range.comparePoint(initialNode, initialOffset) === 0) return null;
+  } catch {
+    return null;
+  }
+  const repaired = doc.createRange();
+  try {
+    const initialPoint = doc.createRange();
+    initialPoint.setStart(initialNode, initialOffset);
+    initialPoint.collapse(true);
+    const focusPoint = doc.createRange();
+    focusPoint.setStart(focusNode, focusOffset);
+    focusPoint.collapse(true);
+    if (initialPoint.compareBoundaryPoints(Range.START_TO_START, focusPoint) <= 0) {
+      repaired.setStart(initialNode, initialOffset);
+      repaired.setEnd(focusNode, focusOffset);
+    } else {
+      repaired.setStart(focusNode, focusOffset);
+      repaired.setEnd(initialNode, initialOffset);
+    }
+  } catch {
+    return null;
+  }
+  if (repaired.collapsed) return null;
+  snapRangeToWords(repaired);
+  return repaired;
 };
 
 export const getTextFromRange = (range: Range, rejectTags: string[] = []): string => {

@@ -1764,5 +1764,17 @@
   "Error: ": "שגיאה: ",
   "Ask about this book...": "שאל על הספר הזה...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "שאל שאלות על \"{{bookTitle}}\" וקבל תשובות מונעות בינה מלאכותית עם קטעים רלוונטיים.",
-  "Stop": "עצור"
+  "Stop": "עצור",
+  "Previous word": "מילה קודמת",
+  "Previous word (,)": "מילה קודמת (,)",
+  "Next word": "מילה הבאה",
+  "Next word (.)": "מילה הבאה (.)",
+  "Start Delay": "השהיית התחלה",
+  "Off": "כבוי",
+  "Look up": "חיפוש",
+  "Search on Goodreads": "חיפוש ב-Goodreads",
+  "Reference Pages": "עמודי ייחוס",
+  "Reference Page Count": "מספר עמודי ייחוס",
+  "Lookup app reset. The next lookup will ask again.": "אפליקציית החיפוש אופסה. בחיפוש הבא תוצג שאלה שוב.",
+  "System Lookup App": "אפליקציית חיפוש מערכת"
 }
