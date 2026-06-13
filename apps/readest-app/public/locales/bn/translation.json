@@ -1731,5 +1731,17 @@
   "Error: ": "ত্রুটি: ",
   "Ask about this book...": "এই বই সম্পর্কে জিজ্ঞাসা করুন...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" সম্পর্কে প্রশ্ন জিজ্ঞাসা করুন এবং প্রাসঙ্গিক অনুচ্ছেদ সহ AI-চালিত উত্তর পান।",
-  "Stop": "থামুন"
+  "Stop": "থামুন",
+  "Previous word": "পূর্ববর্তী শব্দ",
+  "Previous word (,)": "পূর্ববর্তী শব্দ (,)",
+  "Next word": "পরবর্তী শব্দ",
+  "Next word (.)": "পরবর্তী শব্দ (.)",
+  "Start Delay": "শুরুর বিলম্ব",
+  "Off": "বন্ধ",
+  "Look up": "খুঁজুন",
+  "Search on Goodreads": "Goodreads-এ অনুসন্ধান করুন",
+  "Reference Pages": "রেফারেন্স পৃষ্ঠা",
+  "Reference Page Count": "রেফারেন্স পৃষ্ঠার সংখ্যা",
+  "Lookup app reset. The next lookup will ask again.": "লুকআপ অ্যাপ রিসেট করা হয়েছে। পরবর্তী লুকআপে আবার জিজ্ঞাসা করা হবে।",
+  "System Lookup App": "সিস্টেম লুকআপ অ্যাপ"
 }

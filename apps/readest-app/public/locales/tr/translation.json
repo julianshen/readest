@@ -1731,5 +1731,17 @@
   "Error: ": "Hata: ",
   "Ask about this book...": "Bu kitap hakkında sor...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" hakkında sorular sorun ve ilgili pasajlarla AI destekli yanıtlar alın.",
-  "Stop": "Durdur"
+  "Stop": "Durdur",
+  "Previous word": "Önceki kelime",
+  "Previous word (,)": "Önceki kelime (,)",
+  "Next word": "Sonraki kelime",
+  "Next word (.)": "Sonraki kelime (.)",
+  "Start Delay": "Başlangıç gecikmesi",
+  "Off": "Kapalı",
+  "Look up": "Ara",
+  "Search on Goodreads": "Goodreads'te ara",
+  "Reference Pages": "Referans sayfaları",
+  "Reference Page Count": "Referans sayfa sayısı",
+  "Lookup app reset. The next lookup will ask again.": "Arama uygulaması sıfırlandı. Sonraki aramada tekrar sorulacak.",
+  "System Lookup App": "Sistem arama uygulaması"
 }

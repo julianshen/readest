@@ -580,6 +580,24 @@ describe('getColorStyles branches (via getStyles)', () => {
     expect(css).toContain('body.theme-dark');
   });
 
+  it('keeps body.theme-dark transparent in dark mode so the host background texture is not occluded (#4446)', () => {
+    const vs = makeViewSettings({ overrideColor: false, backgroundTextureId: 'leaves' });
+    const theme = makeThemeCode({ isDarkMode: true, bg: '#1a1a1a', fg: '#e0e0e0' });
+    const css = getStyles(vs, theme);
+    expect(css).toMatch(/body\.theme-dark\s*\{\s*background-color: transparent !important;/);
+    expect(css).not.toMatch(/body\.theme-dark\s*\{\s*background-color: #1a1a1a !important/);
+    // #4392 inline light-callout overrides must keep forcing the theme bg
+    expect(css).toContain('background-color: #fff"]');
+    expect(css).toContain('background-color: #1a1a1a !important');
+  });
+
+  it('keeps body.theme-dark transparent even without a texture (docBackground is captured once per section load)', () => {
+    const vs = makeViewSettings({ overrideColor: false, backgroundTextureId: 'none' });
+    const theme = makeThemeCode({ isDarkMode: true, bg: '#1a1a1a', fg: '#e0e0e0' });
+    const css = getStyles(vs, theme);
+    expect(css).toMatch(/body\.theme-dark\s*\{\s*background-color: transparent !important;/);
+  });
+
   it('does not add inline white background overrides in light mode', () => {
     const vs = makeViewSettings({ overrideColor: false });
     const theme = makeThemeCode({ isDarkMode: false });
@@ -790,13 +808,26 @@ describe('custom @font-face inlining (via getStyles)', () => {
     expect(css).toContain('blob:http://localhost/my-test-font');
   });
 
-  it('inlines the @font-face rules ahead of the rest of the stylesheet', () => {
+  it('keeps @namespace epub ahead of every @font-face rule (#4438)', () => {
     const vs = makeViewSettings();
     const css = getStyles(vs, theme, [makeCustomFont()]);
-    // Paginator writes this CSS into the iframe before its first paint,
-    // so the custom @font-face must precede the font-family declarations
-    // that reference it (layout styles begin with `@namespace epub`).
-    expect(css.indexOf('@font-face')).toBeLessThan(css.indexOf('@namespace epub'));
+    // A `@namespace` rule is only honored when it precedes all style and
+    // `@font-face` rules; a misplaced one is silently ignored, which drops
+    // the namespaced `aside[epub|type~="footnote"]` selector and reveals the
+    // footnote aside's border as a stray horizontal line (#4438). The custom
+    // `@font-face` rules must therefore come after the namespace declaration.
+    expect(css).toContain('@namespace epub');
+    expect(css).toContain('@font-face');
+    expect(css.indexOf('@namespace epub')).toBeLessThan(css.indexOf('@font-face'));
+  });
+
+  it('still inlines custom @font-face ahead of the font-family declarations', () => {
+    const vs = makeViewSettings();
+    const css = getStyles(vs, theme, [makeCustomFont()]);
+    // Paginator writes this CSS into the iframe before its first paint, so the
+    // custom `@font-face` rules should still precede the `--serif`/`--sans-serif`
+    // font lists that reference them.
+    expect(css.indexOf('@font-face')).toBeLessThan(css.indexOf('--serif:'));
   });
 
   it('emits one @font-face per loaded font', () => {

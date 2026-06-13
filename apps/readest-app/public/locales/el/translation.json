@@ -1731,5 +1731,17 @@
   "Error: ": "Σφάλμα: ",
   "Ask about this book...": "Ρωτήστε για αυτό το βιβλίο...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Κάντε ερωτήσεις για το \"{{bookTitle}}\" και λάβετε απαντήσεις με τεχνητή νοημοσύνη και σχετικά αποσπάσματα.",
-  "Stop": "Διακοπή"
+  "Stop": "Διακοπή",
+  "Previous word": "Προηγούμενη λέξη",
+  "Previous word (,)": "Προηγούμενη λέξη (,)",
+  "Next word": "Επόμενη λέξη",
+  "Next word (.)": "Επόμενη λέξη (.)",
+  "Start Delay": "Καθυστέρηση έναρξης",
+  "Off": "Ανενεργό",
+  "Look up": "Αναζήτηση",
+  "Search on Goodreads": "Αναζήτηση στο Goodreads",
+  "Reference Pages": "Σελίδες αναφοράς",
+  "Reference Page Count": "Αριθμός σελίδων αναφοράς",
+  "Lookup app reset. The next lookup will ask again.": "Η εφαρμογή αναζήτησης επαναφέρθηκε. Στην επόμενη αναζήτηση θα ερωτηθείτε ξανά.",
+  "System Lookup App": "Εφαρμογή αναζήτησης συστήματος"
 }

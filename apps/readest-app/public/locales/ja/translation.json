@@ -1698,5 +1698,17 @@
   "Error: ": "エラー: ",
   "Ask about this book...": "この本について質問する...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\"について質問し、AIが関連する箇所とともに回答します。",
-  "Stop": "停止"
+  "Stop": "停止",
+  "Previous word": "前の単語",
+  "Previous word (,)": "前の単語 (,)",
+  "Next word": "次の単語",
+  "Next word (.)": "次の単語 (.)",
+  "Start Delay": "開始遅延",
+  "Off": "オフ",
+  "Look up": "調べる",
+  "Search on Goodreads": "Goodreadsで検索",
+  "Reference Pages": "参照ページ",
+  "Reference Page Count": "参照ページ数",
+  "Lookup app reset. The next lookup will ask again.": "検索アプリをリセットしました。次回の検索時に再度確認します。",
+  "System Lookup App": "システム検索アプリ"
 }

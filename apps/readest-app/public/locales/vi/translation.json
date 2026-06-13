@@ -1698,5 +1698,17 @@
   "Error: ": "Lỗi: ",
   "Ask about this book...": "Hỏi về cuốn sách này...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Hỏi câu hỏi về \"{{bookTitle}}\" và nhận câu trả lời từ AI kèm các đoạn văn liên quan.",
-  "Stop": "Dừng"
+  "Stop": "Dừng",
+  "Previous word": "Từ trước",
+  "Previous word (,)": "Từ trước (,)",
+  "Next word": "Từ tiếp theo",
+  "Next word (.)": "Từ tiếp theo (.)",
+  "Start Delay": "Độ trễ bắt đầu",
+  "Off": "Tắt",
+  "Look up": "Tra cứu",
+  "Search on Goodreads": "Tìm trên Goodreads",
+  "Reference Pages": "Trang tham chiếu",
+  "Reference Page Count": "Số trang tham chiếu",
+  "Lookup app reset. The next lookup will ask again.": "Đã đặt lại ứng dụng tra cứu. Lần tra cứu tiếp theo sẽ hỏi lại.",
+  "System Lookup App": "Ứng dụng tra cứu hệ thống"
 }

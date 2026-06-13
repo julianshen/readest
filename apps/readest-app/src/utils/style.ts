@@ -18,16 +18,18 @@ import { createFontCSS, CustomFont } from '@/styles/fonts';
 import { getOSPlatform } from './misc';
 import { SCROLL_WRAPPER_CLASS, SCROLL_WRAPPER_FIT_CLASS } from './scrollable';
 
-const getFontStyles = (
+/**
+ * Build the resolved CSS font-family lists (serif / sans-serif / monospace)
+ * from the user's font settings. Each value is a ready-to-use `font-family`
+ * string ending in the matching generic family. Shared by getFontStyles (which
+ * exposes them as CSS variables inside the reader iframe) and getBaseFontFamily
+ * (which applies the body font directly to top-level UI such as the RSVP overlay).
+ */
+const buildFontFamilyLists = (
   serif: string,
   sansSerif: string,
   monospace: string,
-  defaultFont: string,
   defaultCJKFont: string,
-  fontSize: number,
-  minFontSize: number,
-  fontWeight: number,
-  overrideFont: boolean,
 ) => {
   const lastSerifFonts = ['Georgia', 'Times New Roman'];
   const serifFonts = [
@@ -50,12 +52,49 @@ const getFontStyles = (
     ...FALLBACK_FONTS,
   ];
   const monospaceFonts = [monospace, ...MONOSPACE_FONTS.filter((font) => font !== monospace)];
+  const quote = (fonts: string[]) => fonts.map((font) => `"${font}"`).join(', ');
+  return {
+    serif: `${quote(serifFonts)}, serif`,
+    sansSerif: `${quote(sansSerifFonts)}, sans-serif`,
+    monospace: `${quote(monospaceFonts)}, monospace`,
+  };
+};
+
+/**
+ * Resolve the body font-family string (serif or sans-serif chain, per the
+ * user's "Default Font" setting) for use outside the reader iframe — e.g. the
+ * RSVP overlay, which renders in the top document and can't read the iframe's
+ * --serif/--sans-serif CSS variables. Custom fonts are already mounted in the
+ * top document, so the returned chain resolves them by family name.
+ */
+export const getBaseFontFamily = (viewSettings: ViewSettings): string => {
+  const families = buildFontFamilyLists(
+    viewSettings.serifFont!,
+    viewSettings.sansSerifFont!,
+    viewSettings.monospaceFont!,
+    viewSettings.defaultCJKFont!,
+  );
+  return viewSettings.defaultFont!.toLowerCase() === 'serif' ? families.serif : families.sansSerif;
+};
+
+const getFontStyles = (
+  serif: string,
+  sansSerif: string,
+  monospace: string,
+  defaultFont: string,
+  defaultCJKFont: string,
+  fontSize: number,
+  minFontSize: number,
+  fontWeight: number,
+  overrideFont: boolean,
+) => {
+  const families = buildFontFamilyLists(serif, sansSerif, monospace, defaultCJKFont);
   const defaultFontFamily = defaultFont.toLowerCase() === 'serif' ? '--serif' : '--sans-serif';
   const fontStyles = `
     html {
-      --serif: ${serifFonts.map((font) => `"${font}"`).join(', ')}, serif;
-      --sans-serif: ${sansSerifFonts.map((font) => `"${font}"`).join(', ')}, sans-serif;
-      --monospace: ${monospaceFonts.map((font) => `"${font}"`).join(', ')}, monospace;
+      --serif: ${families.serif};
+      --sans-serif: ${families.sansSerif};
+      --monospace: ${families.monospace};
       --font-size: ${fontSize}px;
       --min-font-size: ${minFontSize}px;
       --font-weight: ${fontWeight};
@@ -152,8 +191,14 @@ const getDarkModeLightBackgroundOverrides = (bg: string) => `
     *[style*="background: rgb(255"], *[style*="background:rgb(255"] {
       background-color: ${bg} !important;
     }
+    /* Force transparent, not the theme bg: the dark page fill already comes from
+       the paginator container / reader grid cell, while an opaque body paints over
+       the host background texture (#4446) — and foliate captures docBackground once
+       per section load, so the body must stay transparent regardless of texture
+       state. Book-forced light page backgrounds still get neutralized (#4392) since
+       the theme-dark fill shows through. */
     body.theme-dark {
-      background-color: ${bg} !important;
+      background-color: transparent !important;
     }
 `;
 
@@ -308,7 +353,6 @@ const getPageLayoutStyles = (
   writingMode: string,
   vertical: boolean,
 ) => `
-  @namespace epub "http://www.idpf.org/2007/ops";
   html {
     --margin-top: ${marginTop}px;
     --margin-right: ${marginRight}px;
@@ -501,8 +545,8 @@ const getParagraphLayoutStyles = (
     word-spacing: ${wordSpacing}px ${overrideLayout ? '!important' : ''};
     letter-spacing: ${letterSpacing}px ${overrideLayout ? '!important' : ''};
     text-indent: ${textIndent}em ${overrideLayout ? '!important' : ''};
-    -webkit-hyphens: ${hyphenate ? 'auto' : 'manual'};
-    hyphens: ${hyphenate ? 'auto' : 'manual'};
+    -webkit-hyphens: ${hyphenate ? 'auto' : 'manual'} ${overrideLayout ? '!important' : ''};
+    hyphens: ${hyphenate ? 'auto' : 'manual'} ${overrideLayout ? '!important' : ''};
     -webkit-hyphenate-limit-before: 3;
     -webkit-hyphenate-limit-after: 2;
     -webkit-hyphenate-limit-lines: 2;
@@ -511,8 +555,8 @@ const getParagraphLayoutStyles = (
   }
   li {
     line-height: ${lineSpacing} ${overrideLayout ? '!important' : ''};
-    -webkit-hyphens: ${hyphenate ? 'auto' : 'manual'};
-    hyphens: ${hyphenate ? 'auto' : 'manual'};
+    -webkit-hyphens: ${hyphenate ? 'auto' : 'manual'} ${overrideLayout ? '!important' : ''};
+    hyphens: ${hyphenate ? 'auto' : 'manual'} ${overrideLayout ? '!important' : ''};
   }
   p.aligned-center, blockquote.aligned-center,
   dd.aligned-center, div.aligned-center {
@@ -828,7 +872,13 @@ export const getStyles = (
   const warichuStyles = getWarichuStyles();
   const rubyStyles = getRubyStyles();
   const userStylesheet = viewSettings.userStylesheet!;
-  return `${customFontFaces}\n${pageLayoutStyles}\n${paragraphLayoutStyles}\n${fontStyles}\n${colorStyles}\n${translationStyles}\n${warichuStyles}\n${rubyStyles}\n${userStylesheet}`;
+  // The `@namespace` declaration must lead the stylesheet: a `@namespace` rule
+  // placed after any style or `@font-face` rule is invalid and silently ignored,
+  // which drops the namespaced `aside[epub|type~="footnote"]` selector and lets
+  // the footnote aside's border show as a stray horizontal line (#4438). Keep it
+  // ahead of the inlined custom `@font-face` rules.
+  const epubNamespace = `@namespace epub "http://www.idpf.org/2007/ops";`;
+  return `${epubNamespace}\n${customFontFaces}\n${pageLayoutStyles}\n${paragraphLayoutStyles}\n${fontStyles}\n${colorStyles}\n${translationStyles}\n${warichuStyles}\n${rubyStyles}\n${userStylesheet}`;
 };
 
 // Build a CSS chunk of `@font-face` rules for the given user custom
@@ -1119,18 +1169,40 @@ export const applyImageStyle = (document: Document) => {
 };
 
 export const keepTextAlignment = (document: Document) => {
-  document.querySelectorAll('div, p, blockquote, dd').forEach((el) => {
-    const computedStyle = window.getComputedStyle(el);
-    if (computedStyle.textAlign === 'center') {
-      el.classList.add('aligned-center');
-    } else if (computedStyle.textAlign === 'left') {
-      el.classList.add('aligned-left');
-    } else if (computedStyle.textAlign === 'right') {
-      el.classList.add('aligned-right');
-    } else if (computedStyle.textAlign === 'justify') {
-      el.classList.add('aligned-justify');
-    }
-  });
+  // Why two-phase: the previous version read getComputedStyle and wrote
+  // classList.add inside the same forEach pass. classList.add invalidates
+  // the document's style cache (CSS selectors may target the class on
+  // descendants), so the next getComputedStyle() in the loop forced the
+  // browser to recompute style for the whole document. With ~hundreds of
+  // p/div/blockquote/dd elements per chapter (a typical Harry Potter
+  // section) that turned the loop into N x layout — visible on a release
+  // Android build as a 1210ms "Forced reflow" violation in the browser
+  // console and the dominant chunk of "Layout = 32.8% of TBT" in the
+  // open-book Performance trace.
+  //
+  // Two-phase read-then-write keeps the loop O(N) elements + 1 recalc
+  // instead of O(N) recalcs.
+  const win = document.defaultView ?? window;
+  const els = document.querySelectorAll('div, p, blockquote, dd');
+  const alignClasses = new Array<string | null>(els.length);
+  // Read pass: collect computed text-align for every element. The browser
+  // computes style once for the whole document on the first call, then
+  // every subsequent getComputedStyle in this pass reuses that result.
+  for (let i = 0; i < els.length; i++) {
+    const align = win.getComputedStyle(els[i]!).textAlign;
+    if (align === 'center') alignClasses[i] = 'aligned-center';
+    else if (align === 'left') alignClasses[i] = 'aligned-left';
+    else if (align === 'right') alignClasses[i] = 'aligned-right';
+    else if (align === 'justify') alignClasses[i] = 'aligned-justify';
+    else alignClasses[i] = null;
+  }
+  // Write pass: applies all classList changes in a single batch. Style
+  // invalidation happens once at the end, when the next layout-affecting
+  // operation forces a flush.
+  for (let i = 0; i < els.length; i++) {
+    const cls = alignClasses[i];
+    if (cls) els[i]!.classList.add(cls);
+  }
 };
 
 export const applyFixedlayoutStyles = (

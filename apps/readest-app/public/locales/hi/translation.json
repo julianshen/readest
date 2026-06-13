@@ -1731,5 +1731,17 @@
   "Error: ": "त्रुटि: ",
   "Ask about this book...": "इस पुस्तक के बारे में पूछें...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "{{bookTitle}} के बारे में प्रश्न पूछें और प्रासंगिक अंशों के साथ AI-संचालित उत्तर प्राप्त करें।",
-  "Stop": "रोकें"
+  "Stop": "रोकें",
+  "Previous word": "पिछला शब्द",
+  "Previous word (,)": "पिछला शब्द (,)",
+  "Next word": "अगला शब्द",
+  "Next word (.)": "अगला शब्द (.)",
+  "Start Delay": "आरंभ विलंब",
+  "Off": "बंद",
+  "Look up": "खोजें",
+  "Search on Goodreads": "Goodreads पर खोजें",
+  "Reference Pages": "संदर्भ पृष्ठ",
+  "Reference Page Count": "संदर्भ पृष्ठ संख्या",
+  "Lookup app reset. The next lookup will ask again.": "लुकअप ऐप रीसेट कर दिया गया। अगली बार फिर से पूछा जाएगा।",
+  "System Lookup App": "सिस्टम लुकअप ऐप"
 }

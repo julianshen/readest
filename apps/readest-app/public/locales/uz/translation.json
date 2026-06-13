@@ -1731,5 +1731,17 @@
   "Error: ": "Xato: ",
   "Ask about this book...": "Ushbu kitob haqida so'rang...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "«\"{{bookTitle}}\"» kitobi haqida savollar bering va tegishli parchalar bilan AI tomonidan javoblar oling.",
-  "Stop": "To'xtatish"
+  "Stop": "To'xtatish",
+  "Previous word": "Oldingi soʻz",
+  "Previous word (,)": "Oldingi soʻz (,)",
+  "Next word": "Keyingi soʻz",
+  "Next word (.)": "Keyingi soʻz (.)",
+  "Start Delay": "Boshlash kechikishi",
+  "Off": "Oʻchiq",
+  "Look up": "Qidirish",
+  "Search on Goodreads": "Goodreads'da qidirish",
+  "Reference Pages": "Bosma sahifalar",
+  "Reference Page Count": "Bosma sahifalar soni",
+  "Lookup app reset. The next lookup will ask again.": "Qidiruv ilovasi tiklandi. Keyingi qidiruvda yana so‘raladi.",
+  "System Lookup App": "Tizim qidiruv ilovasi"
 }

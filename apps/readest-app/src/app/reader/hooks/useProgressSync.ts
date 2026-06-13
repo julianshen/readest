@@ -4,6 +4,7 @@ import { useSync } from '@/hooks/useSync';
 import { BookConfig, FIXED_LAYOUT_FORMATS } from '@/types/book';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useReaderStore } from '@/store/readerStore';
+import { useBookProgress } from '@/store/readerProgressStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { serializeConfig } from '@/utils/serializer';
@@ -22,12 +23,22 @@ const PULL_RETRY_DELAYS_MS = [1500, 4000, 10000];
 
 export const useProgressSync = (bookKey: string) => {
   const _ = useTranslation();
-  const { getConfig, setConfig, getBookData } = useBookDataStore();
-  const { getView, getProgress, setHoveredBookKey } = useReaderStore();
+  // Per-field selectors avoid subscribing this hook's host (FoliateViewer)
+  // to the WHOLE bookDataStore — saveConfig writes booksData on every
+  // throttled save and would otherwise re-render the entire reader subtree.
+  const getConfig = useBookDataStore((s) => s.getConfig);
+  const setConfig = useBookDataStore((s) => s.setConfig);
+  const getBookData = useBookDataStore((s) => s.getBookData);
+  const getView = useReaderStore((s) => s.getView);
+  const setHoveredBookKey = useReaderStore((s) => s.setHoveredBookKey);
   const { settings } = useSettingsStore();
   const { syncedConfigs, syncConfigs } = useSync(bookKey);
   const { user } = useAuth();
-  const progress = getProgress(bookKey);
+  // Reactive subscription on this book's progress so the effects below
+  // (auto-push debounce, initial pull) re-run when the user turns the
+  // page. Reads from readerProgressStore, not readerStore — see
+  // store/readerProgressStore.ts for why this split exists.
+  const progress = useBookProgress(bookKey);
 
   const configPulled = useRef(false);
   const hasPulledConfigOnce = useRef(false);
@@ -130,9 +141,24 @@ export const useProgressSync = (bookKey: string) => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleAutoSync = useCallback(
+    debounce(() => {
+      syncConfig();
+    }, SYNC_PROGRESS_INTERVAL_SEC * 1000),
+    [],
+  );
+
   const handleSyncBookProgress = async (event: CustomEvent) => {
     const { bookKey: syncBookKey } = event.detail;
     if (syncBookKey === bookKey) {
+      // Flush any pending debounced push first so the latest local progress
+      // reaches the cloud before we (re)pull. This covers the book-close case
+      // (issue #4532): the reader can tear down inside the SYNC_PROGRESS_INTERVAL_SEC
+      // auto-sync window, which would otherwise drop the pending push and leave
+      // other devices on the previous cloud-synced position. Must run while the
+      // gate below is still open so syncConfig takes the push branch.
+      handleAutoSync.flush();
       // Manual pull-to-refresh: tear down any prior retry chain so the new
       // attempt starts fresh, rather than being short-circuited by the
       // "retry already pending" guard in pullWithRetry.
@@ -143,7 +169,8 @@ export const useProgressSync = (bookKey: string) => {
     }
   };
 
-  // Push: ad-hoc push when the book is closed
+  // Push: flush the pending push + pull when the book is closed or the user
+  // taps the manual Sync button.
   useEffect(() => {
     eventDispatcher.on('sync-book-progress', handleSyncBookProgress);
     return () => {
@@ -151,14 +178,6 @@ export const useProgressSync = (bookKey: string) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookKey]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleAutoSync = useCallback(
-    debounce(() => {
-      syncConfig();
-    }, SYNC_PROGRESS_INTERVAL_SEC * 1000),
-    [],
-  );
 
   // Push: auto-push progress when progress changes with a debounce
   useEffect(() => {

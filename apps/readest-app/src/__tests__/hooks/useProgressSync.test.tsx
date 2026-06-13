@@ -2,11 +2,17 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { act, cleanup, renderHook } from '@testing-library/react';
 
 const h = vi.hoisted(() => {
-  // Zustand-like store mock: callable selector returning `state`, plus `.getState()`.
+  // Zustand-like store mock. Supports both destructure form `store()`
+  // and selector form `store((s) => s.method)` since the production code
+  // now uses per-field selectors to avoid whole-store subscriptions.
   const makeStore = <T,>(state: T) => {
-    const fn = () => state;
+    const fn = <R,>(selector?: (s: T) => R) => (selector ? selector(state) : state) as R | T;
     (fn as unknown as { getState: () => T }).getState = () => state;
-    return fn as (() => T) & { getState: () => T };
+    return fn as {
+      (): T;
+      <R>(selector: (s: T) => R): R;
+      getState: () => T;
+    };
   };
 
   const book = {
@@ -73,6 +79,13 @@ vi.mock('@/store/readerStore', () => ({
     setHoveredBookKey: vi.fn(),
     getViewState: () => ({ previewMode: false }),
   }),
+}));
+
+// useProgressSync now reads progress reactively from readerProgressStore
+// (see store/readerProgressStore.ts for rationale).
+vi.mock('@/store/readerProgressStore', () => ({
+  useBookProgress: () => h.state.progress,
+  getBookProgress: () => h.state.progress,
 }));
 
 vi.mock('@/store/settingsStore', () => ({
@@ -275,5 +288,38 @@ describe('useProgressSync', () => {
     // And the retry chain restarts from delay[0].
     await advance(1500);
     expect(pullCallCount()).toBe(callsBeforeRefresh + 2);
+  });
+
+  test('sync-book-progress flushes the pending cloud push on book close', async () => {
+    // Reproduces issue #4532: the reader is closed inside the 3s auto-sync
+    // debounce window, so the pending Readest cloud push would otherwise be
+    // dropped on unmount and never reach the cloud.
+    // Mount: the empty pull settles and opens the gate (configPulled = true).
+    const { rerender } = renderHook(() => useProgressSync('h1-view1'));
+    await advance(0);
+    expect(pushCallCount()).toBe(0);
+
+    // User paginates to a new position — this arms the 3s auto-sync debounce.
+    h.state.progress = { location: 'cfi-loc-next' };
+    await act(async () => {
+      rerender();
+      await flushMicrotasks();
+    });
+    // The debounce has not fired yet, so nothing has been pushed.
+    expect(pushCallCount()).toBe(0);
+
+    // Closing the reader dispatches sync-book-progress within the debounce
+    // window — before the 3s timer would have fired.
+    await act(async () => {
+      const listeners = h.eventListeners.get('sync-book-progress');
+      listeners?.forEach((fn) =>
+        fn(new CustomEvent('sync-book-progress', { detail: { bookKey: 'h1-view1' } })),
+      );
+      await flushMicrotasks();
+    });
+
+    // The pending push is flushed immediately — Device A's last local position
+    // reaches the cloud before the reader tears down.
+    expect(pushCallCount()).toBeGreaterThanOrEqual(1);
   });
 });

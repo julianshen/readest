@@ -1797,5 +1797,17 @@
   "Error: ": "Napaka: ",
   "Ask about this book...": "Vprašaj o tej knjigi...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Postavljajte vprašanja o »{{bookTitle}}« in prejmite odgovore, ki jih poganja umetna inteligenca, z ustreznimi odlomki.",
-  "Stop": "Ustavi"
+  "Stop": "Ustavi",
+  "Previous word": "Prejšnja beseda",
+  "Previous word (,)": "Prejšnja beseda (,)",
+  "Next word": "Naslednja beseda",
+  "Next word (.)": "Naslednja beseda (.)",
+  "Start Delay": "Zakasnitev začetka",
+  "Off": "Izklopljeno",
+  "Look up": "Poišči",
+  "Search on Goodreads": "Išči v Goodreads",
+  "Reference Pages": "Referenčne strani",
+  "Reference Page Count": "Število referenčnih strani",
+  "Lookup app reset. The next lookup will ask again.": "Aplikacija za iskanje je ponastavljena. Ob naslednjem iskanju bo znova vprašala.",
+  "System Lookup App": "Sistemska aplikacija za iskanje"
 }

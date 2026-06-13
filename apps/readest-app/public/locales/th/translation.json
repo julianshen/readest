@@ -1698,5 +1698,17 @@
   "Error: ": "ข้อผิดพลาด: ",
   "Ask about this book...": "ถามเกี่ยวกับหนังสือเล่มนี้...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "ถามคำถามเกี่ยวกับ \"{{bookTitle}}\" และรับคำตอบที่ขับเคลื่อนด้วย AI พร้อมข้อความที่เกี่ยวข้อง",
-  "Stop": "หยุด"
+  "Stop": "หยุด",
+  "Previous word": "คำก่อนหน้า",
+  "Previous word (,)": "คำก่อนหน้า (,)",
+  "Next word": "คำถัดไป",
+  "Next word (.)": "คำถัดไป (.)",
+  "Start Delay": "หน่วงเวลาเริ่มต้น",
+  "Off": "ปิด",
+  "Look up": "ค้นหา",
+  "Search on Goodreads": "ค้นหาใน Goodreads",
+  "Reference Pages": "หน้าอ้างอิง",
+  "Reference Page Count": "จำนวนหน้าอ้างอิง",
+  "Lookup app reset. The next lookup will ask again.": "รีเซ็ตแอปค้นหาแล้ว การค้นหาครั้งถัดไปจะถามอีกครั้ง",
+  "System Lookup App": "แอปค้นหาของระบบ"
 }

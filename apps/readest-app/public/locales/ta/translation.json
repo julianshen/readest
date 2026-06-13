@@ -1731,5 +1731,17 @@
   "Error: ": "பிழை: ",
   "Ask about this book...": "இந்த புத்தகத்தைப் பற்றி கேளுங்கள்...",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" பற்றி கேள்விகள் கேட்டு, தொடர்புடைய பகுதிகளுடன் AI-இயக்க பதில்களைப் பெறுங்கள்.",
-  "Stop": "நிறுத்து"
+  "Stop": "நிறுத்து",
+  "Previous word": "முந்தைய சொல்",
+  "Previous word (,)": "முந்தைய சொல் (,)",
+  "Next word": "அடுத்த சொல்",
+  "Next word (.)": "அடுத்த சொல் (.)",
+  "Start Delay": "தொடக்க தாமதம்",
+  "Off": "அணை",
+  "Look up": "தேடு",
+  "Search on Goodreads": "Goodreads இல் தேடு",
+  "Reference Pages": "குறிப்புப் பக்கங்கள்",
+  "Reference Page Count": "குறிப்புப் பக்கங்களின் எண்ணிக்கை",
+  "Lookup app reset. The next lookup will ask again.": "தேடல் செயலி மீட்டமைக்கப்பட்டது. அடுத்த தேடலில் மீண்டும் கேட்கப்படும்.",
+  "System Lookup App": "கணினி தேடல் செயலி"
 }

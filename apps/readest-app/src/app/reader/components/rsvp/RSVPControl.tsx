@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useReaderStore } from '@/store/readerStore';
+import { useBookProgress } from '@/store/readerProgressStore';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useThemeStore } from '@/store/themeStore';
@@ -13,6 +14,7 @@ import {
   buildRsvpExitConfigUpdate,
 } from '@/services/rsvp';
 import { eventDispatcher } from '@/utils/event';
+import { getBaseFontFamily } from '@/utils/style';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { BookNote, PageInfo } from '@/types/book';
@@ -113,9 +115,17 @@ const expandRangeToSentence = (range: Range, doc: Document): Range => {
 const RSVPControl: React.FC<RSVPControlProps> = ({ bookKey, gridInsets }) => {
   const _ = useTranslation();
   const { envConfig } = useEnv();
-  const { settings } = useSettingsStore();
-  const { getView, getProgress } = useReaderStore();
-  const { getBookData, getConfig, setConfig, saveConfig } = useBookDataStore();
+  const settings = useSettingsStore((s) => s.settings);
+  const setSettingsDialogOpen = useSettingsStore((s) => s.setSettingsDialogOpen);
+  const setSettingsDialogBookKey = useSettingsStore((s) => s.setSettingsDialogBookKey);
+  const setActiveSettingsItemId = useSettingsStore((s) => s.setActiveSettingsItemId);
+  const getView = useReaderStore((s) => s.getView);
+  const getProgress = useReaderStore((s) => s.getProgress);
+  const getViewSettings = useReaderStore((s) => s.getViewSettings);
+  const getBookData = useBookDataStore((s) => s.getBookData);
+  const getConfig = useBookDataStore((s) => s.getConfig);
+  const setConfig = useBookDataStore((s) => s.setConfig);
+  const saveConfig = useBookDataStore((s) => s.saveConfig);
   const { themeCode } = useThemeStore();
 
   const [isActive, setIsActive] = useState(false);
@@ -176,6 +186,11 @@ const RSVPControl: React.FC<RSVPControlProps> = ({ bookKey, gridInsets }) => {
 
   const handleStart = useCallback(
     (selectionText?: string) => {
+      // RSVP can be started from the menu or the keyboard shortcut (#4473);
+      // ignore a repeat trigger while a session is already active so it does
+      // not re-open the start dialog over the running overlay.
+      if (controllerRef.current?.currentState.active) return;
+
       const view = getView(bookKey);
       const bookData = getBookData(bookKey);
       const progress = getProgress(bookKey);
@@ -507,11 +522,26 @@ const RSVPControl: React.FC<RSVPControlProps> = ({ bookKey, gridInsets }) => {
     await view.renderer.goTo({ index: rsvpSectionRef.current + 1 });
   }, [bookKey, getProgress, getView, removeRsvpHighlight]);
 
-  // Get current chapter info
-  const progress = getProgress(bookKey);
+  // Get current chapter info — reactive subscription so the RSVP overlay's
+  // chapter pointer follows page turns. Reads from readerProgressStore.
+  const progress = useBookProgress(bookKey);
   const bookData = getBookData(bookKey);
   const chapters = bookData?.bookDoc?.toc || [];
   const currentChapterHref = rsvpChapterHrefRef.current ?? progress?.sectionHref ?? null;
+
+  // Mirror the reader's font face/family settings on the RSVP word. The overlay
+  // renders in the top document where the configured (and custom) fonts are
+  // already mounted, so the resolved family resolves the same typeface.
+  const viewSettings = getViewSettings(bookKey);
+  const fontFamily = viewSettings ? getBaseFontFamily(viewSettings) : undefined;
+
+  // Book language drives dictionary provider selection for context lookups (#4475).
+  const dictionaryLang = bookData?.bookDoc?.metadata?.language as string | undefined;
+  const handleManageDictionary = useCallback(() => {
+    setSettingsDialogBookKey(bookKey);
+    setActiveSettingsItemId('settings.language.dictionaries.manage');
+    setSettingsDialogOpen(true);
+  }, [bookKey, setActiveSettingsItemId, setSettingsDialogBookKey, setSettingsDialogOpen]);
 
   // Use portal to render overlay at body level to avoid stacking context issues
   const portalContainer = typeof document !== 'undefined' ? document.body : null;
@@ -541,9 +571,12 @@ const RSVPControl: React.FC<RSVPControlProps> = ({ bookKey, gridInsets }) => {
             controller={controllerRef.current}
             chapters={chapters}
             currentChapterHref={currentChapterHref}
+            fontFamily={fontFamily}
+            lang={dictionaryLang}
             onClose={handleClose}
             onChapterSelect={handleChapterSelect}
             onRequestNextPage={handleRequestNextPage}
+            onManageDictionary={handleManageDictionary}
           />,
           portalContainer,
         )}

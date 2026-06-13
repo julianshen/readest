@@ -1698,5 +1698,17 @@
   "Error: ": "錯誤：",
   "Ask about this book...": "詢問關於這本書……",
   "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "詢問關於「{{bookTitle}}」的問題，並透過人工智能取得答案及相關段落。",
-  "Stop": "停止"
+  "Stop": "停止",
+  "Previous word": "上一個詞",
+  "Previous word (,)": "上一個詞 (,)",
+  "Next word": "下一個詞",
+  "Next word (.)": "下一個詞 (.)",
+  "Start Delay": "開始延遲",
+  "Off": "關閉",
+  "Look up": "查詢",
+  "Search on Goodreads": "在 Goodreads 搜尋",
+  "Reference Pages": "參考頁碼",
+  "Reference Page Count": "參考總頁數",
+  "Lookup app reset. The next lookup will ask again.": "已重設查詞應用程式。下次查詞時將再次詢問。",
+  "System Lookup App": "系統查詞應用程式"
 }
