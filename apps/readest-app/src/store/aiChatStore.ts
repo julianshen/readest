@@ -8,6 +8,8 @@ interface AIChatState {
   messages: AIMessage[];
   isLoadingHistory: boolean;
   currentBookHash: string | null;
+  /** Prompt injected externally (e.g. by AI Summary) for the chat to consume on mount. */
+  pendingPrompt: string | null;
 
   loadConversations: (bookHash: string) => Promise<void>;
   setActiveConversation: (id: string | null) => Promise<void>;
@@ -16,6 +18,7 @@ interface AIChatState {
   deleteConversation: (id: string) => Promise<void>;
   renameConversation: (id: string, title: string) => Promise<void>;
   clearActiveConversation: () => void;
+  setPendingPrompt: (prompt: string | null) => void;
 }
 
 function generateId(): string {
@@ -28,6 +31,7 @@ export const useAIChatStore = create<AIChatState>((set, get) => ({
   messages: [],
   isLoadingHistory: false,
   currentBookHash: null,
+  pendingPrompt: null,
 
   loadConversations: async (bookHash: string) => {
     if (get().currentBookHash === bookHash && get().conversations.length > 0) {
@@ -136,5 +140,9 @@ export const useAIChatStore = create<AIChatState>((set, get) => ({
 
   clearActiveConversation: () => {
     set({ activeConversationId: null, messages: [] });
+  },
+
+  setPendingPrompt: (prompt: string | null) => {
+    set({ pendingPrompt: prompt });
   },
 }));
