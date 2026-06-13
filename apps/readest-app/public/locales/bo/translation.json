@@ -1710,5 +1710,8 @@
   "Reference Pages": "དཔེ་སྟོན་ཤོག་ངོས།",
   "Reference Page Count": "དཔེ་སྟོན་ཤོག་ངོས་ཀྱི་གྲངས།",
   "Lookup app reset. The next lookup will ask again.": "འཚོལ་བཤེར་ཉེར་སྤྱོད་བསྐྱར་སྒྲིག་བྱས་ཟིན། རྗེས་མའི་འཚོལ་བཤེར་སྐབས་སླར་ཡང་འདྲི་ངེས།",
-  "System Lookup App": "རྒྱུད་ཁོངས་འཚོལ་བཤེར་ཉེར་སྤྱོད།"
+  "System Lookup App": "རྒྱུད་ཁོངས་འཚོལ་བཤེར་ཉེར་སྤྱོད།",
+  "Brightness": "འོད་གདངས།",
+  "E-Ink Boost": "E-Ink ཡར་སྐུལ།",
+  "On": "ཁ་ཕྱེ།"
 }

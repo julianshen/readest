@@ -289,6 +289,9 @@ export const DEFAULT_BOOK_STYLE: BookStyle = {
   keepCoverSpread: true,
   invertImgColorInDark: false,
   applyThemeToPDF: false,
+  imageContrast: 100,
+  imageBrightness: 100,
+  imageGrayscale: false,
 };
 
 export const DEFAULT_MOBILE_VIEW_SETTINGS: Partial<ViewSettings> = {

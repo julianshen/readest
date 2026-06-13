@@ -1743,5 +1743,8 @@
   "Reference Pages": "Σελίδες αναφοράς",
   "Reference Page Count": "Αριθμός σελίδων αναφοράς",
   "Lookup app reset. The next lookup will ask again.": "Η εφαρμογή αναζήτησης επαναφέρθηκε. Στην επόμενη αναζήτηση θα ερωτηθείτε ξανά.",
-  "System Lookup App": "Εφαρμογή αναζήτησης συστήματος"
+  "System Lookup App": "Εφαρμογή αναζήτησης συστήματος",
+  "Brightness": "Φωτεινότητα",
+  "E-Ink Boost": "Ενίσχυση E-Ink",
+  "On": "Ενεργό"
 }

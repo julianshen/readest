@@ -9,6 +9,7 @@ import {
   BookNote,
   FIXED_LAYOUT_FORMATS,
   ImportBookOptions,
+  ViewSettings,
 } from '@/types/book';
 import {
   getDir,
@@ -632,6 +633,15 @@ export async function resolveNativeBookFilePath(
   }
 }
 
+// Per-book view-setting defaults applied to comics (fixed-layout) on top of the
+// global settings. On e-ink, manga pages ghost badly, so default to a full
+// hardware refresh every page; a user's saved per-book value still overrides
+// this (the saved config is merged on top of these defaults).
+export const comicViewSettingsDefaults = (isEink: boolean): Partial<ViewSettings> => ({
+  ...DEFAULT_FIXED_LAYOUT_VIEW_SETTINGS,
+  ...(isEink ? { epdRefreshInterval: 1 } : {}),
+});
+
 export async function loadBookConfig(
   fs: FileSystem,
   book: Book,
@@ -639,7 +649,9 @@ export async function loadBookConfig(
 ): Promise<BookConfig> {
   const globalViewSettings = {
     ...settings.globalViewSettings,
-    ...(FIXED_LAYOUT_FORMATS.has(book.format) ? DEFAULT_FIXED_LAYOUT_VIEW_SETTINGS : {}),
+    ...(FIXED_LAYOUT_FORMATS.has(book.format)
+      ? comicViewSettingsDefaults(!!settings.globalViewSettings.isEink)
+      : {}),
   };
   try {
     let str = '{}';
@@ -662,7 +674,9 @@ export async function saveBookConfig(
   if (settings) {
     const globalViewSettings = {
       ...settings.globalViewSettings,
-      ...(FIXED_LAYOUT_FORMATS.has(book.format) ? DEFAULT_FIXED_LAYOUT_VIEW_SETTINGS : {}),
+      ...(FIXED_LAYOUT_FORMATS.has(book.format)
+        ? comicViewSettingsDefaults(!!settings.globalViewSettings.isEink)
+        : {}),
     };
     serializedConfig = serializeConfig(config, globalViewSettings, DEFAULT_BOOK_SEARCH_CONFIG);
   } else {

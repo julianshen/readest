@@ -1776,5 +1776,8 @@
   "Reference Pages": "Páginas de referencia",
   "Reference Page Count": "Número de páginas de referencia",
   "Lookup app reset. The next lookup will ask again.": "Se restableció la app de búsqueda. La próxima vez se preguntará de nuevo.",
-  "System Lookup App": "App de búsqueda del sistema"
+  "System Lookup App": "App de búsqueda del sistema",
+  "Brightness": "Brillo",
+  "E-Ink Boost": "Mejora E-Ink",
+  "On": "Activado"
 }

@@ -1743,5 +1743,8 @@
   "Reference Pages": "Referans sayfaları",
   "Reference Page Count": "Referans sayfa sayısı",
   "Lookup app reset. The next lookup will ask again.": "Arama uygulaması sıfırlandı. Sonraki aramada tekrar sorulacak.",
-  "System Lookup App": "Sistem arama uygulaması"
+  "System Lookup App": "Sistem arama uygulaması",
+  "Brightness": "Parlaklık",
+  "E-Ink Boost": "E-Ink Güçlendirme",
+  "On": "Açık"
 }

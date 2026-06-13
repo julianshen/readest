@@ -1743,5 +1743,8 @@
   "Reference Pages": "Bosma sahifalar",
   "Reference Page Count": "Bosma sahifalar soni",
   "Lookup app reset. The next lookup will ask again.": "Qidiruv ilovasi tiklandi. Keyingi qidiruvda yana so‘raladi.",
-  "System Lookup App": "Tizim qidiruv ilovasi"
+  "System Lookup App": "Tizim qidiruv ilovasi",
+  "Brightness": "Yorqinlik",
+  "E-Ink Boost": "E-Ink kuchaytirish",
+  "On": "Yoniq"
 }

@@ -10,6 +10,7 @@ import {
 import { useEnv } from '@/context/EnvContext';
 import { useThemeStore } from '@/store/themeStore';
 import { useReaderStore } from '@/store/readerStore';
+import { useBookDataStore } from '@/store/bookDataStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useResetViewSettings } from '@/hooks/useResetSettings';
@@ -17,13 +18,14 @@ import { useCustomTextureStore } from '@/store/customTextureStore';
 import { queueReplicaBinaryUpload } from '@/services/sync/replicaBinaryUpload';
 import { saveViewSettings } from '@/helpers/settings';
 import { manageSyntaxHighlighting } from '@/utils/highlightjs';
+import { applyFixedlayoutStyles } from '@/utils/style';
 import { SettingsPanelPanelProp } from './SettingsDialog';
 import { useFileSelector } from '@/hooks/useFileSelector';
 import { PREDEFINED_TEXTURES } from '@/styles/textures';
 import { useAtmosphereStore } from '@/store/atmosphereStore';
 import { DefaultHighlightColor, HighlightColor, UserHighlightColor } from '@/types/book';
 import clsx from 'clsx';
-import { SettingLabel } from './primitives';
+import { BoxedList, SettingLabel, SettingsRow } from './primitives';
 import { HIGHLIGHT_COLOR_HEX } from '@/services/constants';
 import ThemeEditor from './color/ThemeEditor';
 import ThemeModeSelector from './color/ThemeModeSelector';
@@ -40,11 +42,16 @@ const ColorPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset
   const { envConfig, appService } = useEnv();
   const { settings, setSettings, saveSettings } = useSettingsStore();
   const { getView, getViewSettings } = useReaderStore();
+  const { getBookData } = useBookDataStore();
   const viewSettings = getViewSettings(bookKey) || settings.globalViewSettings;
+  const bookData = getBookData(bookKey);
 
   const [invertImgColorInDark, setInvertImgColorInDark] = useState(
     viewSettings.invertImgColorInDark,
   );
+  const [imageContrast, setImageContrast] = useState(viewSettings.imageContrast ?? 100);
+  const [imageBrightness, setImageBrightness] = useState(viewSettings.imageBrightness ?? 100);
+  const [imageGrayscale, setImageGrayscale] = useState(viewSettings.imageGrayscale ?? false);
   const [editTheme, setEditTheme] = useState<CustomTheme | null>(null);
   const [customThemes, setCustomThemes] = useState<Theme[]>([]);
   const [showCustomThemeEditor, setShowCustomThemeEditor] = useState(false);
@@ -87,6 +94,9 @@ const ColorPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset
     resetToDefaults({
       overrideColor: setOverrideColor,
       invertImgColorInDark: setInvertImgColorInDark,
+      imageContrast: setImageContrast,
+      imageBrightness: setImageBrightness,
+      imageGrayscale: setImageGrayscale,
       highlightOpacity: setHighlightOpacity,
       codeHighlighting: setcodeHighlighting,
       codeLanguage: setCodeLanguage,
@@ -115,6 +125,23 @@ const ColorPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset
     }
   };
 
+  const EINK_BOOST = { contrast: 140, brightness: 110, grayscale: true };
+  const isBoosted =
+    imageContrast === EINK_BOOST.contrast &&
+    imageBrightness === EINK_BOOST.brightness &&
+    imageGrayscale === EINK_BOOST.grayscale;
+  const toggleEinkBoost = () => {
+    if (isBoosted) {
+      setImageContrast(100);
+      setImageBrightness(100);
+      setImageGrayscale(false);
+    } else {
+      setImageContrast(EINK_BOOST.contrast);
+      setImageBrightness(EINK_BOOST.brightness);
+      setImageGrayscale(EINK_BOOST.grayscale);
+    }
+  };
+
   useEffect(() => {
     onRegisterReset(handleReset);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,6 +156,33 @@ const ColorPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset
     saveViewSettings(envConfig, bookKey, 'invertImgColorInDark', invertImgColorInDark);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invertImgColorInDark]);
+
+  useEffect(() => {
+    if (imageContrast === (viewSettings.imageContrast ?? 100)) return;
+    saveViewSettings(envConfig, bookKey, 'imageContrast', imageContrast, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageContrast]);
+
+  useEffect(() => {
+    if (imageBrightness === (viewSettings.imageBrightness ?? 100)) return;
+    saveViewSettings(envConfig, bookKey, 'imageBrightness', imageBrightness, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageBrightness]);
+
+  useEffect(() => {
+    if (imageGrayscale === (viewSettings.imageGrayscale ?? false)) return;
+    saveViewSettings(envConfig, bookKey, 'imageGrayscale', imageGrayscale, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageGrayscale]);
+
+  useEffect(() => {
+    const view = getView(bookKey);
+    const vs = getViewSettings(bookKey);
+    if (!view?.renderer?.getContents || !vs) return;
+    const merged = { ...vs, imageContrast, imageBrightness, imageGrayscale };
+    view.renderer.getContents().forEach(({ doc }) => applyFixedlayoutStyles(doc, merged));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageContrast, imageBrightness, imageGrayscale]);
 
   useEffect(() => {
     if (overrideColor === viewSettings.overrideColor) return;
@@ -337,6 +391,54 @@ const ColorPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterReset
               onChange={() => setInvertImgColorInDark(!invertImgColorInDark)}
             />
           </label>
+
+          {bookData?.isFixedLayout && (
+            <BoxedList>
+              <SettingsRow label={_('Contrast')}>
+                <div className='flex items-center gap-2'>
+                  <input
+                    type='range'
+                    min='50'
+                    max='200'
+                    step='5'
+                    value={imageContrast}
+                    onChange={(e) => setImageContrast(parseInt(e.target.value, 10))}
+                    className='range range-sm w-32'
+                  />
+                  <span className='text-base-content/70 w-12 text-end text-sm'>
+                    {imageContrast}%
+                  </span>
+                </div>
+              </SettingsRow>
+              <SettingsRow label={_('Brightness')}>
+                <div className='flex items-center gap-2'>
+                  <input
+                    type='range'
+                    min='50'
+                    max='150'
+                    step='5'
+                    value={imageBrightness}
+                    onChange={(e) => setImageBrightness(parseInt(e.target.value, 10))}
+                    className='range range-sm w-32'
+                  />
+                  <span className='text-base-content/70 w-12 text-end text-sm'>
+                    {imageBrightness}%
+                  </span>
+                </div>
+              </SettingsRow>
+              {viewSettings.isEink && (
+                <SettingsRow label={_('E-Ink Boost')}>
+                  <button
+                    type='button'
+                    onClick={toggleEinkBoost}
+                    className={`btn btn-sm ${isBoosted ? 'btn-primary' : 'btn-ghost eink-bordered'}`}
+                  >
+                    {isBoosted ? _('On') : _('Apply')}
+                  </button>
+                </SettingsRow>
+              )}
+            </BoxedList>
+          )}
 
           <label
             data-setting-id='settings.color.overrideBookColor'

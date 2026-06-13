@@ -1710,5 +1710,8 @@
   "Reference Pages": "Trang tham chiếu",
   "Reference Page Count": "Số trang tham chiếu",
   "Lookup app reset. The next lookup will ask again.": "Đã đặt lại ứng dụng tra cứu. Lần tra cứu tiếp theo sẽ hỏi lại.",
-  "System Lookup App": "Ứng dụng tra cứu hệ thống"
+  "System Lookup App": "Ứng dụng tra cứu hệ thống",
+  "Brightness": "Độ sáng",
+  "E-Ink Boost": "Tăng cường E-Ink",
+  "On": "Bật"
 }

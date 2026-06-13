@@ -1743,5 +1743,8 @@
   "Reference Pages": "صفحات مرجع",
   "Reference Page Count": "تعداد صفحات مرجع",
   "Lookup app reset. The next lookup will ask again.": "برنامهٔ جستجو بازنشانی شد. در جستجوی بعدی دوباره پرسیده می‌شود.",
-  "System Lookup App": "برنامهٔ جستجوی سیستم"
+  "System Lookup App": "برنامهٔ جستجوی سیستم",
+  "Brightness": "روشنایی",
+  "E-Ink Boost": "تقویت جوهر الکترونیکی",
+  "On": "روشن"
 }

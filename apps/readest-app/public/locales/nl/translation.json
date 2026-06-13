@@ -1743,5 +1743,8 @@
   "Reference Pages": "Referentiepagina's",
   "Reference Page Count": "Aantal referentiepagina's",
   "Lookup app reset. The next lookup will ask again.": "Opzoekapp gereset. De volgende keer wordt het opnieuw gevraagd.",
-  "System Lookup App": "Systeem-opzoekapp"
+  "System Lookup App": "Systeem-opzoekapp",
+  "Brightness": "Helderheid",
+  "E-Ink Boost": "E-Ink-versterking",
+  "On": "Aan"
 }
