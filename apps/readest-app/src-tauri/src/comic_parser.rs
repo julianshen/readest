@@ -9,25 +9,28 @@ const IMAGE_EXTS: [&str; 7] = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "avif
 
 const ENCRYPTED_ERR: &str = "encrypted archives are not supported";
 
-fn is_keepable(name: &str) -> bool {
+/// True when `name` ends with a known image extension. Avoids per-call
+/// `format!(".{ext}")` allocation by slicing after the last `.`.
+fn has_image_ext(name: &str) -> bool {
     let lower = name.to_lowercase();
-    if lower.ends_with("comicinfo.xml") {
+    match lower.rfind('.') {
+        Some(i) => IMAGE_EXTS.contains(&&lower[i + 1..]),
+        None => false,
+    }
+}
+
+fn is_keepable(name: &str) -> bool {
+    if name.to_lowercase().ends_with("comicinfo.xml") {
         return true;
     }
-    IMAGE_EXTS
-        .iter()
-        .any(|ext| lower.ends_with(&format!(".{ext}")))
+    has_image_ext(name)
 }
 
 /// Packs (name, bytes) members into a STORE-mode (uncompressed) zip. Members
 /// are written sorted by name (page order). Errors if no image pages.
 fn pack_cbz(mut members: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>, String> {
     members.sort_by(|a, b| a.0.cmp(&b.0));
-    if !members.iter().any(|(n, _)| {
-        IMAGE_EXTS
-            .iter()
-            .any(|e| n.to_lowercase().ends_with(&format!(".{e}")))
-    }) {
+    if !members.iter().any(|(n, _)| has_image_ext(n)) {
         return Err("no readable pages".into());
     }
     let mut cursor = Cursor::new(Vec::new());
@@ -118,7 +121,12 @@ fn convert_sync(src_path: &str) -> Result<String, String> {
     };
     let cbz = pack_cbz(members)?;
     let stem = src.file_stem().and_then(|s| s.to_str()).unwrap_or("comic");
-    let dst = std::env::temp_dir().join(format!("readest-{stem}-{}.cbz", std::process::id()));
+    // Process-local counter keeps temp names unique across concurrent
+    // conversions of same-basename archives (importer runs with concurrency).
+    static COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let count = COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let dst =
+        std::env::temp_dir().join(format!("readest-{stem}-{}-{count}.cbz", std::process::id()));
     let mut f = File::create(&dst).map_err(|e| e.to_string())?;
     f.write_all(&cbz).map_err(|e| e.to_string())?;
     Ok(dst.to_string_lossy().to_string())

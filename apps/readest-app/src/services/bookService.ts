@@ -253,6 +253,10 @@ export async function importBook(
     let format: BookFormat;
     let filename: string;
     let fileobj: File | undefined;
+    // Set when a CBR/CB7 is pre-converted to CBZ below; forces the storage
+    // block to persist the CONVERTED bytes rather than copying the original
+    // archive path (which would store raw RAR/7z bytes under the .cbz name).
+    let convertedFromArchive = false;
     // When the Rust EPUB parser succeeds it gives us the partialMD5 for free,
     // so we can short-circuit the JS hashing pass below.
     let nativeHash: string | undefined;
@@ -289,7 +293,9 @@ export async function importBook(
             srcPath: typeof file === 'string' ? file : undefined,
             readPathAsFile: (p) => fs.openFile(p, 'None'),
             writeTempAndPath: async (f) => {
-              const tmpName = makeSafeFilename(f.name);
+              // Unique prefix so concurrent imports of same-basename archives
+              // (library importer runs with Promise.all) don't collide.
+              const tmpName = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}-${makeSafeFilename(f.name)}`;
               await fs.writeFile(tmpName, 'Temp', f);
               const prefix = await fs.getPrefix('Temp');
               return prefix ? `${prefix.replace(/\/+$/, '')}/${tmpName}` : tmpName;
@@ -297,6 +303,7 @@ export async function importBook(
             deletePath: (p) => fs.removeFile(p, 'None'),
           });
           filename = fileobj.name; // now ends with .cbz
+          convertedFromArchive = true;
         }
         if (!fileobj || fileobj.size === 0) {
           throw new Error('Invalid or empty book file');
@@ -458,7 +465,7 @@ export async function importBook(
       !!fileobj &&
       (!(await fs.exists(bookFilename, 'Books')) || overwrite);
     if (willWriteBookFile && fileobj) {
-      if (/\.txt$/i.test(filename)) {
+      if (/\.txt$/i.test(filename) || convertedFromArchive) {
         await fs.writeFile(bookFilename, 'Books', fileobj);
       } else if (typeof file === 'string' && isContentURI(file)) {
         await fs.copyFile(file, 'None', bookFilename, 'Books');
