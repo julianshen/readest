@@ -272,6 +272,20 @@ export const deriveDocDirection = ({
     false,
 });
 
+// Whether a writingMode change requires recreating the foliate viewer.
+// Reflowable books only re-render on rl transitions (historical behavior);
+// fixed-layout books re-pair spreads from book.dir, so any change applies.
+export const shouldRecreateViewerOnWritingModeChange = (
+  prev: WritingMode,
+  next: WritingMode,
+  isFixedLayout: boolean,
+): boolean => {
+  if (prev === next) return false;
+  if (isFixedLayout) return true;
+  const isRl = (mode: WritingMode) => mode === 'horizontal-rl' || mode === 'vertical-rl';
+  return isRl(prev) || isRl(next);
+};
+
 const getTitleForHash = (title: string | LanguageMap) => {
   return typeof title === 'string' ? title : formatLanguageMap(title, true);
 };
