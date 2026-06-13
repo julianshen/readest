@@ -887,7 +887,6 @@
   "Annotation color": "رنگ یادداشت",
   "Annotation time": "زمان یادداشت",
   "AI": "هوش مصنوعی",
-  "Are you sure you want to re-index this book?": "آیا مطمئن هستید که می‌خواهید این کتاب را دوباره فهرست کنید؟",
   "Enable AI in Settings": "فعال کردن هوش مصنوعی در تنظیمات",
   "Index This Book": "فهرست کردن این کتاب",
   "Enable AI search and chat for this book": "فعال کردن جستجو و گفتگوی هوش مصنوعی برای این کتاب",
@@ -1730,5 +1729,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "زبان خلاصه‌های هوش مصنوعی، مرورها، و توضیح/تعریف روی متن انتخابی را تنظیم می‌کند. ساده‌سازی همیشه از زبان کتاب استفاده می‌کند.",
   "Explain": "توضیح",
   "Simplify": "ساده‌سازی",
-  "Define": "تعریف"
+  "Define": "تعریف",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

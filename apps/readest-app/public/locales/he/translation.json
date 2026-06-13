@@ -430,7 +430,6 @@
   "Server URL": "כתובת שרת",
   "Your Username": "שם המשתמש שלך",
   "Connect": "התחבר",
-  "Are you sure you want to re-index this book?": "האם אתה בטוח שברצונך לאנדקס מחדש ספר זה?",
   "Enable AI in Settings": "הפעל AI בהגדרות",
   "Index This Book": "אנדקס ספר זה",
   "Enable AI search and chat for this book": "הפעל חיפוש וצ'אט AI עבור ספר זה",
@@ -1763,5 +1762,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "מגדיר את השפה עבור סיכומי AI, תקצירים ו-הסבר/הגדרה על טקסט נבחר. פישוט תמיד משתמש בשפת הספר.",
   "Explain": "הסבר",
   "Simplify": "פשט",
-  "Define": "הגדר"
+  "Define": "הגדר",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

@@ -357,9 +357,10 @@ const ChatMessages = ({
           <SparklesIcon className='text-primary size-6' />
         </div>
         <p className='text-muted-foreground max-w-xs text-xs leading-relaxed'>
-          {_('Ask questions about "%s" and get AI-powered answers with relevant passages.', [
-            bookTitle,
-          ])}
+          {_(
+            'Ask questions about "{{bookTitle}}" and get AI-powered answers with relevant passages.',
+            { bookTitle },
+          )}
         </p>
       </div>
     );

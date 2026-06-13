@@ -887,7 +887,6 @@
   "Annotation color": "টীকা রঙ",
   "Annotation time": "টীকা সময়",
   "AI": "কৃত্রিম বুদ্ধিমত্তা (AI)",
-  "Are you sure you want to re-index this book?": "আপনি কি নিশ্চিত যে আপনি এই বইটি পুনরায় ইনডেক্স করতে চান?",
   "Enable AI in Settings": "সেটিংস থেকে AI সক্রিয় করুন",
   "Index This Book": "এই বইটি ইনডেক্স করুন",
   "Enable AI search and chat for this book": "এই বইটির জন্য AI অনুসন্ধান এবং চ্যাট সক্রিয় করুন",
@@ -1730,5 +1729,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "নির্বাচিত পাঠ্যের AI সারসংক্ষেপ, পুনরাবৃত্তি এবং ব্যাখ্যা/সংজ্ঞার ভাষা নির্ধারণ করে। সরলীকরণ সর্বদা বইয়ের ভাষা ব্যবহার করে।",
   "Explain": "ব্যাখ্যা করুন",
   "Simplify": "সরলীকরণ করুন",
-  "Define": "সংজ্ঞা দিন"
+  "Define": "সংজ্ঞা দিন",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

@@ -876,7 +876,6 @@
   "Annotation color": "สีคำอธิบาย",
   "Annotation time": "เวลาคำอธิบาย",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "คุณแน่ใจหรือไม่ว่าต้องการสร้างดัชนีหนังสือเล่มนี้ใหม่?",
   "Enable AI in Settings": "เปิดใช้งาน AI ในการตั้งค่า",
   "Index This Book": "สร้างดัชนีหนังสือเล่มนี้",
   "Enable AI search and chat for this book": "เปิดใช้งานการค้นหา AI และแชทสำหรับหนังสือเล่มนี้",
@@ -1697,5 +1696,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "ตั้งค่าภาษาสำหรับสรุป AI, การทบทวน และอธิบาย/กำหนดบนข้อความที่เลือก ฟีเจอร์ทำให้เข้าใจง่ายจะใช้ภาษาของหนังสือเสมอ",
   "Explain": "อธิบาย",
   "Simplify": "ทำให้ง่ายขึ้น",
-  "Define": "นิยาม"
+  "Define": "นิยาม",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

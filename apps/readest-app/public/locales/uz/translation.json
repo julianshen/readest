@@ -529,7 +529,6 @@
   "Connect to your KOReader Sync server.": "KOReader Sync serveringizga ulaning.",
   "Server URL": "Server URL",
   "Your Username": "Foydalanuvchi nomingiz",
-  "Are you sure you want to re-index this book?": "Ushbu kitobni qayta indekslamoqchimisiz?",
   "Enable AI in Settings": "Sozlamalarda AI ni yoqing",
   "Index This Book": "Ushbu kitobni indekslash",
   "Enable AI search and chat for this book": "Ushbu kitob uchun AI qidiruv va chatni yoqing",
@@ -1730,5 +1729,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Tanlangan matn uchun AI xulosalari, takrorlashlar va Tushuntirish/Aniqlash uchun tilni belgilaydi. Soddalashtirish har doim kitob tilidan foydalanadi.",
   "Explain": "Tushuntirish",
   "Simplify": "Soddalashtirish",
-  "Define": "Ta'riflash"
+  "Define": "Ta'riflash",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

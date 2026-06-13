@@ -909,7 +909,6 @@
   "Annotation color": "Цвет аннотации",
   "Annotation time": "Время аннотации",
   "AI": "ИИ",
-  "Are you sure you want to re-index this book?": "Вы уверены, что хотите переиндексировать эту книгу?",
   "Enable AI in Settings": "Включить ИИ в настройках",
   "Index This Book": "Индексировать эту книгу",
   "Enable AI search and chat for this book": "Включить ИИ-поиск и чат для этой книги",
@@ -1796,5 +1795,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Задаёт язык для сводок ИИ, обзоров и функций Объяснить/Определить для выделенного текста. Упростить всегда использует язык книги.",
   "Explain": "Объяснить",
   "Simplify": "Упростить",
-  "Define": "Определить"
+  "Define": "Определить",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

@@ -468,7 +468,6 @@
   "Server URL": "Adresa URL a serverului",
   "Your Username": "Numele dvs. de utilizator",
   "Connect": "Conectare",
-  "Are you sure you want to re-index this book?": "Sigur doriți să reindexați această carte?",
   "Enable AI in Settings": "Activați AI în Setări",
   "Index This Book": "Indexează această carte",
   "Enable AI search and chat for this book": "Activați căutarea AI și chat-ul pentru această carte",
@@ -1763,5 +1762,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Setează limba pentru rezumatele AI, recapitulările și Explică/Definește pe textul selectat. Simplificare folosește întotdeauna limba cărții.",
   "Explain": "Explică",
   "Simplify": "Simplifică",
-  "Define": "Definește"
+  "Define": "Definește",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

@@ -887,7 +887,6 @@
   "Annotation color": "Χρώμα σχολίου",
   "Annotation time": "Ώρα σχολίου",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "Είστε σίγουροι ότι θέλετε να επαναδημιουργήσετε το ευρετήριο αυτού του βιβλίου;",
   "Enable AI in Settings": "Ενεργοποίηση AI στις ρυθμίσεις",
   "Index This Book": "Δημιουργία ευρετηρίου για αυτό το βιβλίο",
   "Enable AI search and chat for this book": "Ενεργοποίηση αναζήτησης AI και συνομιλίας για αυτό το βιβλίο",
@@ -1730,5 +1729,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Ορίζει τη γλώσσα για περιλήψεις AI, ανακεφαλαιώσεις και Εξήγηση/Ορισμό στο επιλεγμένο κείμενο. Η απλοποίηση χρησιμοποιεί πάντα τη γλώσσα του βιβλίου.",
   "Explain": "Εξήγηση",
   "Simplify": "Απλοποίηση",
-  "Define": "Ορισμός"
+  "Define": "Ορισμός",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

@@ -898,7 +898,6 @@
   "Annotation color": "Colore annotazione",
   "Annotation time": "Ora annotazione",
   "AI": "IA",
-  "Are you sure you want to re-index this book?": "Sei sicuro di voler reindicizzare questo libro?",
   "Enable AI in Settings": "Abilita IA nelle impostazioni",
   "Index This Book": "Indicizza questo libro",
   "Enable AI search and chat for this book": "Abilita ricerca IA e chat per questo libro",
@@ -1763,5 +1762,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Imposta la lingua per riepiloghi AI, ricapitolazioni e Spiega/Definisci sul testo selezionato. Semplifica usa sempre la lingua del libro.",
   "Explain": "Spiega",
   "Simplify": "Semplifica",
-  "Define": "Definisci"
+  "Define": "Definisci",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

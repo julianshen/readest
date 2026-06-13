@@ -446,7 +446,6 @@
   "Server URL": "URL strežnika",
   "Your Username": "Vaše uporabniško ime",
   "Connect": "Poveži",
-  "Are you sure you want to re-index this book?": "Ali ste prepričani, da želite ponovno indeksirati to knjigo?",
   "Enable AI in Settings": "Omogoči AI v nastavitvah",
   "Index This Book": "Indeksiraj to knjigo",
   "Enable AI search and chat for this book": "Omogoči AI iskanje in klepet za to knjigo",
@@ -1796,5 +1795,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Nastavi jezik za AI povzetke, obnove in Razloži/Definiraj za izbrano besedilo. Poenostavi vedno uporablja jezik knjige.",
   "Explain": "Razloži",
   "Simplify": "Poenostavi",
-  "Define": "Definiraj"
+  "Define": "Definiraj",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

@@ -876,7 +876,6 @@
   "Annotation color": "Warna anotasi",
   "Annotation time": "Masa anotasi",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "Adakah anda pasti mahu mengindeks semula buku ini?",
   "Enable AI in Settings": "Aktifkan AI dalam Tetapan",
   "Index This Book": "Indeks Buku Ini",
   "Enable AI search and chat for this book": "Aktifkan carian AI dan sembang untuk buku ini",
@@ -1697,5 +1696,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Menetapkan bahasa untuk ringkasan AI, rekap, dan Jelaskan/Takrifkan pada teks yang dipilih. Permudahkan sentiasa menggunakan bahasa buku.",
   "Explain": "Jelaskan",
   "Simplify": "Permudahkan",
-  "Define": "Takrifkan"
+  "Define": "Takrifkan",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

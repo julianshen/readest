@@ -887,7 +887,6 @@
   "Annotation color": "විවරණ වර්ණය",
   "Annotation time": "විවරණ වේලාව",
   "AI": "කෘතිම බුද්ධිය (AI)",
-  "Are you sure you want to re-index this book?": "ඔබට මෙම පොත නැවත දර්ශකය කිරීමට අවශ්‍ය බව සහතිකද?",
   "Enable AI in Settings": "සැකසුම් තුළ AI සක්‍රීය කරන්න",
   "Index This Book": "මෙම පොත දර්ශකය කරන්න",
   "Enable AI search and chat for this book": "මෙම පොත සඳහා AI සෙවීම සහ කතාබස් සක්‍රීය කරන්න",
@@ -1730,5 +1729,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "තෝරාගත් පෙළ සඳහා AI සාරාංශ, ප්‍රතිනිර්දේශ සහ පැහැදිලි/අර්ථදක්වන්නේ කුමන භාෂාවෙන්ද යන්න සකසයි. සරල කිරීම සෑමවිටම පොතේ භාෂාව භාවිතා කරයි.",
   "Explain": "පැහැදිලි කරන්න",
   "Simplify": "සරල කරන්න",
-  "Define": "අර්ථ දක්වන්න"
+  "Define": "අර්ථ දක්වන්න",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }

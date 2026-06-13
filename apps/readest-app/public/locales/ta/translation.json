@@ -887,7 +887,6 @@
   "Annotation color": "சிறுகுறிப்பு நிறம்",
   "Annotation time": "சிறுகுறிப்பு நேரம்",
   "AI": "செயற்கை நுண்ணறிவு (AI)",
-  "Are you sure you want to re-index this book?": "இந்த புத்தகத்தை மீண்டும் அட்டவணைப்படுத்த உறுதியாக இருக்கிறீர்களா?",
   "Enable AI in Settings": "அமைப்புகளில் AI ஐ இயக்கவும்",
   "Index This Book": "இந்த புத்தகத்தை அட்டவணைப்படுத்தவும்",
   "Enable AI search and chat for this book": "இந்த புத்தகத்திற்கு AI தேடல் மற்றும் அரட்டையை இயக்கவும்",
@@ -1730,5 +1729,9 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "தேர்ந்தெடுத்த உரையில் AI சுருக்கங்கள், மீட்டுரை மற்றும் விளக்கு/வரையறு ஆகியவற்றுக்கான மொழியை அமைக்கிறது. எளிமைப்படுத்துவது எப்போதும் புத்தகத்தின் மொழியைப் பயன்படுத்துகிறது.",
   "Explain": "விளக்கு",
   "Simplify": "எளிதாக்கு",
-  "Define": "வரையறு"
+  "Define": "வரையறு",
+  "Error: ": "__STRING_NOT_TRANSLATED__",
+  "Ask about this book...": "__STRING_NOT_TRANSLATED__",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "__STRING_NOT_TRANSLATED__",
+  "Stop": "__STRING_NOT_TRANSLATED__"
 }
