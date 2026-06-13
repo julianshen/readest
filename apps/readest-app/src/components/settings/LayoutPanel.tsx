@@ -319,6 +319,17 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [writingMode]);
 
+  // Fixed-layout books model direction as horizontal LTR/RTL only. A stale
+  // vertical-rl writingMode (e.g. inherited from a global setting) maps to the
+  // "Right to Left" option but leaves getStyles applying writing-mode:
+  // vertical-rl to comic/PDF pages, so normalize it to horizontal-rl.
+  useEffect(() => {
+    if (bookData?.isFixedLayout && writingMode.includes('vertical')) {
+      setWritingMode('horizontal-rl');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookData?.isFixedLayout, writingMode]);
+
   useEffect(() => {
     if (overrideLayout === viewSettings.overrideLayout) return;
     saveViewSettings(envConfig, bookKey, 'overrideLayout', overrideLayout);
