@@ -48,31 +48,6 @@ fn pack_cbz(mut members: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>, String> {
     Ok(cursor.into_inner())
 }
 
-/// Extracts keepable members from a RAR/CBR archive using the `unrar` crate.
-/// Reads each file entry into memory, preserving on-disk entry order; rejects
-/// encrypted entries.
-fn extract_rar(src: &Path) -> Result<Vec<(String, Vec<u8>)>, String> {
-    let mut members: Vec<(String, Vec<u8>)> = Vec::new();
-    let mut archive = unrar::Archive::new(src)
-        .open_for_processing()
-        .map_err(|e| e.to_string())?;
-    while let Some(header) = archive.read_header().map_err(|e| e.to_string())? {
-        let entry = header.entry();
-        if entry.is_encrypted() {
-            return Err(ENCRYPTED_ERR.into());
-        }
-        let name = entry.filename.to_string_lossy().replace('\\', "/");
-        if entry.is_file() && is_keepable(&name) {
-            let (data, rest) = header.read().map_err(|e| e.to_string())?;
-            members.push((name, data));
-            archive = rest;
-        } else {
-            archive = header.skip().map_err(|e| e.to_string())?;
-        }
-    }
-    Ok(members)
-}
-
 /// Extracts keepable members from a 7z/CB7 archive using the `sevenz-rust2`
 /// crate. Opens with an empty password; a password/encryption error maps to the
 /// shared "encrypted archives are not supported" message.
@@ -115,7 +90,6 @@ fn convert_sync(src_path: &str) -> Result<String, String> {
         .unwrap_or("")
         .to_lowercase();
     let members = match ext.as_str() {
-        "cbr" | "rar" => extract_rar(src)?,
         "cb7" | "7z" => extract_7z(src)?,
         other => return Err(format!("unsupported archive extension: {other}")),
     };
@@ -132,7 +106,7 @@ fn convert_sync(src_path: &str) -> Result<String, String> {
     Ok(dst.to_string_lossy().to_string())
 }
 
-/// Converts a CBR/CB7 archive at `src_path` to a STORE-mode CBZ in the temp
+/// Converts a CB7 (7z) archive at `src_path` to a STORE-mode CBZ in the temp
 /// dir and returns the produced `.cbz` path. Caller reads it back + deletes it.
 #[tauri::command]
 pub async fn convert_to_cbz(src_path: String) -> Result<String, String> {

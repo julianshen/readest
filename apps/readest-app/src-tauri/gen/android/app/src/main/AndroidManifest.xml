@@ -49,7 +49,6 @@
                 <data android:mimeType="application/vnd.amazon.mobi8-ebook" />
                 <data android:mimeType="application/vnd.comicbook+zip" />
                 <data android:mimeType="application/x-cbz" />
-                <data android:mimeType="application/x-cbr" />
                 <data android:mimeType="application/x-cb7" />
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="text/plain" />
@@ -74,7 +73,6 @@
                 <data android:pathPattern=".*\\.azw" />
                 <data android:pathPattern=".*\\.azw3" />
                 <data android:pathPattern=".*\\.cbz" />
-                <data android:pathPattern=".*\\.cbr" />
                 <data android:pathPattern=".*\\.cb7" />
                 <data android:pathPattern=".*\\.zip" />
                 <data android:pathPattern=".*\\.txt" />
@@ -187,8 +185,6 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:mimeType="application/vnd.comicbook+zip" />
                 <data android:pathPattern=".*\\.cbz" />
-                <data android:mimeType="application/x-cbr" />
-                <data android:pathPattern=".*\\.cbr" />
                 <data android:mimeType="application/x-cb7" />
                 <data android:pathPattern=".*\\.cb7" />
             </intent-filter>

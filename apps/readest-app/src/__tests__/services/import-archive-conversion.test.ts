@@ -119,19 +119,12 @@ describe('importBook CBR/CB7 pre-conversion', () => {
     setupMockBookDoc();
   });
 
-  it('converts a .cbr file to CBZ before import', async () => {
+  it('does NOT convert a .cbr file (RAR support deferred)', async () => {
     const books: Book[] = [];
-    mockConvertArchiveToCbz.mockResolvedValue(
-      new File(['cbz content'], 'test.cbz', { type: 'application/vnd.comicbook+zip' }),
-    );
-
     const mockFile = new File(['rar content'], 'test.cbr');
-    const result = await service.importBook(mockFile, books);
+    await service.importBook(mockFile, books);
 
-    expect(result).not.toBeNull();
-    expect(mockConvertArchiveToCbz).toHaveBeenCalledTimes(1);
-    // The File passed in is the original .cbr; DocumentLoader receives the .cbz
-    expect(mockConvertArchiveToCbz.mock.calls[0]![0]).toBe(mockFile);
+    expect(mockConvertArchiveToCbz).not.toHaveBeenCalled();
   });
 
   it('converts a .cb7 file to CBZ before import', async () => {
@@ -164,7 +157,7 @@ describe('importBook CBR/CB7 pre-conversion', () => {
     expect(mockConvertArchiveToCbz).not.toHaveBeenCalled();
   });
 
-  it('stores the CONVERTED cbz bytes (not the original archive) for a string-path .cbr import', async () => {
+  it('stores the CONVERTED cbz bytes (not the original archive) for a string-path .cb7 import', async () => {
     const books: Book[] = [];
     const convertedFile = new File(['converted cbz bytes'], 'test.cbz', {
       type: 'application/vnd.comicbook+zip',
@@ -172,19 +165,19 @@ describe('importBook CBR/CB7 pre-conversion', () => {
     mockConvertArchiveToCbz.mockResolvedValue(convertedFile);
 
     const fs = service.getFs();
-    // String-path import: fs.openFile resolves the original .cbr into a File.
-    fs.openFile.mockResolvedValue(new File(['rar content'], 'test.cbr'));
+    // String-path import: fs.openFile resolves the original .cb7 into a File.
+    fs.openFile.mockResolvedValue(new File(['7z content'], 'test.cb7'));
 
-    const cbrPath = '/path/to/test.cbr';
-    const result = await service.importBook(cbrPath, books);
+    const cb7Path = '/path/to/test.cb7';
+    const result = await service.importBook(cb7Path, books);
 
     expect(result).not.toBeNull();
     expect(mockConvertArchiveToCbz).toHaveBeenCalledTimes(1);
 
-    // The original .cbr path must NEVER be copied into Books — doing so would
-    // store raw RAR bytes under the .cbz book filename (the bug).
+    // The original .cb7 path must NEVER be copied into Books — doing so would
+    // store raw 7z bytes under the .cbz book filename (the bug).
     const copyFromOriginal = fs.copyFile.mock.calls.find(
-      (c: unknown[]) => c[0] === cbrPath && c[3] === 'Books',
+      (c: unknown[]) => c[0] === cb7Path && c[3] === 'Books',
     );
     expect(copyFromOriginal).toBeUndefined();
 
@@ -199,7 +192,7 @@ describe('importBook CBR/CB7 pre-conversion', () => {
     const books: Book[] = [];
     mockConvertArchiveToCbz.mockRejectedValue(new Error('encrypted archives are not supported'));
 
-    const mockFile = new File(['rar content'], 'locked.cbr');
+    const mockFile = new File(['7z content'], 'locked.cb7');
 
     // Converter errors propagate (importBook rethrows in its outer catch),
     // surfacing as the standard "failed to import" path. No book is added and

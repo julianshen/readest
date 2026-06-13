@@ -4,7 +4,7 @@ import { convertArchiveToCbzWeb } from '@/utils/comicConvertWeb';
 
 const CBZ_MIME = 'application/vnd.comicbook+zip';
 
-const toCbzName = (name: string) => name.replace(/\.(cbr|cb7|rar|7z)$/i, '') + '.cbz';
+const toCbzName = (name: string) => name.replace(/\.(cb7|7z)$/i, '') + '.cbz';
 
 export interface ConvertOptions {
   // Tauri: absolute path to the source archive on disk (when the import came
@@ -21,7 +21,7 @@ export interface ConvertOptions {
   deletePath?: (path: string) => Promise<void>;
 }
 
-// Converts a CBR/CB7 File to a CBZ File. On Tauri, routes through the Rust
+// Converts a CB7 (7z) File to a CBZ File. On Tauri, routes through the Rust
 // `convert_to_cbz` command; on web, through the libarchive.js wasm extractor.
 export const convertArchiveToCbz = async (file: File, opts: ConvertOptions = {}): Promise<File> => {
   if (isTauriAppPlatform()) {

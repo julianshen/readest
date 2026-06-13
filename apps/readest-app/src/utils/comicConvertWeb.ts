@@ -47,8 +47,8 @@ interface ArchiveFileEntry {
   file: { name: string; extract: () => Promise<File> };
 }
 
-// Extracts a CBR/CB7 (or any libarchive-supported) archive in the browser via
-// the libarchive.js wasm worker, then repacks the image pages + ComicInfo.xml
+// Extracts a CB7 (7z) archive in the browser via the libarchive.js wasm
+// worker, then repacks the image pages + ComicInfo.xml
 // into a STORE-mode CBZ Blob.
 export const convertArchiveToCbzWeb = async (file: File): Promise<Blob> => {
   ensureInit();

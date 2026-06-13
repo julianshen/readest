@@ -253,9 +253,9 @@ export async function importBook(
     let format: BookFormat;
     let filename: string;
     let fileobj: File | undefined;
-    // Set when a CBR/CB7 is pre-converted to CBZ below; forces the storage
+    // Set when a CB7 is pre-converted to CBZ below; forces the storage
     // block to persist the CONVERTED bytes rather than copying the original
-    // archive path (which would store raw RAR/7z bytes under the .cbz name).
+    // archive path (which would store raw 7z bytes under the .cbz name).
     let convertedFromArchive = false;
     // When the Rust EPUB parser succeeds it gives us the partialMD5 for free,
     // so we can short-circuit the JS hashing pass below.
@@ -283,11 +283,11 @@ export async function importBook(
           const txt2epub = new TxtToEpubConverter();
           ({ file: fileobj } = await txt2epub.convert({ file: fileobj }));
         }
-        // CBR/CB7 archives can't be read directly, so pre-convert them to a
+        // CB7 (7z) archives can't be read directly, so pre-convert them to a
         // STORE-mode CBZ before hashing/storage; the result flows through the
         // existing CBZ path unchanged. Converter errors propagate to the outer
         // catch so they surface as the standard "failed to import" path.
-        if (/\.(cbr|cb7)$/i.test(filename)) {
+        if (/\.cb7$/i.test(filename)) {
           const { convertArchiveToCbz } = await import('@/utils/comicConvert');
           fileobj = await convertArchiveToCbz(fileobj, {
             srcPath: typeof file === 'string' ? file : undefined,
@@ -327,7 +327,7 @@ export async function importBook(
         // tests.
         let nativeBookDoc: BookDoc | undefined;
         let nativeFormat: BookFormat | undefined;
-        if (typeof file === 'string' && !/\.(txt|cbr|cb7)$/i.test(filename)) {
+        if (typeof file === 'string' && !/\.(txt|cb7)$/i.test(filename)) {
           const nativeEpub = await tryNativeParseEpub(file);
           if (nativeEpub) {
             nativeBookDoc = nativeEpub.bookDoc;
