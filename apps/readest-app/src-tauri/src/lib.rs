@@ -24,6 +24,7 @@ use tauri_plugin_fs::FsExt;
 use tauri::{Listener, Url};
 mod clip_url;
 mod dir_scanner;
+mod ai;
 #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
 mod discord_rpc;
 #[cfg(target_os = "macos")]
@@ -281,6 +282,12 @@ pub fn run() {
             #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
             discord_rpc::clear_book_presence,
             clip_url::clip_url,
+            ai::storage::is_book_indexed,
+            ai::storage::get_chunk_count,
+            ai::storage::clear_book_index,
+            ai::embed::embed_texts,
+            ai::searcher::hybrid_search,
+            ai::indexer::index_book_chunks,
         ])
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_persisted_scope::init())
@@ -361,6 +368,16 @@ pub fn run() {
                 use std::sync::{Arc, Mutex};
                 let discord_client = Arc::new(Mutex::new(discord_rpc::DiscordRpcClient::new()));
                 app.manage(discord_client);
+            }
+
+            // Initialize AI index database (all platforms)
+            match ai::storage::IndexDb::new(app.handle()) {
+                Ok(db) => {
+                    app.manage(db);
+                }
+                Err(e) => {
+                    eprintln!("Failed to initialize AI index DB: {}; AI backend disabled", e);
+                }
             }
 
             #[cfg(desktop)]

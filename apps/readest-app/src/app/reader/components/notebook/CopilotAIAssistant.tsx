@@ -13,6 +13,7 @@ import { aiLogger } from '@/services/ai';
 import {
   LegacyIdbBackend,
   ReedyBackend,
+  TauriRustBackend,
   selectBackend,
   type RetrievalBackend,
 } from '@/services/ai/adapters';
@@ -109,11 +110,19 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
   const backend = useMemo<RetrievalBackend | null>(() => {
     if (!aiSettings) return null;
     const legacy = new LegacyIdbBackend(aiSettings);
+    const tauriRust: RetrievalBackend | null =
+      appService && isTauriAppPlatform() ? new TauriRustBackend(aiSettings) : null;
     const reedy: RetrievalBackend | null =
       appService && isTauriAppPlatform()
         ? new ReedyBackend(appService as AppService, aiSettings)
         : null;
-    return selectBackend({ settings: aiSettings, isTauri: isTauriAppPlatform(), legacy, reedy });
+    return selectBackend({
+      settings: aiSettings,
+      isTauri: isTauriAppPlatform(),
+      tauriRust,
+      legacy,
+      reedy,
+    });
   }, [aiSettings, appService]);
 
   const handleIndex = useCallback(async () => {

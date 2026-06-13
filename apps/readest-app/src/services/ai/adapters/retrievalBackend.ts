@@ -3,7 +3,7 @@ import type { BookDoc } from '@/libs/document';
 import type { AISettings, EmbeddingProgress, ScoredChunk } from '../types';
 import type { ReedySourceStore } from './reedySourceStore';
 
-export type RetrievalBackendKind = 'legacy-idb' | 'reedy';
+export type RetrievalBackendKind = 'legacy-idb' | 'reedy' | 'tauri-rust';
 
 export interface BackendIndexOptions {
   onProgress?: (progress: EmbeddingProgress) => void;
@@ -62,11 +62,15 @@ export interface RetrievalBackend {
 export function selectBackend(args: {
   settings: AISettings;
   isTauri: boolean;
+  tauriRust: RetrievalBackend | null;
   legacy: RetrievalBackend;
   reedy: RetrievalBackend | null;
 }): RetrievalBackend {
   if (args.settings.reedy?.enabled && args.isTauri && args.reedy) {
     return args.reedy;
+  }
+  if (args.isTauri && args.tauriRust) {
+    return args.tauriRust;
   }
   return args.legacy;
 }
