@@ -12,7 +12,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useParallelViewStore } from '@/store/parallelViewStore';
 import { isWebAppPlatform } from '@/services/environment';
 import { eventDispatcher } from '@/utils/event';
-import { FIXED_LAYOUT_FORMATS } from '@/types/book';
+import { FIXED_LAYOUT_FORMATS, IMAGE_BOOK_FORMATS } from '@/types/book';
 import { DOWNLOAD_READEST_URL } from '@/services/constants';
 import { saveViewSettings } from '@/helpers/settings';
 import { setProofreadRulesVisibility } from '@/app/reader/components/ProofreadRules';
@@ -39,8 +39,12 @@ const BookMenu: React.FC<BookMenuProps> = ({ menuClassName, setIsDropdownOpen })
   const { parallelViews, setParallel, unsetParallel } = useParallelViewStore();
   const viewSettings = getViewSettings(sideBarBookKey!);
   const bookData = sideBarBookKey ? getBookData(sideBarBookKey) : null;
-  // AI Summary works on extracted text; image-only (fixed-layout) books have none.
-  const showAISummary = !!settings.aiSettings?.enabled && !bookData?.isFixedLayout;
+  // AI Summary works on extracted text; image-only books (e.g. CBZ) have none.
+  // Fixed-layout PDFs can still carry a text layer, so gate on format, not
+  // isFixedLayout.
+  const bookFormat = bookData?.book?.format;
+  const isImageOnlyBook = !!bookFormat && IMAGE_BOOK_FORMATS.has(bookFormat);
+  const showAISummary = !!settings.aiSettings?.enabled && !isImageOnlyBook;
 
   const [isSortedTOC, setIsSortedTOC] = React.useState(viewSettings?.sortedTOC || false);
 

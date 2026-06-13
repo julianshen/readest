@@ -268,7 +268,9 @@ export const deriveDocDirection = ({
   vertical: writingDir?.vertical || (!isFixedLayout && writingMode.includes('vertical')) || false,
   rtl:
     writingDir?.rtl ||
-    uiRtl ||
+    // Fixed-layout books carry an explicit direction (book.dir / Reading
+    // Direction); don't let the UI language override an explicit LTR choice.
+    (uiRtl && !isFixedLayout) ||
     writingMode.includes('rl') ||
     (isFixedLayout && bookDir === 'rtl') ||
     false,

@@ -1796,6 +1796,6 @@
   "Right to Left": "Od desne proti levi",
   "Error: ": "Napaka: ",
   "Ask about this book...": "Vprašajte o tej knjigi...",
-  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Postavljajte vprašanja o »{{bookTitle}}« in prejmite odgovore UI z ustreznimi odlomki.",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Postavljajte vprašanja o »{{bookTitle}}« in prejmite odgovore AI z ustreznimi odlomki.",
   "Stop": "Ustavi"
 }

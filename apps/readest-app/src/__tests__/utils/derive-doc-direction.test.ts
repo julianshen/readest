@@ -45,6 +45,12 @@ describe('deriveDocDirection', () => {
     expect(deriveDocDirection({ ...base, uiRtl: true }).rtl).toBe(true);
   });
 
+  it('honors an explicit LTR fixed-layout book even in an RTL UI', () => {
+    expect(
+      deriveDocDirection({ ...base, uiRtl: true, isFixedLayout: true, bookDir: 'ltr' }).rtl,
+    ).toBe(false);
+  });
+
   it('does not flip fixed-layout books to vertical from a persisted vertical-rl mode', () => {
     expect(
       deriveDocDirection({ ...base, isFixedLayout: true, writingMode: 'vertical-rl' }),

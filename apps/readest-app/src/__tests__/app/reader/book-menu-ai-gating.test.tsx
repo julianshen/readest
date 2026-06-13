@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import BookMenu from '@/app/reader/components/sidebar/BookMenu';
 
-let currentBookData: { isFixedLayout: boolean } | null = null;
+let currentBookData: { isFixedLayout: boolean; book: { format: string } } | null = null;
 let aiEnabled = true;
 
 vi.mock('@/hooks/useTranslation', () => ({
@@ -83,19 +83,25 @@ afterEach(() => {
 
 describe('BookMenu AI Summary gating', () => {
   it('shows AI Summary for reflowable books when AI is enabled', () => {
-    currentBookData = { isFixedLayout: false };
+    currentBookData = { isFixedLayout: false, book: { format: 'EPUB' } };
     render(<BookMenu />);
     expect(screen.getByText('AI Summary')).toBeTruthy();
   });
 
-  it('hides AI Summary for fixed-layout (image-only) books', () => {
-    currentBookData = { isFixedLayout: true };
+  it('hides AI Summary for image-only (CBZ) books', () => {
+    currentBookData = { isFixedLayout: true, book: { format: 'CBZ' } };
     render(<BookMenu />);
     expect(screen.queryByText('AI Summary')).toBeNull();
   });
 
+  it('keeps AI Summary for fixed-layout PDFs (text layer can be indexed)', () => {
+    currentBookData = { isFixedLayout: true, book: { format: 'PDF' } };
+    render(<BookMenu />);
+    expect(screen.getByText('AI Summary')).toBeTruthy();
+  });
+
   it('hides AI Summary when the assistant is disabled', () => {
-    currentBookData = { isFixedLayout: false };
+    currentBookData = { isFixedLayout: false, book: { format: 'EPUB' } };
     aiEnabled = false;
     render(<BookMenu />);
     expect(screen.queryByText('AI Summary')).toBeNull();
