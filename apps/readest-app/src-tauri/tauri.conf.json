@@ -119,6 +119,13 @@
         "role": "Viewer"
       },
       {
+        "name": "cb7",
+        "ext": ["cb7"],
+        "description": "CB7 comic archive",
+        "mimeType": "application/x-cb7",
+        "role": "Viewer"
+      },
+      {
         "name": "pdf",
         "ext": ["pdf"],
         "description": "PDF file",

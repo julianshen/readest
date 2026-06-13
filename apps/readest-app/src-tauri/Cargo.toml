@@ -72,6 +72,7 @@ tauri-plugin-webdriver = { version = "0.2", optional = true }
 # across the JS<->Rust IPC boundary. Pure-Rust crates so they ship to
 # every Tauri target (desktop, iOS, Android) without extra system deps.
 zip = { version = "2", default-features = false, features = ["deflate"] }
+sevenz-rust2 = { version = "0.13", default-features = false, features = ["compress", "aes256"] }
 quick-xml = "0.36"
 md-5 = "0.10"
 # Used by `epub_parser::read_zip_entry` as a fallback when an OPF/manifest

@@ -64,6 +64,7 @@ const INFERENCE_RULES: ReadonlyArray<{ mime: string; href: RegExp; title: RegExp
   { mime: 'application/x-mobipocket-ebook', href: /\.mobi(?:[?#]|$)/i, title: /\bmobi\b/i },
   { mime: 'application/pdf', href: /\.pdf(?:[?#]|$)/i, title: /\bpdf\b/i },
   { mime: 'application/vnd.comicbook+zip', href: /\.cbz(?:[?#]|$)/i, title: /\bcbz\b/i },
+  { mime: 'application/x-cb7', href: /\.cb7(?:[?#]|$)/i, title: /\bcb7\b/i },
   { mime: 'application/x-fictionbook+xml', href: /\.fb2(?:[?#]|$)/i, title: /\bfb2\b/i },
 ];
 
