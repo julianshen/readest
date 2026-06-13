@@ -228,6 +228,9 @@ export interface BookStyle {
   keepCoverSpread: boolean;
   invertImgColorInDark: boolean;
   applyThemeToPDF: boolean;
+  imageContrast: number;
+  imageBrightness: number;
+  imageGrayscale: boolean;
 }
 
 export interface BookFont {
