@@ -114,6 +114,11 @@ In `packages/foliate-js/fixed-layout.js`, directly after the existing `sectionNe
 // keys to evict: oldest-accessed first, skipping protected keys (the current
 // spread and its immediate neighbors), stopping as soon as BOTH the count cap
 // and the byte cap are satisfied (or only protected keys remain).
+/**
+ * @param {{ key: string, accessTime: number, bytes: number }[]} entries
+ * @param {{ maxSpreads: number, maxBytes: number, protectedKeys?: string[] }} opts
+ * @returns {string[]}
+ */
 export const selectSpreadsToEvict = (entries, { maxSpreads, maxBytes, protectedKeys = [] }) => {
     const protectedSet = new Set(protectedKeys)
     let totalCount = entries.length

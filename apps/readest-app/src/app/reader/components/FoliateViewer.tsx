@@ -3,7 +3,8 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { convertBlobUrlToDataUrl, BookDoc, getDirection } from '@/libs/document';
 import { BOOK_IDS_SEPARATOR } from '@/services/constants';
-import { BookConfig, PageInfo } from '@/types/book';
+import { BookConfig, IMAGE_BOOK_FORMATS, PageInfo } from '@/types/book';
+import { getComicPreloadAttributes } from '@/utils/comicPreload';
 import { FoliateView, wrappedFoliateView } from '@/types/view';
 import { Insets } from '@/types/misc';
 import { useEnv } from '@/context/EnvContext';
@@ -669,6 +670,15 @@ const FoliateViewer: React.FC<{
         view.renderer.setAttribute('zoom', viewSettings.zoomMode);
         view.renderer.setAttribute('spread', viewSettings.spreadMode);
         view.renderer.setAttribute('scale-factor', viewSettings.zoomLevel);
+        // Image comics (CBZ) benefit from aggressive preloading for instant page
+        // turns; PDF renders via pdf.js with its own costs, so leave it at the
+        // renderer defaults.
+        if (bookData?.book?.format && IMAGE_BOOK_FORMATS.has(bookData.book.format)) {
+          const preloadAttrs = getComicPreloadAttributes(!!appService?.isAndroidApp);
+          for (const [name, value] of Object.entries(preloadAttrs)) {
+            view.renderer.setAttribute(name, value);
+          }
+        }
       } else {
         view.renderer.setAttribute('max-column-count', maxColumnCount);
         view.renderer.setAttribute('max-inline-size', `${maxInlineSize}px`);
