@@ -1697,5 +1697,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Menetapkan bahasa untuk ringkasan AI, rekap, dan Jelaskan/Takrifkan pada teks yang dipilih. Permudahkan sentiasa menggunakan bahasa buku.",
   "Explain": "Jelaskan",
   "Simplify": "Permudahkan",
-  "Define": "Takrifkan"
+  "Define": "Takrifkan",
+  "Reading Direction": "Arah bacaan",
+  "Left to Right": "Kiri ke kanan",
+  "Right to Left": "Kanan ke kiri"
 }

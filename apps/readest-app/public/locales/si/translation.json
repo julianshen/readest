@@ -1730,5 +1730,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "තෝරාගත් පෙළ සඳහා AI සාරාංශ, ප්‍රතිනිර්දේශ සහ පැහැදිලි/අර්ථදක්වන්නේ කුමන භාෂාවෙන්ද යන්න සකසයි. සරල කිරීම සෑමවිටම පොතේ භාෂාව භාවිතා කරයි.",
   "Explain": "පැහැදිලි කරන්න",
   "Simplify": "සරල කරන්න",
-  "Define": "අර්ථ දක්වන්න"
+  "Define": "අර්ථ දක්වන්න",
+  "Reading Direction": "කියවීමේ දිශාව",
+  "Left to Right": "වමේ සිට දකුණට",
+  "Right to Left": "දකුණේ සිට වමට"
 }

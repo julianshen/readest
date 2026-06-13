@@ -1697,5 +1697,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Đặt ngôn ngữ cho các bản tóm tắt AI, ôn tập và Giải thích/Định nghĩa trên văn bản đã chọn. Đơn giản hóa luôn sử dụng ngôn ngữ của sách.",
   "Explain": "Giải thích",
   "Simplify": "Đơn giản hóa",
-  "Define": "Định nghĩa"
+  "Define": "Định nghĩa",
+  "Reading Direction": "Hướng đọc",
+  "Left to Right": "Trái sang phải",
+  "Right to Left": "Phải sang trái"
 }

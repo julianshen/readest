@@ -1796,5 +1796,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Ustawia język dla podsumowań AI, skrótów i Wyjaśnij/Zdefiniuj na zaznaczonym tekście. Upraszczaj zawsze używa języka książki.",
   "Explain": "Wyjaśnij",
   "Simplify": "Uprość",
-  "Define": "Zdefiniuj"
+  "Define": "Zdefiniuj",
+  "Reading Direction": "Kierunek czytania",
+  "Left to Right": "Od lewej do prawej",
+  "Right to Left": "Od prawej do lewej"
 }

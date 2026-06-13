@@ -1796,5 +1796,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Задаёт язык для сводок ИИ, обзоров и функций Объяснить/Определить для выделенного текста. Упростить всегда использует язык книги.",
   "Explain": "Объяснить",
   "Simplify": "Упростить",
-  "Define": "Определить"
+  "Define": "Определить",
+  "Reading Direction": "Направление чтения",
+  "Left to Right": "Слева направо",
+  "Right to Left": "Справа налево"
 }

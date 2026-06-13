@@ -1730,5 +1730,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Ορίζει τη γλώσσα για περιλήψεις AI, ανακεφαλαιώσεις και Εξήγηση/Ορισμό στο επιλεγμένο κείμενο. Η απλοποίηση χρησιμοποιεί πάντα τη γλώσσα του βιβλίου.",
   "Explain": "Εξήγηση",
   "Simplify": "Απλοποίηση",
-  "Define": "Ορισμός"
+  "Define": "Ορισμός",
+  "Reading Direction": "Κατεύθυνση ανάγνωσης",
+  "Left to Right": "Από αριστερά προς τα δεξιά",
+  "Right to Left": "Από δεξιά προς τα αριστερά"
 }

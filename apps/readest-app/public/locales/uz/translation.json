@@ -1730,5 +1730,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Tanlangan matn uchun AI xulosalari, takrorlashlar va Tushuntirish/Aniqlash uchun tilni belgilaydi. Soddalashtirish har doim kitob tilidan foydalanadi.",
   "Explain": "Tushuntirish",
   "Simplify": "Soddalashtirish",
-  "Define": "Ta'riflash"
+  "Define": "Ta'riflash",
+  "Reading Direction": "O‘qish yo‘nalishi",
+  "Left to Right": "Chapdan o‘ngga",
+  "Right to Left": "O‘ngdan chapga"
 }

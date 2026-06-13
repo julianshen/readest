@@ -1796,5 +1796,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "Nastavi jezik za AI povzetke, obnove in Razloži/Definiraj za izbrano besedilo. Poenostavi vedno uporablja jezik knjige.",
   "Explain": "Razloži",
   "Simplify": "Poenostavi",
-  "Define": "Definiraj"
+  "Define": "Definiraj",
+  "Reading Direction": "Smer branja",
+  "Left to Right": "Od leve proti desni",
+  "Right to Left": "Od desne proti levi"
 }

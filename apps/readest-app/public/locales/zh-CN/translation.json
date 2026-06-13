@@ -1697,5 +1697,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "设置所选文本的 AI 摘要、回顾及解释/定义的语言。简化始终使用书籍语言。",
   "Explain": "解释",
   "Simplify": "简化",
-  "Define": "定义"
+  "Define": "定义",
+  "Reading Direction": "阅读方向",
+  "Left to Right": "从左到右",
+  "Right to Left": "从右到左"
 }

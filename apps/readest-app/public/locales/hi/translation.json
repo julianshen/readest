@@ -1730,5 +1730,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "चयनित पाठ पर AI सारांश, पुनरावृत्ति और समझाएं/परिभाषित करें की भाषा सेट करता है। सरल बनाएं हमेशा पुस्तक की भाषा उपयोग करता है।",
   "Explain": "समझाएं",
   "Simplify": "सरल करें",
-  "Define": "परिभाषित करें"
+  "Define": "परिभाषित करें",
+  "Reading Direction": "पढ़ने की दिशा",
+  "Left to Right": "बाएँ से दाएँ",
+  "Right to Left": "दाएँ से बाएँ"
 }

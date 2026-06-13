@@ -1730,5 +1730,8 @@
   "Sets the language for AI summaries, recaps, and Explain/Define on selected text. Simplify always uses the book's language.": "زبان خلاصه‌های هوش مصنوعی، مرورها، و توضیح/تعریف روی متن انتخابی را تنظیم می‌کند. ساده‌سازی همیشه از زبان کتاب استفاده می‌کند.",
   "Explain": "توضیح",
   "Simplify": "ساده‌سازی",
-  "Define": "تعریف"
+  "Define": "تعریف",
+  "Reading Direction": "جهت خواندن",
+  "Left to Right": "از چپ به راست",
+  "Right to Left": "از راست به چپ"
 }
