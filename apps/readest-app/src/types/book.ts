@@ -35,6 +35,10 @@ export interface ParagraphModeConfig {
 
 export const FIXED_LAYOUT_FORMATS: Set<BookFormat> = new Set(['PDF', 'CBZ']);
 
+// Image-only formats carry no extractable text. Distinct from
+// FIXED_LAYOUT_FORMATS because a fixed-layout PDF can still have a text layer.
+export const IMAGE_BOOK_FORMATS: Set<BookFormat> = new Set(['CBZ']);
+
 /**
  * Lookup tables built from a Book[] for O(1) hash and metaHash queries during
  * batch import. Mutated in place by importBook so subsequent files in the

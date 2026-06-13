@@ -12,7 +12,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useParallelViewStore } from '@/store/parallelViewStore';
 import { isWebAppPlatform } from '@/services/environment';
 import { eventDispatcher } from '@/utils/event';
-import { FIXED_LAYOUT_FORMATS } from '@/types/book';
+import { FIXED_LAYOUT_FORMATS, IMAGE_BOOK_FORMATS } from '@/types/book';
 import { DOWNLOAD_READEST_URL } from '@/services/constants';
 import { saveViewSettings } from '@/helpers/settings';
 import { setProofreadRulesVisibility } from '@/app/reader/components/ProofreadRules';
@@ -35,9 +35,16 @@ const BookMenu: React.FC<BookMenuProps> = ({ menuClassName, setIsDropdownOpen })
   const { getVisibleLibrary } = useLibraryStore();
   const { openParallelView } = useBooksManager();
   const { sideBarBookKey } = useSidebarStore();
-  const { getConfig } = useBookDataStore();
+  const { getConfig, getBookData } = useBookDataStore();
   const { parallelViews, setParallel, unsetParallel } = useParallelViewStore();
   const viewSettings = getViewSettings(sideBarBookKey!);
+  const bookData = sideBarBookKey ? getBookData(sideBarBookKey) : null;
+  // AI Summary works on extracted text; image-only books (e.g. CBZ) have none.
+  // Fixed-layout PDFs can still carry a text layer, so gate on format, not
+  // isFixedLayout.
+  const bookFormat = bookData?.book?.format;
+  const isImageOnlyBook = !!bookFormat && IMAGE_BOOK_FORMATS.has(bookFormat);
+  const showAISummary = !!settings.aiSettings?.enabled && !isImageOnlyBook;
 
   const [isSortedTOC, setIsSortedTOC] = React.useState(viewSettings?.sortedTOC || false);
 
@@ -191,7 +198,7 @@ const BookMenu: React.FC<BookMenuProps> = ({ menuClassName, setIsDropdownOpen })
         settings.webdav.enabled ||
         settings.readwise.enabled ||
         settings.hardcover.enabled ||
-        settings.aiSettings?.enabled) && <hr aria-hidden='true' className='border-base-200 my-1' />}
+        showAISummary) && <hr aria-hidden='true' className='border-base-200 my-1' />}
       {settings.kosync.enabled && (
         <MenuItem label={_('KOReader Sync')} detailsOpen={false} buttonClass='py-2'>
           <ul className='flex flex-col ps-1'>
@@ -223,7 +230,7 @@ const BookMenu: React.FC<BookMenuProps> = ({ menuClassName, setIsDropdownOpen })
           </ul>
         </MenuItem>
       )}
-      {settings.aiSettings?.enabled && (
+      {showAISummary && (
         <MenuItem label={_('AI Summary')} detailsOpen={false} buttonClass='py-2'>
           <ul className='flex flex-col ps-1'>
             <MenuItem label={_('Recap: Story So Far')} noIcon onClick={handleRecap} />

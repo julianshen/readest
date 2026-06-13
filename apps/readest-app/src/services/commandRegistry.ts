@@ -231,6 +231,12 @@ const layoutPanelItems = [
     section: 'Layout',
   },
   {
+    id: 'settings.layout.readingDirection',
+    labelKey: _('Reading Direction'),
+    keywords: ['reading', 'direction', 'rtl', 'ltr', 'manga', 'comic'],
+    section: 'Layout',
+  },
+  {
     id: 'settings.layout.borderFrame',
     labelKey: _('Border Frame'),
     keywords: ['border', 'frame', 'vertical', 'mode'],

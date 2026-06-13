@@ -245,6 +245,51 @@ export const getBookDirFromLanguage = (language: string | string[] | undefined) 
   return getDirFromLanguage(lang);
 };
 
+// Derives the per-document vertical/rtl flags used by pagination tap zones.
+// Mirrors the historical inline logic in FoliateViewer.docLoadHandler, plus
+// the fixed-layout term: comic pages carry no text direction, so RTL manga
+// (book.dir set from ComicInfo.xml or the reading-direction setting) must
+// flow through book.dir.
+export const deriveDocDirection = ({
+  writingDir,
+  uiRtl,
+  writingMode = 'auto',
+  isFixedLayout,
+  bookDir,
+}: {
+  writingDir: { vertical: boolean; rtl: boolean } | undefined;
+  uiRtl: boolean;
+  writingMode?: WritingMode;
+  isFixedLayout: boolean;
+  bookDir: string | undefined;
+}): { vertical: boolean; rtl: boolean } => ({
+  // Fixed-layout (comic) books model direction as LTR/RTL only; never let a
+  // persisted vertical-* writingMode flip them into vertical flow.
+  vertical: writingDir?.vertical || (!isFixedLayout && writingMode.includes('vertical')) || false,
+  rtl:
+    writingDir?.rtl ||
+    // Fixed-layout books carry an explicit direction (book.dir / Reading
+    // Direction); don't let the UI language override an explicit LTR choice.
+    (uiRtl && !isFixedLayout) ||
+    writingMode.includes('rl') ||
+    (isFixedLayout && bookDir === 'rtl') ||
+    false,
+});
+
+// Whether a writingMode change requires recreating the foliate viewer.
+// Reflowable books only re-render on rl transitions (historical behavior);
+// fixed-layout books re-pair spreads from book.dir, so any change applies.
+export const shouldRecreateViewerOnWritingModeChange = (
+  prev: WritingMode,
+  next: WritingMode,
+  isFixedLayout: boolean,
+): boolean => {
+  if (prev === next) return false;
+  if (isFixedLayout) return true;
+  const isRl = (mode: WritingMode) => mode === 'horizontal-rl' || mode === 'vertical-rl';
+  return isRl(prev) || isRl(next);
+};
+
 const getTitleForHash = (title: string | LanguageMap) => {
   return typeof title === 'string' ? title : formatLanguageMap(title, true);
 };

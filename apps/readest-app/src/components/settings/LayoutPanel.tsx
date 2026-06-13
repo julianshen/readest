@@ -15,7 +15,11 @@ import { getStyles } from '@/utils/style';
 import { getMaxInlineSize } from '@/utils/config';
 import { lockScreenOrientation } from '@/utils/bridge';
 import { saveViewSettings } from '@/helpers/settings';
-import { getBookDirFromWritingMode, getBookLangCode } from '@/utils/book';
+import {
+  getBookDirFromWritingMode,
+  getBookLangCode,
+  shouldRecreateViewerOnWritingModeChange,
+} from '@/utils/book';
 import { MIGHT_BE_RTL_LANGS } from '@/services/constants';
 import { SettingsPanelPanelProp } from './SettingsDialog';
 import {
@@ -303,15 +307,28 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
         view.book.dir = getBookDirFromWritingMode(writingMode);
       }
       if (
-        prevWritingMode !== writingMode &&
-        (['horizontal-rl', 'vertical-rl'].includes(writingMode) ||
-          ['horizontal-rl', 'vertical-rl'].includes(prevWritingMode))
+        shouldRecreateViewerOnWritingModeChange(
+          prevWritingMode,
+          writingMode,
+          !!bookData?.isFixedLayout,
+        )
       ) {
         recreateViewer(envConfig, bookKey);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [writingMode]);
+
+  // Fixed-layout books model direction as horizontal LTR/RTL only. A stale
+  // vertical-rl writingMode (e.g. inherited from a global setting) maps to the
+  // "Right to Left" option but leaves getStyles applying writing-mode:
+  // vertical-rl to comic/PDF pages, so normalize it to horizontal-rl.
+  useEffect(() => {
+    if (bookData?.isFixedLayout && writingMode.includes('vertical')) {
+      setWritingMode('horizontal-rl');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookData?.isFixedLayout, writingMode]);
 
   useEffect(() => {
     if (overrideLayout === viewSettings.overrideLayout) return;
@@ -433,6 +450,17 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
   const mightBeRTLBook = MIGHT_BE_RTL_LANGS.includes(langCode) || isCJKEnv();
   const isVertical = viewSettings.vertical || writingMode.includes('vertical');
 
+  // For fixed-layout books: explicit writingMode wins; otherwise follow the
+  // book's parsed direction (ComicInfo Manga=YesAndRightToLeft → 'rtl').
+  const fixedLayoutDirection =
+    writingMode === 'horizontal-rl' || writingMode === 'vertical-rl'
+      ? 'rtl'
+      : writingMode === 'horizontal-tb'
+        ? 'ltr'
+        : bookData?.bookDoc?.dir === 'rtl'
+          ? 'rtl'
+          : 'ltr';
+
   return (
     <div className='my-4 w-full space-y-6'>
       <div
@@ -447,46 +475,66 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
           onChange={() => setOverrideLayout(!overrideLayout)}
         />
       </div>
-      {mightBeRTLBook && (
+      {bookData?.isFixedLayout ? (
         <div
-          data-setting-id='settings.layout.writingMode'
+          data-setting-id='settings.layout.readingDirection'
           className='flex items-center justify-between px-4'
         >
-          <SettingLabel>{_('Writing Mode')}</SettingLabel>
-          <div className='flex gap-4'>
-            <button
-              title={_('Default')}
-              className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'auto' ? 'btn-active bg-base-300' : ''}`}
-              onClick={() => setWritingMode('auto')}
-            >
-              <MdOutlineAutoMode />
-            </button>
-
-            <button
-              title={_('Horizontal Direction')}
-              className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'horizontal-tb' ? 'btn-active bg-base-300' : ''}`}
-              onClick={() => setWritingMode('horizontal-tb')}
-            >
-              <MdOutlineTextRotationNone />
-            </button>
-
-            <button
-              title={_('Vertical Direction')}
-              className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'vertical-rl' ? 'btn-active bg-base-300' : ''}`}
-              onClick={() => setWritingMode('vertical-rl')}
-            >
-              <MdTextRotateVertical />
-            </button>
-
-            <button
-              title={_('RTL Direction')}
-              className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'horizontal-rl' ? 'btn-active bg-base-300' : ''}`}
-              onClick={() => setWritingMode('horizontal-rl')}
-            >
-              <TbTextDirectionRtl />
-            </button>
-          </div>
+          <SettingLabel>{_('Reading Direction')}</SettingLabel>
+          <SettingsSelect
+            value={fixedLayoutDirection}
+            onChange={(e) =>
+              setWritingMode(e.target.value === 'rtl' ? 'horizontal-rl' : 'horizontal-tb')
+            }
+            options={[
+              { value: 'ltr', label: _('Left to Right') },
+              { value: 'rtl', label: _('Right to Left') },
+            ]}
+            ariaLabel={_('Reading Direction')}
+          />
         </div>
+      ) : (
+        mightBeRTLBook && (
+          <div
+            data-setting-id='settings.layout.writingMode'
+            className='flex items-center justify-between px-4'
+          >
+            <SettingLabel>{_('Writing Mode')}</SettingLabel>
+            <div className='flex gap-4'>
+              <button
+                title={_('Default')}
+                className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'auto' ? 'btn-active bg-base-300' : ''}`}
+                onClick={() => setWritingMode('auto')}
+              >
+                <MdOutlineAutoMode />
+              </button>
+
+              <button
+                title={_('Horizontal Direction')}
+                className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'horizontal-tb' ? 'btn-active bg-base-300' : ''}`}
+                onClick={() => setWritingMode('horizontal-tb')}
+              >
+                <MdOutlineTextRotationNone />
+              </button>
+
+              <button
+                title={_('Vertical Direction')}
+                className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'vertical-rl' ? 'btn-active bg-base-300' : ''}`}
+                onClick={() => setWritingMode('vertical-rl')}
+              >
+                <MdTextRotateVertical />
+              </button>
+
+              <button
+                title={_('RTL Direction')}
+                className={`btn btn-ghost btn-circle btn-sm ${writingMode === 'horizontal-rl' ? 'btn-active bg-base-300' : ''}`}
+                onClick={() => setWritingMode('horizontal-rl')}
+              >
+                <TbTextDirectionRtl />
+              </button>
+            </div>
+          </div>
+        )
       )}
 
       {viewSettings.vertical && (
