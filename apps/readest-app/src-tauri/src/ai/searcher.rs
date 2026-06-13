@@ -88,7 +88,7 @@ pub fn hybrid_search(
         .collect();
 
     // Sort by vector score descending so vec_rank reflects actual similarity
-    vec_scored.sort_unstable_by(|a, b| b.5.partial_cmp(&a.5).unwrap());
+    vec_scored.sort_unstable_by(|a, b| b.5.total_cmp(&a.5));
 
     // BM25 via FTS5
     let bm25_scores: Vec<(i64, f32)> = conn
@@ -133,7 +133,7 @@ pub fn hybrid_search(
         })
         .collect();
 
-    combined.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+    combined.sort_unstable_by(|a, b| b.1.total_cmp(&a.1));
 
     let top_ids: std::collections::HashSet<String> =
         combined.iter().take(top_k).map(|(id, _)| id.clone()).collect();
@@ -166,7 +166,7 @@ pub fn hybrid_search(
             .find(|(id, _)| *id == b.id)
             .map(|(_, s)| *s)
             .unwrap_or(0.0);
-        rb.partial_cmp(&ra).unwrap()
+        rb.total_cmp(&ra)
     });
 
     Ok(results)

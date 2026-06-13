@@ -370,15 +370,9 @@ pub fn run() {
                 app.manage(discord_client);
             }
 
-            // Initialize AI index database (all platforms)
-            match ai::storage::IndexDb::new(app.handle()) {
-                Ok(db) => {
-                    app.manage(db);
-                }
-                Err(e) => {
-                    eprintln!("Failed to initialize AI index DB: {}; AI backend disabled", e);
-                }
-            }
+            // Initialize AI index database (all platforms).
+            // Falls back to in-memory SQLite on failure.
+            app.manage(ai::storage::IndexDb::new(app.handle()));
 
             #[cfg(desktop)]
             {

@@ -7,18 +7,31 @@ pub struct IndexDb {
 }
 
 impl IndexDb {
-    pub fn new(app_handle: &tauri::AppHandle) -> Result<Self, String> {
+    pub fn new(app_handle: &tauri::AppHandle) -> Self {
         let app_dir = app_handle
             .path()
             .app_data_dir()
-            .map_err(|e| format!("Cannot resolve app data dir: {}", e))?;
-        std::fs::create_dir_all(&app_dir).map_err(|e| e.to_string())?;
-        let db_path = app_dir.join("ai_index.db");
-        let conn = Connection::open(&db_path).map_err(|e| e.to_string())?;
-        Self::migrate(&conn)?;
-        Ok(Self {
+            .map_err(|e| format!("Cannot resolve app data dir: {}", e))
+            .and_then(|dir| {
+                std::fs::create_dir_all(&dir)
+                    .map(|_| dir)
+                    .map_err(|e| e.to_string())
+            });
+        let conn = match app_dir {
+            Ok(dir) => Connection::open(dir.join("ai_index.db"))
+                .or_else(|_| Connection::open_in_memory()),
+            Err(_) => Connection::open_in_memory(),
+        };
+        let conn = conn.unwrap_or_else(|e| {
+            eprintln!("Failed to open AI index DB, using in-memory: {}", e);
+            Connection::open_in_memory().expect("In-memory SQLite must work")
+        });
+        if let Err(e) = Self::migrate(&conn) {
+            eprintln!("AI index DB migration failed (in-memory fallback): {}", e);
+        }
+        Self {
             conn: Mutex::new(conn),
-        })
+        }
     }
 
     fn migrate(conn: &Connection) -> Result<(), String> {
@@ -86,13 +99,21 @@ pub fn clear_book_index(
     book_hash: String,
     db: tauri::State<'_, IndexDb>,
 ) -> Result<(), String> {
-    let conn = db.conn.lock().map_err(|e| e.to_string())?;
-    conn.execute("DELETE FROM chunks WHERE book_hash = ?1", params![book_hash])
+    let mut conn = db.conn.lock().map_err(|e| e.to_string())?;
+    let tx = conn.transaction().map_err(|e| e.to_string())?;
+    // Delete FTS index first to avoid orphaned entries
+    tx.execute(
+        "DELETE FROM chunks_fts WHERE rowid IN (SELECT id FROM chunks WHERE book_hash = ?1)",
+        params![book_hash],
+    )
+    .map_err(|e| e.to_string())?;
+    tx.execute("DELETE FROM chunks WHERE book_hash = ?1", params![book_hash])
         .map_err(|e| e.to_string())?;
-    conn.execute(
+    tx.execute(
         "DELETE FROM index_meta WHERE book_hash = ?1",
         params![book_hash],
     )
     .map_err(|e| e.to_string())?;
+    tx.commit().map_err(|e| e.to_string())?;
     Ok(())
 }

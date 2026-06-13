@@ -42,3 +42,44 @@ export function isAIAssistantConfigured(settings: AISettings | undefined): boole
     return false;
   }
 }
+
+/**
+ * Single source of truth for embedding config (base URL + model ID) shared
+ * between JS providers and the Rust/Tauri indexing backend.
+ *
+ * Keys and defaults here MUST mirror what each provider's constructor uses
+ * so the Rust embed_texts path sends the same model/baseUrl as the JS path.
+ */
+export function getEmbeddingModelId(settings: AISettings): string {
+  switch (settings.provider) {
+    case 'openrouter':
+      return settings.openrouterEmbeddingModel || 'openai/text-embedding-3-small';
+    case 'openai':
+      return settings.openaiEmbeddingModel || 'text-embedding-3-small';
+    case 'ai-gateway':
+      return settings.aiGatewayEmbeddingModel || 'openai/text-embedding-3-small';
+    case 'ollama':
+      return settings.ollamaEmbeddingModel || 'nomic-embed-text';
+    default:
+      return 'text-embedding-3-small';
+  }
+}
+
+export function getEmbeddingBaseUrl(settings: AISettings): string {
+  switch (settings.provider) {
+    case 'openrouter':
+      return settings.openrouterBaseUrl || 'https://openrouter.ai/api/v1';
+    case 'openai':
+      return settings.openaiBaseUrl || 'https://api.openai.com/v1';
+    case 'ollama':
+      return settings.ollamaBaseUrl || 'http://127.0.0.1:11434';
+    case 'ai-gateway':
+      return settings.openaiBaseUrl || 'https://api.openai.com/v1';
+    default:
+      return settings.openaiBaseUrl || 'https://api.openai.com/v1';
+  }
+}
+
+export function getEmbeddingApiKey(settings: AISettings): string {
+  return settings.openaiApiKey || settings.openrouterApiKey || settings.aiGatewayApiKey || '';
+}

@@ -39,6 +39,14 @@ pub async fn index_book_chunks(
     let embedding_model = embed_config.model.clone();
     let embeddings = embed_texts(texts, embed_config).await?;
 
+    if embeddings.len() != chunks.len() {
+        return Err(format!(
+            "Mismatched embeddings count: expected {}, got {}",
+            chunks.len(),
+            embeddings.len()
+        ));
+    }
+
     let mut conn = db.conn.lock().map_err(|e| e.to_string())?;
     let tx = conn.transaction().map_err(|e| e.to_string())?;
 

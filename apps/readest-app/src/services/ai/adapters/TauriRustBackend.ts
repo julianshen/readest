@@ -4,15 +4,20 @@ import { embed } from 'ai';
 import type { BookDoc } from '@/libs/document';
 import type { AISettings, EmbeddingProgress, ScoredChunk } from '../types';
 import type { BackendIndexOptions, RetrievalBackend } from './retrievalBackend';
-import { getAIProvider } from '../providers';
+import {
+  getAIProvider,
+  getEmbeddingModelId,
+  getEmbeddingBaseUrl,
+  getEmbeddingApiKey,
+} from '../providers';
 import { chunkSection, extractTextFromDocument } from '@/services/ai/utils/chunker';
 import { getChapterTitle } from '@/services/ai/ragService';
 
 interface IndexChunkInput {
-  section_index: number;
-  chapter_title: string;
+  sectionIndex: number;
+  chapterTitle: string;
   text: string;
-  page_number: number;
+  pageNumber: number;
 }
 
 /**
@@ -56,15 +61,15 @@ export class TauriRustBackend implements RetrievalBackend {
 
     try {
       const embedConfig = {
-        apiKey: this.settings.openaiApiKey || this.settings.openrouterApiKey || '',
-        baseUrl: this.getEmbeddingBaseUrl(),
-        model: this.getEmbeddingModel(),
+        apiKey: getEmbeddingApiKey(this.settings),
+        baseUrl: getEmbeddingBaseUrl(this.settings),
+        model: getEmbeddingModelId(this.settings),
       };
 
       await invoke('index_book_chunks', {
         bookHash,
-        bookTitle: bookDoc.metadata?.title || 'Unknown',
-        author: bookDoc.metadata?.author || 'Unknown',
+        bookTitle: normalizeTitle(bookDoc.metadata),
+        author: normalizeAuthor(bookDoc.metadata),
         chunks,
         embedConfig,
       });
@@ -127,10 +132,10 @@ export class TauriRustBackend implements RetrievalBackend {
         );
         for (const c of sectionChunks) {
           chunks.push({
-            section_index: c.sectionIndex,
-            chapter_title: c.chapterTitle || '',
+            sectionIndex: c.sectionIndex,
+            chapterTitle: c.chapterTitle || '',
             text: c.text,
-            page_number: c.pageNumber || 0,
+            pageNumber: c.pageNumber || 0,
           });
         }
       } catch {
@@ -140,24 +145,26 @@ export class TauriRustBackend implements RetrievalBackend {
 
     return chunks;
   }
+}
 
-  private getEmbeddingBaseUrl(): string {
-    const p = this.settings.provider;
-    if (p === 'ollama') return this.settings.ollamaBaseUrl || 'http://127.0.0.1:11434';
-    if (p === 'openrouter')
-      return this.settings.openrouterBaseUrl || 'https://openrouter.ai/api/v1';
-    if (p === 'openai') return this.settings.openaiBaseUrl || 'https://api.openai.com/v1';
-    // ai-gateway or any other provider
-    return this.settings.openaiBaseUrl || 'https://api.openai.com/v1';
-  }
+// ---- metadata normalization (mirrors ragService) ----
 
-  private getEmbeddingModel(): string {
-    const p = this.settings.provider;
-    if (p === 'ollama') return this.settings.ollamaEmbeddingModel;
-    if (p === 'openrouter')
-      return this.settings.openrouterEmbeddingModel || 'text-embedding-3-small';
-    if (p === 'openai') return this.settings.openaiEmbeddingModel || 'text-embedding-3-small';
-    // ai-gateway or any other provider
-    return this.settings.aiGatewayEmbeddingModel || 'text-embedding-3-small';
-  }
+function normalizeTitle(metadata?: BookDoc['metadata']): string {
+  if (!metadata?.title) return 'Unknown';
+  if (typeof metadata.title === 'string') return metadata.title;
+  return (
+    metadata.title['en'] ||
+    metadata.title['default'] ||
+    Object.values(metadata.title)[0] ||
+    'Unknown'
+  );
+}
+
+function normalizeAuthor(metadata?: BookDoc['metadata']): string {
+  if (!metadata?.author) return 'Unknown';
+  if (typeof metadata.author === 'string') return metadata.author;
+  const name = metadata.author.name;
+  if (!name) return 'Unknown';
+  if (typeof name === 'string') return name;
+  return Object.values(name)[0] || 'Unknown';
 }
