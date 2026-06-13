@@ -97,6 +97,8 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
   const [indexProgress, setIndexProgress] = useState<EmbeddingProgress | null>(null);
   const [indexed, setIndexed] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const deferredPromptRef = useRef<string | null>(null);
+  const sendMessageRef = useRef<((text: string) => Promise<void>) | null>(null);
 
   const bookHash = bookKey.split('-')[0] || '';
   const bookTitle = bookData?.book?.title || 'Unknown';
@@ -114,29 +116,18 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
     return selectBackend({ settings: aiSettings, isTauri: isTauriAppPlatform(), legacy, reedy });
   }, [aiSettings, appService]);
 
-  useEffect(() => {
-    if (bookHash) loadConversations(bookHash);
-    if (bookHash && backend) {
-      backend
-        .isIndexed(bookHash)
-        .then((result) => {
-          setIndexed(result);
-          setIsLoading(false);
-        })
-        .catch(() => setIsLoading(false));
-    } else if (!backend) {
-      setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
-  }, [bookHash, backend, loadConversations]);
-
   const handleIndex = useCallback(async () => {
     if (!bookData?.bookDoc || !aiSettings || !backend) return;
     setIsIndexing(true);
     try {
       await backend.indexBook(bookData.bookDoc, bookHash, { onProgress: setIndexProgress });
       setIndexed(true);
+      // Send any deferred prompt now that the book is indexed.
+      if (deferredPromptRef.current) {
+        const p = deferredPromptRef.current;
+        deferredPromptRef.current = null;
+        sendMessageRef.current?.(p);
+      }
     } catch (e) {
       aiLogger.rag.indexError(bookHash, (e as Error).message);
     } finally {
@@ -233,6 +224,7 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
     },
     [input, aiSettings, bookTitle, authorName, currentPage, backend, bookHash, isGenerating, _],
   );
+  sendMessageRef.current = sendMessage;
 
   const handleSend = useCallback(() => {
     sendMessage(input.trim());
@@ -255,14 +247,73 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
     [handleSend],
   );
 
+  // ---- Check index status and load conversations ----
+  useEffect(() => {
+    if (bookHash) loadConversations(bookHash);
+    if (bookHash && backend) {
+      backend
+        .isIndexed(bookHash)
+        .then((result) => {
+          setIndexed(result);
+          setIsLoading(false);
+          // If a deferred prompt is waiting and book is already indexed,
+          // send it immediately without waiting.
+          if (deferredPromptRef.current && result) {
+            const p = deferredPromptRef.current;
+            deferredPromptRef.current = null;
+            sendMessageRef.current?.(p);
+          }
+          // If not indexed and prompt is waiting, auto-index.
+          if (deferredPromptRef.current && !result) {
+            handleIndex();
+          }
+        })
+        .catch(() => {
+          setIsLoading(false);
+        });
+    } else if (!backend) {
+      setIsLoading(false);
+      // No RAG backend — send deferred prompt directly.
+      if (deferredPromptRef.current) {
+        const p = deferredPromptRef.current;
+        deferredPromptRef.current = null;
+        sendMessageRef.current?.(p);
+      }
+    } else {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookHash, backend, loadConversations]);
+
   // ---- Consume pending prompt from store (e.g. AI Summary) ----
   useEffect(() => {
     if (pendingPrompt && !isGenerating) {
       const p = pendingPrompt;
       setPendingPrompt(null);
-      sendMessage(p);
+
+      if (isLoading) {
+        // Don't know index state yet — the index-check effect will
+        // pick this up once loading completes.
+        deferredPromptRef.current = p;
+      } else if (!indexed && backend) {
+        // Not indexed — auto-index, then the prompt fires after.
+        deferredPromptRef.current = p;
+        handleIndex();
+      } else {
+        // Already indexed or no backend — send immediately.
+        sendMessage(p);
+      }
     }
-  }, [pendingPrompt, isGenerating, sendMessage, setPendingPrompt]);
+  }, [
+    pendingPrompt,
+    isGenerating,
+    sendMessage,
+    setPendingPrompt,
+    indexed,
+    isLoading,
+    backend,
+    handleIndex,
+  ]);
 
   // ---- Guard: AI not enabled ----
   if (!aiSettings?.enabled) {
