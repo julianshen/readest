@@ -876,7 +876,6 @@
   "Annotation color": "མཆན་འགྲེལ་གྱི་ཚོན་མདོག",
   "Annotation time": "མཆན་འགྲེལ་གྱི་དུས་ཚོད།",
   "AI": "རིག་ནུས་མིས་བཟོས། (AI)",
-  "Are you sure you want to re-index this book?": "ཁྱེད་ཀྱིས་དཔེ་དེབ་འདི་བསྐྱར་དུ་དཀར་ཆག་བཟོ་རྒྱུ་གཏན་འཁེལ་ཡིན་ནམ།",
   "Enable AI in Settings": "སྒྲིག་བཀོད་ནང་ AI སྤྱོད་པར་བྱོས།",
   "Index This Book": "དཔེ་དེབ་འདི་དཀར་ཆག་བཟོ་བ།",
   "Enable AI search and chat for this book": "དཔེ་དེབ་འདིར་ AI འཚོལ་བཤེར་དང་ཁ་བརྡ་སྤྱོད་པར་བྱོས།",
@@ -1676,13 +1675,8 @@
   "AI Summary": "AI བསྡུས་དོན།",
   "Recap: Story So Far": "བསྡུས་དོན། འཕྲལ་གྱི་གཏམ་རྒྱུད།",
   "Summarize This Chapter": "ལེའུ་འདི་བསྡུས་སྙིང་བྱོས།",
-  "Recap": "བསྡུས་དོན།",
-  "Chapter Summary": "ལེའུའི་བསྡུས་དོན།",
   "You're at the very beginning — nothing to recap yet.": "ཁྱེད་ཐོག་མར་ཡོད། — བསྡུས་དོན་བྱ་རྒྱུ་མི་འདུག",
-  "Generating recap — this may take a minute...": "བསྡུས་དོན་བཟོ་བཞིན་ཡོད། — སྐར་མ་གཅིག་མགོ་ལོང་ཐུབ།...",
-  "Summarizing chapter — this may take a moment...": "ལེའུ་བསྡུས་བཞིན་ཡོད། — སྐར་ཆ་གཅིག་མགོ་ལོང་ཐུབ།...",
   "Configure an AI provider in Settings → AI Assistant first": "ཐོག་མར་སྒྲིག་འགོད། → AI རོགས་རམ་པ་ནང་AI ཞབས་འདེགས་མི་སྣ་གཞི་སྒྲིག་བྱོས།",
-  "Summary failed. Please try again.": "བསྡུས་དོན་ཕམ་ཉེས་བྱུང་། ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།།",
   "OpenAI API Key": "OpenAI API ལྡེ་མིག",
   "OpenAI Base URL": "OpenAI གཞི་རྩའི་URL",
   "OpenAI Model": "OpenAI དཔེ་གཞི།",
@@ -1700,5 +1694,9 @@
   "Define": "ངེས་བྱེད།",
   "Reading Direction": "ཀློག་འདོན་ཕྱོགས།",
   "Left to Right": "གཡོན་ནས་གཡས།",
-  "Right to Left": "གཡས་ནས་གཡོན།"
+  "Right to Left": "གཡས་ནས་གཡོན།",
+  "Error: ": "ནོར་འཁྲུལ། ",
+  "Ask about this book...": "དེབ་འདིའི་སྐོར་ལ་དྲིས། ...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" ཡི་སྐོར་ལ་དྲི་བ་བཏང་ནས་འབྲེལ་ཡོད་ཚིག་ཆ་དང་བཅས་ AI ལན་ཐོབ།",
+  "Stop": "མཚམས་འཇོག"
 }

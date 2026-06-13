@@ -876,7 +876,6 @@
   "Annotation color": "Màu chú thích",
   "Annotation time": "Thời gian chú thích",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "Bạn có chắc muốn lập chỉ mục lại cuốn sách này?",
   "Enable AI in Settings": "Bật AI trong Cài đặt",
   "Index This Book": "Lập chỉ mục sách này",
   "Enable AI search and chat for this book": "Bật tìm kiếm AI và trò chuyện cho cuốn sách này",
@@ -1676,13 +1675,8 @@
   "AI Summary": "Tóm tắt AI",
   "Recap: Story So Far": "Tóm tắt: Câu chuyện đến nay",
   "Summarize This Chapter": "Tóm tắt chương này",
-  "Recap": "Tóm tắt",
-  "Chapter Summary": "Tóm tắt chương",
   "You're at the very beginning — nothing to recap yet.": "Bạn đang ở ngay phần đầu — chưa có gì để tóm tắt.",
-  "Generating recap — this may take a minute...": "Đang tạo tóm tắt — quá trình này có thể mất một phút...",
-  "Summarizing chapter — this may take a moment...": "Đang tóm tắt chương — quá trình này có thể mất một chút...",
   "Configure an AI provider in Settings → AI Assistant first": "Vui lòng cấu hình nhà cung cấp AI trong Cài đặt → Trợ lý AI trước",
-  "Summary failed. Please try again.": "Tóm tắt thất bại. Vui lòng thử lại.",
   "OpenAI API Key": "Khóa API OpenAI",
   "OpenAI Base URL": "URL cơ sở OpenAI",
   "OpenAI Model": "Mô hình OpenAI",
@@ -1700,5 +1694,9 @@
   "Define": "Định nghĩa",
   "Reading Direction": "Hướng đọc",
   "Left to Right": "Trái sang phải",
-  "Right to Left": "Phải sang trái"
+  "Right to Left": "Phải sang trái",
+  "Error: ": "Lỗi: ",
+  "Ask about this book...": "Hỏi về cuốn sách này...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Đặt câu hỏi về \"{{bookTitle}}\" và nhận câu trả lời từ AI kèm các đoạn liên quan.",
+  "Stop": "Dừng"
 }

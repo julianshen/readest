@@ -887,7 +887,6 @@
   "Annotation color": "Anmerkungsfarbe",
   "Annotation time": "Anmerkungszeit",
   "AI": "KI",
-  "Are you sure you want to re-index this book?": "Möchten Sie dieses Buch wirklich neu indizieren?",
   "Enable AI in Settings": "KI in den Einstellungen aktivieren",
   "Index This Book": "Dieses Buch indizieren",
   "Enable AI search and chat for this book": "KI-Suche und Chat für dieses Buch aktivieren",
@@ -1709,13 +1708,8 @@
   "AI Summary": "KI-Zusammenfassung",
   "Recap: Story So Far": "Rückblick: Die Geschichte bisher",
   "Summarize This Chapter": "Dieses Kapitel zusammenfassen",
-  "Recap": "Rückblick",
-  "Chapter Summary": "Kapitelzusammenfassung",
   "You're at the very beginning — nothing to recap yet.": "Sie sind ganz am Anfang — noch nichts zusammenzufassen.",
-  "Generating recap — this may take a minute...": "Zusammenfassung wird erstellt — das kann einen Moment dauern...",
-  "Summarizing chapter — this may take a moment...": "Kapitel wird zusammengefasst — das kann einen Moment dauern...",
   "Configure an AI provider in Settings → AI Assistant first": "Bitte zuerst einen KI-Anbieter in Einstellungen → KI-Assistent konfigurieren",
-  "Summary failed. Please try again.": "Zusammenfassung fehlgeschlagen. Bitte erneut versuchen.",
   "OpenAI API Key": "OpenAI API-Schlüssel",
   "OpenAI Base URL": "OpenAI Basis-URL",
   "OpenAI Model": "OpenAI-Modell",
@@ -1733,5 +1727,9 @@
   "Define": "Definieren",
   "Reading Direction": "Leserichtung",
   "Left to Right": "Links nach rechts",
-  "Right to Left": "Rechts nach links"
+  "Right to Left": "Rechts nach links",
+  "Error: ": "Fehler: ",
+  "Ask about this book...": "Stellen Sie eine Frage zu diesem Buch …",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stellen Sie Fragen zu „{{bookTitle}}“ und erhalten Sie KI-gestützte Antworten mit relevanten Passagen.",
+  "Stop": "Stopp"
 }

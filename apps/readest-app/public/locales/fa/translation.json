@@ -887,7 +887,6 @@
   "Annotation color": "رنگ یادداشت",
   "Annotation time": "زمان یادداشت",
   "AI": "هوش مصنوعی",
-  "Are you sure you want to re-index this book?": "آیا مطمئن هستید که می‌خواهید این کتاب را دوباره فهرست کنید؟",
   "Enable AI in Settings": "فعال کردن هوش مصنوعی در تنظیمات",
   "Index This Book": "فهرست کردن این کتاب",
   "Enable AI search and chat for this book": "فعال کردن جستجو و گفتگوی هوش مصنوعی برای این کتاب",
@@ -1709,13 +1708,8 @@
   "AI Summary": "خلاصه هوش مصنوعی",
   "Recap: Story So Far": "خلاصه: داستان تاکنون",
   "Summarize This Chapter": "خلاصه این فصل",
-  "Recap": "خلاصه",
-  "Chapter Summary": "خلاصه فصل",
   "You're at the very beginning — nothing to recap yet.": "شما در ابتدای کتاب هستید — هنوز چیزی برای خلاصه کردن وجود ندارد.",
-  "Generating recap — this may take a minute...": "در حال ایجاد خلاصه — این ممکن است یک دقیقه طول بکشد...",
-  "Summarizing chapter — this may take a moment...": "در حال خلاصه کردن فصل — این ممکن است کمی طول بکشد...",
   "Configure an AI provider in Settings → AI Assistant first": "لطفاً ابتدا یک ارائه‌دهنده هوش مصنوعی را در تنظیمات ← دستیار هوش مصنوعی پیکربندی کنید",
-  "Summary failed. Please try again.": "ایجاد خلاصه ناموفق بود. لطفاً دوباره امتحان کنید.",
   "OpenAI API Key": "کلید API OpenAI",
   "OpenAI Base URL": "URL پایه OpenAI",
   "OpenAI Model": "مدل OpenAI",
@@ -1733,5 +1727,9 @@
   "Define": "تعریف",
   "Reading Direction": "جهت خواندن",
   "Left to Right": "از چپ به راست",
-  "Right to Left": "از راست به چپ"
+  "Right to Left": "از راست به چپ",
+  "Error: ": "خطا: ",
+  "Ask about this book...": "درباره این کتاب بپرسید...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "درباره «{{bookTitle}}» سؤال بپرسید و پاسخ‌های مبتنی بر هوش مصنوعی همراه با بخش‌های مرتبط دریافت کنید.",
+  "Stop": "توقف"
 }

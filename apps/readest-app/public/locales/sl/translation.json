@@ -446,7 +446,6 @@
   "Server URL": "URL strežnika",
   "Your Username": "Vaše uporabniško ime",
   "Connect": "Poveži",
-  "Are you sure you want to re-index this book?": "Ali ste prepričani, da želite ponovno indeksirati to knjigo?",
   "Enable AI in Settings": "Omogoči AI v nastavitvah",
   "Index This Book": "Indeksiraj to knjigo",
   "Enable AI search and chat for this book": "Omogoči AI iskanje in klepet za to knjigo",
@@ -1775,13 +1774,8 @@
   "AI Summary": "Povzetek AI",
   "Recap: Story So Far": "Povzetek: zgodba do sedaj",
   "Summarize This Chapter": "Povzemi to poglavje",
-  "Recap": "Povzetek",
-  "Chapter Summary": "Povzetek poglavja",
   "You're at the very beginning — nothing to recap yet.": "Ste na samem začetku — zaenkrat ni ničesar za povzemanje.",
-  "Generating recap — this may take a minute...": "Ustvarjanje povzetka — to lahko traja minuto...",
-  "Summarizing chapter — this may take a moment...": "Povzemanje poglavja — to lahko traja trenutek...",
   "Configure an AI provider in Settings → AI Assistant first": "Najprej konfigurirajte ponudnika AI v Nastavitve → AI asistent",
-  "Summary failed. Please try again.": "Povzetek ni uspel. Prosimo, poskusite znova.",
   "OpenAI API Key": "OpenAI API ključ",
   "OpenAI Base URL": "OpenAI osnovna URL",
   "OpenAI Model": "OpenAI model",
@@ -1799,5 +1793,9 @@
   "Define": "Definiraj",
   "Reading Direction": "Smer branja",
   "Left to Right": "Od leve proti desni",
-  "Right to Left": "Od desne proti levi"
+  "Right to Left": "Od desne proti levi",
+  "Error: ": "Napaka: ",
+  "Ask about this book...": "Vprašajte o tej knjigi...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Postavljajte vprašanja o »{{bookTitle}}« in prejmite odgovore UI z ustreznimi odlomki.",
+  "Stop": "Ustavi"
 }

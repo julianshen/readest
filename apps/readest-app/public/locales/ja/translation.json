@@ -876,7 +876,6 @@
   "Annotation color": "注釈の色",
   "Annotation time": "注釈時間",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "この本を再インデックスしてもよろしいですか？",
   "Enable AI in Settings": "設定でAIを有効にする",
   "Index This Book": "この本をインデックス",
   "Enable AI search and chat for this book": "この本のAI検索とチャットを有効にする",
@@ -1676,13 +1675,8 @@
   "AI Summary": "AI 要約",
   "Recap: Story So Far": "あらすじ：これまでのお話",
   "Summarize This Chapter": "この章を要約する",
-  "Recap": "あらすじ",
-  "Chapter Summary": "章の要約",
   "You're at the very beginning — nothing to recap yet.": "まだ最初のページです — あらすじはありません。",
-  "Generating recap — this may take a minute...": "あらすじを生成中 — しばらくお待ちください...",
-  "Summarizing chapter — this may take a moment...": "章を要約中 — しばらくお待ちください...",
   "Configure an AI provider in Settings → AI Assistant first": "まず設定 → AI アシスタントで AI プロバイダーを設定してください",
-  "Summary failed. Please try again.": "要約に失敗しました。もう一度お試しください。",
   "OpenAI API Key": "OpenAI API キー",
   "OpenAI Base URL": "OpenAI ベース URL",
   "OpenAI Model": "OpenAI モデル",
@@ -1700,5 +1694,9 @@
   "Define": "定義",
   "Reading Direction": "読み方向",
   "Left to Right": "左から右",
-  "Right to Left": "右から左"
+  "Right to Left": "右から左",
+  "Error: ": "エラー: ",
+  "Ask about this book...": "この本について質問する…",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "「{{bookTitle}}」について質問すると、関連する箇所とともに AI による回答が得られます。",
+  "Stop": "停止"
 }

@@ -909,7 +909,6 @@
   "Annotation color": "Колір анотації",
   "Annotation time": "Час анотації",
   "AI": "ШІ",
-  "Are you sure you want to re-index this book?": "Ви впевнені, що хочете переіндексувати цю книгу?",
   "Enable AI in Settings": "Увімкнути ШІ в налаштуваннях",
   "Index This Book": "Індексувати цю книгу",
   "Enable AI search and chat for this book": "Увімкнути ШІ-пошук та чат для цієї книги",
@@ -1775,13 +1774,8 @@
   "AI Summary": "Короткий зміст ШІ",
   "Recap: Story So Far": "Короткий зміст: історія на цей момент",
   "Summarize This Chapter": "Підсумувати цей розділ",
-  "Recap": "Короткий зміст",
-  "Chapter Summary": "Короткий зміст розділу",
   "You're at the very beginning — nothing to recap yet.": "Ви тільки на початку — поки нічого підсумовувати.",
-  "Generating recap — this may take a minute...": "Створення короткого змісту — це може зайняти хвилину...",
-  "Summarizing chapter — this may take a moment...": "Підсумовування розділу — це може зайняти мить...",
   "Configure an AI provider in Settings → AI Assistant first": "Спочатку налаштуйте постачальника ШІ в розділі Налаштування → ШІ-асистент",
-  "Summary failed. Please try again.": "Не вдалося створити короткий зміст. Будь ласка, спробуйте ще раз.",
   "OpenAI API Key": "Ключ API OpenAI",
   "OpenAI Base URL": "Базовий URL OpenAI",
   "OpenAI Model": "Модель OpenAI",
@@ -1799,5 +1793,9 @@
   "Define": "Визначити",
   "Reading Direction": "Напрямок читання",
   "Left to Right": "Зліва направо",
-  "Right to Left": "Справа наліво"
+  "Right to Left": "Справа наліво",
+  "Error: ": "Помилка: ",
+  "Ask about this book...": "Запитайте про цю книгу...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Ставте запитання про «{{bookTitle}}» та отримуйте відповіді ШІ з відповідними уривками.",
+  "Stop": "Зупинити"
 }

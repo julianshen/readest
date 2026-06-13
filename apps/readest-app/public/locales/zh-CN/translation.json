@@ -877,7 +877,6 @@
   "Annotation color": "标注颜色",
   "Annotation time": "标注时间",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "确定要重新索引这本书吗？",
   "Enable AI in Settings": "在设置中启用 AI",
   "Index This Book": "索引这本书",
   "Enable AI search and chat for this book": "为这本书启用 AI 搜索和聊天",
@@ -1676,13 +1675,8 @@
   "AI Summary": "AI 摘要",
   "Recap: Story So Far": "回顾：故事至今",
   "Summarize This Chapter": "总结本章",
-  "Recap": "回顾",
-  "Chapter Summary": "章节摘要",
   "You're at the very beginning — nothing to recap yet.": "您还在最开始 — 暂无内容可回顾。",
-  "Generating recap — this may take a minute...": "正在生成回顾 — 可能需要一点时间...",
-  "Summarizing chapter — this may take a moment...": "正在总结章节 — 可能需要片刻...",
   "Configure an AI provider in Settings → AI Assistant first": "请先在设置 → AI 助手中配置 AI 服务提供商",
-  "Summary failed. Please try again.": "摘要生成失败，请重试。",
   "OpenAI API Key": "OpenAI API 密钥",
   "OpenAI Base URL": "OpenAI 基础 URL",
   "OpenAI Model": "OpenAI 模型",
@@ -1700,5 +1694,9 @@
   "Define": "定义",
   "Reading Direction": "阅读方向",
   "Left to Right": "从左到右",
-  "Right to Left": "从右到左"
+  "Right to Left": "从右到左",
+  "Error: ": "错误：",
+  "Ask about this book...": "询问关于本书的问题…",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "就《{{bookTitle}}》提问，获取由 AI 生成的回答及相关段落。",
+  "Stop": "停止"
 }

@@ -876,7 +876,6 @@
   "Annotation color": "標註顏色",
   "Annotation time": "標註時間",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "確定要重新索引這本書嗎？",
   "Enable AI in Settings": "在設定中啟用 AI",
   "Index This Book": "索引這本書",
   "Enable AI search and chat for this book": "為這本書啟用 AI 搜尋和聊天",
@@ -1676,13 +1675,8 @@
   "AI Summary": "AI 摘要",
   "Recap: Story So Far": "回顧：故事至今",
   "Summarize This Chapter": "摘要本章",
-  "Recap": "回顧",
-  "Chapter Summary": "章節摘要",
   "You're at the very beginning — nothing to recap yet.": "您還在最開始 — 暫無內容可回顧。",
-  "Generating recap — this may take a minute...": "正在產生回顧 — 可能需要一點時間...",
-  "Summarizing chapter — this may take a moment...": "正在摘要章節 — 可能需要片刻...",
   "Configure an AI provider in Settings → AI Assistant first": "請先在設定 → AI 助理中設定 AI 服務提供商",
-  "Summary failed. Please try again.": "摘要產生失敗，請重試。",
   "OpenAI API Key": "OpenAI API 金鑰",
   "OpenAI Base URL": "OpenAI 基礎 URL",
   "OpenAI Model": "OpenAI 模型",
@@ -1700,5 +1694,9 @@
   "Define": "定義",
   "Reading Direction": "閱讀方向",
   "Left to Right": "從左到右",
-  "Right to Left": "從右到左"
+  "Right to Left": "從右到左",
+  "Error: ": "錯誤：",
+  "Ask about this book...": "詢問關於本書的問題…",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "就《{{bookTitle}}》提問，獲取由 AI 生成的回答與相關段落。",
+  "Stop": "停止"
 }

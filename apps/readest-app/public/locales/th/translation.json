@@ -876,7 +876,6 @@
   "Annotation color": "สีคำอธิบาย",
   "Annotation time": "เวลาคำอธิบาย",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "คุณแน่ใจหรือไม่ว่าต้องการสร้างดัชนีหนังสือเล่มนี้ใหม่?",
   "Enable AI in Settings": "เปิดใช้งาน AI ในการตั้งค่า",
   "Index This Book": "สร้างดัชนีหนังสือเล่มนี้",
   "Enable AI search and chat for this book": "เปิดใช้งานการค้นหา AI และแชทสำหรับหนังสือเล่มนี้",
@@ -1676,13 +1675,8 @@
   "AI Summary": "สรุป AI",
   "Recap: Story So Far": "สรุป: เรื่องราวจนถึงตอนนี้",
   "Summarize This Chapter": "สรุปบทนี้",
-  "Recap": "สรุปเนื้อเรื่อง",
-  "Chapter Summary": "สรุปบท",
   "You're at the very beginning — nothing to recap yet.": "คุณอยู่ที่จุดเริ่มต้น — ยังไม่มีเนื้อเรื่องให้สรุป",
-  "Generating recap — this may take a minute...": "กำลังสร้างบทสรุป — อาจใช้เวลาสักครู่...",
-  "Summarizing chapter — this may take a moment...": "กำลังสรุปบท — อาจใช้เวลาสักครู่...",
   "Configure an AI provider in Settings → AI Assistant first": "กรุณาตั้งค่าผู้ให้บริการ AI ใน การตั้งค่า → ผู้ช่วย AI ก่อน",
-  "Summary failed. Please try again.": "สรุปล้มเหลว กรุณาลองใหม่อีกครั้ง",
   "OpenAI API Key": "OpenAI API Key",
   "OpenAI Base URL": "OpenAI Base URL",
   "OpenAI Model": "OpenAI Model",
@@ -1700,5 +1694,9 @@
   "Define": "นิยาม",
   "Reading Direction": "ทิศทางการอ่าน",
   "Left to Right": "ซ้ายไปขวา",
-  "Right to Left": "ขวาไปซ้าย"
+  "Right to Left": "ขวาไปซ้าย",
+  "Error: ": "ข้อผิดพลาด: ",
+  "Ask about this book...": "ถามเกี่ยวกับหนังสือเล่มนี้...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "ถามคำถามเกี่ยวกับ \"{{bookTitle}}\" และรับคำตอบจาก AI พร้อมข้อความที่เกี่ยวข้อง",
+  "Stop": "หยุด"
 }

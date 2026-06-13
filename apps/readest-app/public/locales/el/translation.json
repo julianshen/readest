@@ -887,7 +887,6 @@
   "Annotation color": "Χρώμα σχολίου",
   "Annotation time": "Ώρα σχολίου",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "Είστε σίγουροι ότι θέλετε να επαναδημιουργήσετε το ευρετήριο αυτού του βιβλίου;",
   "Enable AI in Settings": "Ενεργοποίηση AI στις ρυθμίσεις",
   "Index This Book": "Δημιουργία ευρετηρίου για αυτό το βιβλίο",
   "Enable AI search and chat for this book": "Ενεργοποίηση αναζήτησης AI και συνομιλίας για αυτό το βιβλίο",
@@ -1709,13 +1708,8 @@
   "AI Summary": "Περίληψη AI",
   "Recap: Story So Far": "Ανακεφαλαίωση: η ιστορία μέχρι τώρα",
   "Summarize This Chapter": "Ανακεφαλαίωση αυτού του κεφαλαίου",
-  "Recap": "Ανακεφαλαίωση",
-  "Chapter Summary": "Περίληψη κεφαλαίου",
   "You're at the very beginning — nothing to recap yet.": "Είστε στην αρχή — δεν υπάρχει ακόμα τίποτα να ανακεφαλαιώσετε.",
-  "Generating recap — this may take a minute...": "Δημιουργία ανακεφαλαίωσης — αυτό μπορεί να πάρει ένα λεπτό...",
-  "Summarizing chapter — this may take a moment...": "Ανακεφαλαίωση κεφαλαίου — αυτό μπορεί να πάρει μια στιγμή...",
   "Configure an AI provider in Settings → AI Assistant first": "Ρυθμίστε πρώτα έναν πάροχο AI στις Ρυθμίσεις → Βοηθός AI",
-  "Summary failed. Please try again.": "Η ανακεφαλαίωση απέτυχε. Παρακαλώ δοκιμάστε ξανά.",
   "OpenAI API Key": "Κλειδί API OpenAI",
   "OpenAI Base URL": "Βασική URL OpenAI",
   "OpenAI Model": "Μοντέλο OpenAI",
@@ -1733,5 +1727,9 @@
   "Define": "Ορισμός",
   "Reading Direction": "Κατεύθυνση ανάγνωσης",
   "Left to Right": "Από αριστερά προς τα δεξιά",
-  "Right to Left": "Από δεξιά προς τα αριστερά"
+  "Right to Left": "Από δεξιά προς τα αριστερά",
+  "Error: ": "Σφάλμα: ",
+  "Ask about this book...": "Ρωτήστε για αυτό το βιβλίο...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Κάντε ερωτήσεις για το «{{bookTitle}}» και λάβετε απαντήσεις AI με σχετικά αποσπάσματα.",
+  "Stop": "Διακοπή"
 }

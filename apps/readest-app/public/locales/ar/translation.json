@@ -931,7 +931,6 @@
   "Annotation color": "لون التعليق",
   "Annotation time": "وقت التعليق",
   "AI": "الذكاء الاصطناعي",
-  "Are you sure you want to re-index this book?": "هل أنت متأكد من إعادة فهرسة هذا الكتاب؟",
   "Enable AI in Settings": "تفعيل الذكاء الاصطناعي في الإعدادات",
   "Index This Book": "فهرسة هذا الكتاب",
   "Enable AI search and chat for this book": "تفعيل البحث والدردشة بالذكاء الاصطناعي لهذا الكتاب",
@@ -1841,13 +1840,8 @@
   "AI Summary": "ملخص الذكاء الاصطناعي",
   "Recap: Story So Far": "ملخص: القصة حتى الآن",
   "Summarize This Chapter": "تلخيص هذا الفصل",
-  "Recap": "ملخص",
-  "Chapter Summary": "ملخص الفصل",
   "You're at the very beginning — nothing to recap yet.": "أنت في البداية تمامًا — لا شيء لتلخيصه بعد.",
-  "Generating recap — this may take a minute...": "جارٍ إنشاء الملخص — قد يستغرق ذلك دقيقة...",
-  "Summarizing chapter — this may take a moment...": "جارٍ تلخيص الفصل — قد يستغرق ذلك لحظة...",
   "Configure an AI provider in Settings → AI Assistant first": "يرجى أولاً تهيئة مزود الذكاء الاصطناعي في الإعدادات ← مساعد الذكاء الاصطناعي",
-  "Summary failed. Please try again.": "فشل إنشاء الملخص. يرجى المحاولة مرة أخرى.",
   "OpenAI API Key": "مفتاح API لـ OpenAI",
   "OpenAI Base URL": "عنوان URL الأساسي لـ OpenAI",
   "OpenAI Model": "نموذج OpenAI",
@@ -1865,5 +1859,9 @@
   "Define": "تعريف",
   "Reading Direction": "اتجاه القراءة",
   "Left to Right": "من اليسار إلى اليمين",
-  "Right to Left": "من اليمين إلى اليسار"
+  "Right to Left": "من اليمين إلى اليسار",
+  "Error: ": "خطأ: ",
+  "Ask about this book...": "اسأل عن هذا الكتاب...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "اطرح أسئلة حول \"{{bookTitle}}\" واحصل على إجابات مدعومة بالذكاء الاصطناعي مع المقاطع ذات الصلة.",
+  "Stop": "إيقاف"
 }

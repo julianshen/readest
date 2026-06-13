@@ -887,7 +887,6 @@
   "Annotation color": "Anteckningsfärg",
   "Annotation time": "Anteckningstid",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "Är du säker på att du vill indexera om denna bok?",
   "Enable AI in Settings": "Aktivera AI i inställningar",
   "Index This Book": "Indexera denna bok",
   "Enable AI search and chat for this book": "Aktivera AI-sökning och chatt för denna bok",
@@ -1709,13 +1708,8 @@
   "AI Summary": "AI-sammanfattning",
   "Recap: Story So Far": "Återblick: historien hittills",
   "Summarize This Chapter": "Sammanfatta detta kapitel",
-  "Recap": "Återblick",
-  "Chapter Summary": "Kapitelsammanfattning",
   "You're at the very beginning — nothing to recap yet.": "Du är precis i början — det finns inget att sammanfatta ännu.",
-  "Generating recap — this may take a minute...": "Genererar sammanfattning — det kan ta en stund...",
-  "Summarizing chapter — this may take a moment...": "Sammanfattar kapitel — det kan ta en stund...",
   "Configure an AI provider in Settings → AI Assistant first": "Konfigurera en AI-leverantör i Inställningar → AI-assistent först",
-  "Summary failed. Please try again.": "Sammanfattning misslyckades. Försök igen.",
   "OpenAI API Key": "OpenAI API-nyckel",
   "OpenAI Base URL": "OpenAI bas-URL",
   "OpenAI Model": "OpenAI-modell",
@@ -1733,5 +1727,9 @@
   "Define": "Definiera",
   "Reading Direction": "Läsriktning",
   "Left to Right": "Vänster till höger",
-  "Right to Left": "Höger till vänster"
+  "Right to Left": "Höger till vänster",
+  "Error: ": "Fel: ",
+  "Ask about this book...": "Fråga om den här boken...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Ställ frågor om ”{{bookTitle}}” och få AI-svar med relevanta avsnitt.",
+  "Stop": "Stoppa"
 }

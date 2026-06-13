@@ -887,7 +887,6 @@
   "Annotation color": "Annotatiekleur",
   "Annotation time": "Annotatietijd",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "Weet u zeker dat u dit boek opnieuw wilt indexeren?",
   "Enable AI in Settings": "AI inschakelen in Instellingen",
   "Index This Book": "Dit boek indexeren",
   "Enable AI search and chat for this book": "AI-zoeken en chat voor dit boek inschakelen",
@@ -1709,13 +1708,8 @@
   "AI Summary": "AI-samenvatting",
   "Recap: Story So Far": "Terugblik: het verhaal tot nu toe",
   "Summarize This Chapter": "Dit hoofdstuk samenvatten",
-  "Recap": "Terugblik",
-  "Chapter Summary": "Hoofdstuksamenvatting",
   "You're at the very beginning — nothing to recap yet.": "Je bent helemaal aan het begin — er is nog niets samen te vatten.",
-  "Generating recap — this may take a minute...": "Samenvatting wordt gegenereerd — dit kan een minuut duren...",
-  "Summarizing chapter — this may take a moment...": "Hoofdstuk wordt samengevat — dit kan even duren...",
   "Configure an AI provider in Settings → AI Assistant first": "Configureer eerst een AI-provider via Instellingen → AI-assistent",
-  "Summary failed. Please try again.": "Samenvatting mislukt. Probeer het opnieuw.",
   "OpenAI API Key": "OpenAI API-sleutel",
   "OpenAI Base URL": "OpenAI basis-URL",
   "OpenAI Model": "OpenAI-model",
@@ -1733,5 +1727,9 @@
   "Define": "Definiëren",
   "Reading Direction": "Leesrichting",
   "Left to Right": "Links naar rechts",
-  "Right to Left": "Rechts naar links"
+  "Right to Left": "Rechts naar links",
+  "Error: ": "Fout: ",
+  "Ask about this book...": "Stel een vraag over dit boek...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Stel vragen over \"{{bookTitle}}\" en krijg AI-antwoorden met relevante passages.",
+  "Stop": "Stoppen"
 }

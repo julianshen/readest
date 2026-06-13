@@ -876,7 +876,6 @@
   "Annotation color": "주석 색상",
   "Annotation time": "주석 시간",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "이 책을 다시 인덱싱하시겠습니까?",
   "Enable AI in Settings": "설정에서 AI 활성화",
   "Index This Book": "이 책 인덱싱",
   "Enable AI search and chat for this book": "이 책에 대한 AI 검색 및 채팅 활성화",
@@ -1676,13 +1675,8 @@
   "AI Summary": "AI 요약",
   "Recap: Story So Far": "요약: 지금까지의 이야기",
   "Summarize This Chapter": "이 챕터 요약하기",
-  "Recap": "요약",
-  "Chapter Summary": "챕터 요약",
   "You're at the very beginning — nothing to recap yet.": "이제 막 시작했습니다 — 아직 요약할 내용이 없습니다.",
-  "Generating recap — this may take a minute...": "요약을 생성 중입니다 — 잠시 기다려 주세요...",
-  "Summarizing chapter — this may take a moment...": "챕터를 요약 중입니다 — 잠시 기다려 주세요...",
   "Configure an AI provider in Settings → AI Assistant first": "먼저 설정 → AI 어시스턴트에서 AI 제공자를 설정하세요",
-  "Summary failed. Please try again.": "요약에 실패했습니다. 다시 시도해 주세요.",
   "OpenAI API Key": "OpenAI API 키",
   "OpenAI Base URL": "OpenAI 기본 URL",
   "OpenAI Model": "OpenAI 모델",
@@ -1700,5 +1694,9 @@
   "Define": "정의",
   "Reading Direction": "읽기 방향",
   "Left to Right": "왼쪽에서 오른쪽",
-  "Right to Left": "오른쪽에서 왼쪽"
+  "Right to Left": "오른쪽에서 왼쪽",
+  "Error: ": "오류: ",
+  "Ask about this book...": "이 책에 대해 질문하기...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\"에 대해 질문하고 관련 구절과 함께 AI 답변을 받아보세요.",
+  "Stop": "중지"
 }

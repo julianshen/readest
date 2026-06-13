@@ -430,7 +430,6 @@
   "Server URL": "כתובת שרת",
   "Your Username": "שם המשתמש שלך",
   "Connect": "התחבר",
-  "Are you sure you want to re-index this book?": "האם אתה בטוח שברצונך לאנדקס מחדש ספר זה?",
   "Enable AI in Settings": "הפעל AI בהגדרות",
   "Index This Book": "אנדקס ספר זה",
   "Enable AI search and chat for this book": "הפעל חיפוש וצ'אט AI עבור ספר זה",
@@ -1742,13 +1741,8 @@
   "AI Summary": "סיכום AI",
   "Recap: Story So Far": "סיכום: הסיפור עד כה",
   "Summarize This Chapter": "סכם פרק זה",
-  "Recap": "סיכום",
-  "Chapter Summary": "סיכום פרק",
   "You're at the very beginning — nothing to recap yet.": "אתה ממש בהתחלה — אין עדיין מה לסכם.",
-  "Generating recap — this may take a minute...": "יוצר סיכום — זה עשוי לקחת דקה...",
-  "Summarizing chapter — this may take a moment...": "מסכם פרק — זה עשוי לקחת רגע...",
   "Configure an AI provider in Settings → AI Assistant first": "יש להגדיר ספק AI תחילה בהגדרות ← עוזר AI",
-  "Summary failed. Please try again.": "הסיכום נכשל. אנא נסה שוב.",
   "OpenAI API Key": "מפתח API של OpenAI",
   "OpenAI Base URL": "כתובת URL בסיסית של OpenAI",
   "OpenAI Model": "מודל OpenAI",
@@ -1766,5 +1760,9 @@
   "Define": "הגדר",
   "Reading Direction": "כיוון קריאה",
   "Left to Right": "משמאל לימין",
-  "Right to Left": "מימין לשמאל"
+  "Right to Left": "מימין לשמאל",
+  "Error: ": "שגיאה: ",
+  "Ask about this book...": "שאל על הספר הזה...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "שאל שאלות על \"{{bookTitle}}\" וקבל תשובות מבוססות בינה מלאכותית עם קטעים רלוונטיים.",
+  "Stop": "עצור"
 }

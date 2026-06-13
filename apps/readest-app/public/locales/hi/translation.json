@@ -887,7 +887,6 @@
   "Annotation color": "एनोटेशन रंग",
   "Annotation time": "एनोटेशन समय",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "क्या आप वाकई इस पुस्तक को फिर से इंडेक्स करना चाहते हैं?",
   "Enable AI in Settings": "सेटिंग्स में AI सक्षम करें",
   "Index This Book": "इस पुस्तक को इंडेक्स करें",
   "Enable AI search and chat for this book": "इस पुस्तक के लिए AI खोज और चैट सक्षम करें",
@@ -1709,13 +1708,8 @@
   "AI Summary": "AI सारांश",
   "Recap: Story So Far": "पुनःकथन: अब तक की कहानी",
   "Summarize This Chapter": "इस अध्याय का सारांश करें",
-  "Recap": "पुनःकथन",
-  "Chapter Summary": "अध्याय सारांश",
   "You're at the very beginning — nothing to recap yet.": "आप बिल्कुल शुरुआत में हैं — अभी तक कुछ भी सारांशित करने के लिए नहीं है।",
-  "Generating recap — this may take a minute...": "पुनःकथन बनाया जा रहा है — इसमें एक मिनट लग सकता है...",
-  "Summarizing chapter — this may take a moment...": "अध्याय का सारांश किया जा रहा है — इसमें थोड़ा समय लग सकता है...",
   "Configure an AI provider in Settings → AI Assistant first": "पहले सेटिंग्स → AI सहायक में एक AI प्रदाता कॉन्फ़िगर करें",
-  "Summary failed. Please try again.": "सारांश विफल हुआ। कृपया पुनः प्रयास करें।",
   "OpenAI API Key": "OpenAI API कुंजी",
   "OpenAI Base URL": "OpenAI बेस URL",
   "OpenAI Model": "OpenAI मॉडल",
@@ -1733,5 +1727,9 @@
   "Define": "परिभाषित करें",
   "Reading Direction": "पढ़ने की दिशा",
   "Left to Right": "बाएँ से दाएँ",
-  "Right to Left": "दाएँ से बाएँ"
+  "Right to Left": "दाएँ से बाएँ",
+  "Error: ": "त्रुटि: ",
+  "Ask about this book...": "इस पुस्तक के बारे में पूछें...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" के बारे में प्रश्न पूछें और प्रासंगिक अंशों के साथ AI उत्तर प्राप्त करें।",
+  "Stop": "रोकें"
 }

@@ -475,7 +475,6 @@
   "Connect to your KOReader Sync server.": "Csatlakozzon a KOReader Sync szerveréhez.",
   "Server URL": "Szerver URL",
   "Your Username": "Felhasználóneve",
-  "Are you sure you want to re-index this book?": "Biztosan újra szeretné indexelni ezt a könyvet?",
   "Enable AI in Settings": "AI engedélyezése a Beállításokban",
   "Index This Book": "Könyv indexelése",
   "Enable AI search and chat for this book": "AI keresés és csevegés engedélyezése ehhez a könyvhöz",
@@ -1709,13 +1708,8 @@
   "AI Summary": "AI összefoglalás",
   "Recap: Story So Far": "Visszatekintő: a történet eddig",
   "Summarize This Chapter": "Ez a fejezet összefoglalása",
-  "Recap": "Visszatekintő",
-  "Chapter Summary": "Fejezet összefoglalása",
   "You're at the very beginning — nothing to recap yet.": "Ön az elején jár — még nincs mit összefoglalni.",
-  "Generating recap — this may take a minute...": "Összefoglalás generálása — ez eltarthat egy percig...",
-  "Summarizing chapter — this may take a moment...": "Fejezet összefoglalása — ez eltarthat egy pillanatig...",
   "Configure an AI provider in Settings → AI Assistant first": "Először konfiguráljon egy AI-szolgáltatót a Beállítások → AI-asszisztens menüben",
-  "Summary failed. Please try again.": "Az összefoglalás sikertelen. Kérjük, próbálja újra.",
   "OpenAI API Key": "OpenAI API-kulcs",
   "OpenAI Base URL": "OpenAI alap URL",
   "OpenAI Model": "OpenAI modell",
@@ -1733,5 +1727,9 @@
   "Define": "Definíció",
   "Reading Direction": "Olvasási irány",
   "Left to Right": "Balról jobbra",
-  "Right to Left": "Jobbról balra"
+  "Right to Left": "Jobbról balra",
+  "Error: ": "Hiba: ",
+  "Ask about this book...": "Kérdezz erről a könyvről...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Tegyél fel kérdéseket a(z) „{{bookTitle}}” könyvről, és kapj MI-válaszokat a kapcsolódó részletekkel.",
+  "Stop": "Leállítás"
 }

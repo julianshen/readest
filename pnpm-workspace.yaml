@@ -5,6 +5,7 @@ packages:
   - packages/foliate-js
 
 allowBuilds:
+  '@scarf/scarf': true
   core-js: true
   edgedriver: true
   esbuild: true

@@ -909,7 +909,6 @@
   "Annotation color": "Цвет аннотации",
   "Annotation time": "Время аннотации",
   "AI": "ИИ",
-  "Are you sure you want to re-index this book?": "Вы уверены, что хотите переиндексировать эту книгу?",
   "Enable AI in Settings": "Включить ИИ в настройках",
   "Index This Book": "Индексировать эту книгу",
   "Enable AI search and chat for this book": "Включить ИИ-поиск и чат для этой книги",
@@ -1775,13 +1774,8 @@
   "AI Summary": "Краткое содержание ИИ",
   "Recap: Story So Far": "Краткое содержание: история на данный момент",
   "Summarize This Chapter": "Резюмировать эту главу",
-  "Recap": "Краткое содержание",
-  "Chapter Summary": "Краткое содержание главы",
   "You're at the very beginning — nothing to recap yet.": "Вы только в начале — пока нечего резюмировать.",
-  "Generating recap — this may take a minute...": "Создание краткого содержания — это может занять минуту...",
-  "Summarizing chapter — this may take a moment...": "Резюмирование главы — это может занять момент...",
   "Configure an AI provider in Settings → AI Assistant first": "Сначала настройте поставщика ИИ в разделе Настройки → ИИ-ассистент",
-  "Summary failed. Please try again.": "Не удалось создать краткое содержание. Пожалуйста, попробуйте ещё раз.",
   "OpenAI API Key": "Ключ API OpenAI",
   "OpenAI Base URL": "Базовый URL OpenAI",
   "OpenAI Model": "Модель OpenAI",
@@ -1799,5 +1793,9 @@
   "Define": "Определить",
   "Reading Direction": "Направление чтения",
   "Left to Right": "Слева направо",
-  "Right to Left": "Справа налево"
+  "Right to Left": "Справа налево",
+  "Error: ": "Ошибка: ",
+  "Ask about this book...": "Спросите об этой книге...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Задавайте вопросы о «{{bookTitle}}» и получайте ответы ИИ с релевантными фрагментами.",
+  "Stop": "Остановить"
 }

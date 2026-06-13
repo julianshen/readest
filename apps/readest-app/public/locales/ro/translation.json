@@ -468,7 +468,6 @@
   "Server URL": "Adresa URL a serverului",
   "Your Username": "Numele dvs. de utilizator",
   "Connect": "Conectare",
-  "Are you sure you want to re-index this book?": "Sigur doriți să reindexați această carte?",
   "Enable AI in Settings": "Activați AI în Setări",
   "Index This Book": "Indexează această carte",
   "Enable AI search and chat for this book": "Activați căutarea AI și chat-ul pentru această carte",
@@ -1742,13 +1741,8 @@
   "AI Summary": "Rezumat AI",
   "Recap: Story So Far": "Recapitulare: povestea până acum",
   "Summarize This Chapter": "Rezumați acest capitol",
-  "Recap": "Recapitulare",
-  "Chapter Summary": "Rezumatul capitolului",
   "You're at the very beginning — nothing to recap yet.": "Ești chiar la început — nu există nimic de recapitulat încă.",
-  "Generating recap — this may take a minute...": "Se generează rezumatul — acest lucru poate dura un minut...",
-  "Summarizing chapter — this may take a moment...": "Se rezumă capitolul — acest lucru poate dura o clipă...",
   "Configure an AI provider in Settings → AI Assistant first": "Mai întâi configurați un furnizor AI în Setări → Asistent AI",
-  "Summary failed. Please try again.": "Rezumatul a eșuat. Vă rugăm să încercați din nou.",
   "OpenAI API Key": "Cheie API OpenAI",
   "OpenAI Base URL": "URL de bază OpenAI",
   "OpenAI Model": "Model OpenAI",
@@ -1766,5 +1760,9 @@
   "Define": "Definește",
   "Reading Direction": "Direcția de citire",
   "Left to Right": "De la stânga la dreapta",
-  "Right to Left": "De la dreapta la stânga"
+  "Right to Left": "De la dreapta la stânga",
+  "Error: ": "Eroare: ",
+  "Ask about this book...": "Întreabă despre această carte...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Pune întrebări despre „{{bookTitle}}” și primește răspunsuri AI cu pasajele relevante.",
+  "Stop": "Oprește"
 }

@@ -876,7 +876,6 @@
   "Annotation color": "Warna anotasi",
   "Annotation time": "Masa anotasi",
   "AI": "AI",
-  "Are you sure you want to re-index this book?": "Adakah anda pasti mahu mengindeks semula buku ini?",
   "Enable AI in Settings": "Aktifkan AI dalam Tetapan",
   "Index This Book": "Indeks Buku Ini",
   "Enable AI search and chat for this book": "Aktifkan carian AI dan sembang untuk buku ini",
@@ -1676,13 +1675,8 @@
   "AI Summary": "Ringkasan AI",
   "Recap: Story So Far": "Rekap: Cerita Setakat Ini",
   "Summarize This Chapter": "Ringkaskan Bab Ini",
-  "Recap": "Rekap",
-  "Chapter Summary": "Ringkasan Bab",
   "You're at the very beginning — nothing to recap yet.": "Anda baru sahaja bermula — belum ada yang perlu direkap.",
-  "Generating recap — this may take a minute...": "Menjana rekap — ini mungkin mengambil masa seminit...",
-  "Summarizing chapter — this may take a moment...": "Meringkaskan bab — ini mungkin mengambil masa sebentar...",
   "Configure an AI provider in Settings → AI Assistant first": "Sila konfigurasikan pembekal AI dalam Tetapan → Pembantu AI dahulu",
-  "Summary failed. Please try again.": "Gagal menjana ringkasan. Sila cuba lagi.",
   "OpenAI API Key": "Kunci API OpenAI",
   "OpenAI Base URL": "URL Asas OpenAI",
   "OpenAI Model": "Model OpenAI",
@@ -1700,5 +1694,9 @@
   "Define": "Takrifkan",
   "Reading Direction": "Arah bacaan",
   "Left to Right": "Kiri ke kanan",
-  "Right to Left": "Kanan ke kiri"
+  "Right to Left": "Kanan ke kiri",
+  "Error: ": "Ralat: ",
+  "Ask about this book...": "Tanya tentang buku ini...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Tanya soalan tentang \"{{bookTitle}}\" dan dapatkan jawapan AI dengan petikan yang berkaitan.",
+  "Stop": "Berhenti"
 }

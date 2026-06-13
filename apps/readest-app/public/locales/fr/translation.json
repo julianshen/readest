@@ -898,7 +898,6 @@
   "Annotation color": "Couleur d'annotation",
   "Annotation time": "Heure d'annotation",
   "AI": "IA",
-  "Are you sure you want to re-index this book?": "Voulez-vous vraiment réindexer ce livre ?",
   "Enable AI in Settings": "Activer l'IA dans les paramètres",
   "Index This Book": "Indexer ce livre",
   "Enable AI search and chat for this book": "Activer la recherche IA et le chat pour ce livre",
@@ -1742,13 +1741,8 @@
   "AI Summary": "Résumé IA",
   "Recap: Story So Far": "Récap : l'histoire jusqu'ici",
   "Summarize This Chapter": "Résumer ce chapitre",
-  "Recap": "Récap",
-  "Chapter Summary": "Résumé du chapitre",
   "You're at the very beginning — nothing to recap yet.": "Vous êtes au tout début — rien à résumer pour l'instant.",
-  "Generating recap — this may take a minute...": "Génération du résumé en cours — cela peut prendre une minute...",
-  "Summarizing chapter — this may take a moment...": "Résumé du chapitre en cours — cela peut prendre un moment...",
   "Configure an AI provider in Settings → AI Assistant first": "Veuillez d'abord configurer un fournisseur IA dans Paramètres → Assistant IA",
-  "Summary failed. Please try again.": "Échec du résumé. Veuillez réessayer.",
   "OpenAI API Key": "Clé API OpenAI",
   "OpenAI Base URL": "URL de base OpenAI",
   "OpenAI Model": "Modèle OpenAI",
@@ -1766,5 +1760,9 @@
   "Define": "Définir",
   "Reading Direction": "Sens de lecture",
   "Left to Right": "De gauche à droite",
-  "Right to Left": "De droite à gauche"
+  "Right to Left": "De droite à gauche",
+  "Error: ": "Erreur : ",
+  "Ask about this book...": "Poser une question sur ce livre…",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "Posez des questions sur « {{bookTitle}} » et obtenez des réponses générées par l’IA avec les passages pertinents.",
+  "Stop": "Arrêter"
 }

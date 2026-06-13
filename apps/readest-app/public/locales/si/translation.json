@@ -887,7 +887,6 @@
   "Annotation color": "විවරණ වර්ණය",
   "Annotation time": "විවරණ වේලාව",
   "AI": "කෘතිම බුද්ධිය (AI)",
-  "Are you sure you want to re-index this book?": "ඔබට මෙම පොත නැවත දර්ශකය කිරීමට අවශ්‍ය බව සහතිකද?",
   "Enable AI in Settings": "සැකසුම් තුළ AI සක්‍රීය කරන්න",
   "Index This Book": "මෙම පොත දර්ශකය කරන්න",
   "Enable AI search and chat for this book": "මෙම පොත සඳහා AI සෙවීම සහ කතාබස් සක්‍රීය කරන්න",
@@ -1709,13 +1708,8 @@
   "AI Summary": "AI සාරාංශය",
   "Recap: Story So Far": "නැවත සාරාංශය: මෙතෙක් කතාව",
   "Summarize This Chapter": "මෙම පරිච්ඡේදය සාරාංශ කරන්න",
-  "Recap": "නැවත සාරාංශය",
-  "Chapter Summary": "පරිච්ඡේද සාරාංශය",
   "You're at the very beginning — nothing to recap yet.": "ඔබ ආරම්භයේම සිටී — තවම සාරාංශ කිරීමට කිසිවක් නැත.",
-  "Generating recap — this may take a minute...": "නැවත සාරාංශය ජනනය කෙරේ — මිනිත්තුවක් ගත විය හැකිය...",
-  "Summarizing chapter — this may take a moment...": "පරිච්ඡේදය සාරාංශ කෙරේ — මොහොතක් ගත විය හැකිය...",
   "Configure an AI provider in Settings → AI Assistant first": "පළමුව සැකසුම් → AI සහායක හි AI සපයන්නෙකු වින්‍යාස කරන්න",
-  "Summary failed. Please try again.": "සාරාංශය අසාර්ථක විය. කරුණාකර නැවත උත්සාහ කරන්න.",
   "OpenAI API Key": "OpenAI API යතුර",
   "OpenAI Base URL": "OpenAI මූල URL",
   "OpenAI Model": "OpenAI ආකෘතිය",
@@ -1733,5 +1727,9 @@
   "Define": "අර්ථ දක්වන්න",
   "Reading Direction": "කියවීමේ දිශාව",
   "Left to Right": "වමේ සිට දකුණට",
-  "Right to Left": "දකුණේ සිට වමට"
+  "Right to Left": "දකුණේ සිට වමට",
+  "Error: ": "දෝෂය: ",
+  "Ask about this book...": "මෙම පොත ගැන අසන්න...",
+  "Ask questions about \"{{bookTitle}}\" and get AI-powered answers with relevant passages.": "\"{{bookTitle}}\" ගැන ප්‍රශ්න අසා අදාළ ඡේද සමඟ AI පිළිතුරු ලබාගන්න.",
+  "Stop": "නවත්වන්න"
 }
