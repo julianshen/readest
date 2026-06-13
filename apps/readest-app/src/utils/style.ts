@@ -1205,6 +1205,29 @@ export const keepTextAlignment = (document: Document) => {
   }
 };
 
+// Composes the CSS `filter` declaration for page images from per-book image
+// adjustments (+ the dark-mode invert). Returns '' when nothing applies, so
+// novels and untouched comics pay no filter cost. Invert stays first so the
+// contrast/brightness/grayscale operate on the inverted (dark-mode) image.
+export const composeImageFilter = ({
+  contrast = 100,
+  brightness = 100,
+  grayscale = false,
+  invert = false,
+}: {
+  contrast?: number;
+  brightness?: number;
+  grayscale?: boolean;
+  invert?: boolean;
+}): string => {
+  const parts: string[] = [];
+  if (invert) parts.push('invert(100%)');
+  if (contrast !== 100) parts.push(`contrast(${contrast}%)`);
+  if (brightness !== 100) parts.push(`brightness(${brightness}%)`);
+  if (grayscale) parts.push('grayscale(1)');
+  return parts.length ? `filter: ${parts.join(' ')};` : '';
+};
+
 export const applyFixedlayoutStyles = (
   document: Document,
   viewSettings: ViewSettings,
@@ -1244,7 +1267,12 @@ export const applyFixedlayoutStyles = (
       background-color: var(--theme-bg-color);
     }
     img, canvas {
-      ${isDarkMode && invertImgColorInDark ? 'filter: invert(100%);' : ''}
+      ${composeImageFilter({
+        contrast: viewSettings.imageContrast,
+        brightness: viewSettings.imageBrightness,
+        grayscale: viewSettings.imageGrayscale,
+        invert: isDarkMode && invertImgColorInDark,
+      })}
       ${overrideColor ? `mix-blend-mode: ${isDarkMode ? darkMixBlendMode : 'multiply'};` : ''}
     }
     img.singlePage {
