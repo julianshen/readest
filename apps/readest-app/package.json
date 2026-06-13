@@ -46,7 +46,7 @@
     "test:rust": "cargo test -p Readest --lib",
     "format": "pnpm -w format",
     "format:check": "pnpm -w format:check",
-    "prepare-public-vendor": "mkdirp ./public/vendor/pdfjs ./public/vendor/simplecc ./public/vendor/jieba",
+    "prepare-public-vendor": "mkdirp ./public/vendor/pdfjs ./public/vendor/simplecc ./public/vendor/jieba ./public/vendor/libarchive",
     "copy-pdfjs-js": "cpx \"../../packages/foliate-js/node_modules/pdfjs-dist/legacy/build/{pdf.worker.min.mjs,pdf.min.mjs,pdf.d.mts}\" ./public/vendor/pdfjs",
     "copy-pdfjs-wasm": "cpx \"../../packages/foliate-js/node_modules/pdfjs-dist/wasm/*\" ./public/vendor/pdfjs",
     "copy-pdfjs-fonts": "cpx \"../../packages/foliate-js/node_modules/pdfjs-dist/{cmaps,standard_fonts}/*\" ./public/vendor/pdfjs",
@@ -56,10 +56,11 @@
     "copy-pdfjs": "pnpm copy-pdfjs-js && pnpm copy-pdfjs-wasm && pnpm copy-pdfjs-fonts && pnpm copy-flatten-pdfjs-css",
     "copy-simplecc": "cpx \"../../packages/simplecc-wasm/dist/web/*\" ./public/vendor/simplecc",
     "copy-jieba": "cpx \"./node_modules/jieba-wasm/pkg/web/*\" ./public/vendor/jieba",
+    "copy-libarchive": "cpx \"./node_modules/libarchive.js/dist/{worker-bundle.js,libarchive.wasm}\" ./public/vendor/libarchive",
     "setup-pdfjs": "pnpm prepare-public-vendor && pnpm copy-pdfjs",
     "setup-simplecc": "pnpm prepare-public-vendor && pnpm copy-simplecc",
     "setup-jieba": "pnpm prepare-public-vendor && pnpm copy-jieba",
-    "setup-vendors": "pnpm setup-pdfjs && pnpm setup-simplecc && pnpm setup-jieba",
+    "setup-vendors": "pnpm setup-pdfjs && pnpm setup-simplecc && pnpm setup-jieba && pnpm copy-libarchive",
     "build-win-x64": "dotenv -e .env.tauri.local -- tauri build --target i686-pc-windows-msvc --bundles nsis",
     "build-win-arm64": "dotenv -e .env.tauri.local -- tauri build --target aarch64-pc-windows-msvc --bundles nsis",
     "build-linux-x64": "dotenv -e .env.tauri.local -- tauri build --target x86_64-unknown-linux-gnu --bundles appimage",
@@ -172,6 +173,7 @@
     "jieba-wasm": "^2.4.0",
     "js-md5": "^0.8.3",
     "jwt-decode": "^4.0.0",
+    "libarchive.js": "^2.0.2",
     "lucide-react": "^0.562.0",
     "lunr": "^2.3.9",
     "mammoth": "^1.12.0",
@@ -266,8 +268,8 @@
     "wrangler": "^4.85.0"
   },
   "optionalDependencies": {
-    "@tursodatabase/database-linux-x64-gnu": "0.6.0-pre.28",
-    "@tursodatabase/database-linux-arm64-gnu": "0.6.0-pre.28"
+    "@tursodatabase/database-linux-arm64-gnu": "0.6.0-pre.28",
+    "@tursodatabase/database-linux-x64-gnu": "0.6.0-pre.28"
   },
   "browserslist": [
     "chrome 92",
