@@ -1,4 +1,5 @@
 use crate::ai::storage::IndexDb;
+use rusqlite::{params_from_iter, Connection, ToSql};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -12,6 +13,64 @@ pub struct ScoredChunk {
     pub page_number: u32,
     pub score: f32,
     pub search_method: String,
+}
+
+/// Escape a user query so it can be safely passed to an FTS5 MATCH expression.
+/// Removes FTS5 syntax metacharacters and wraps the result in double quotes.
+fn escape_fts5_query(query: &str) -> String {
+    let sanitized: String = query
+        .chars()
+        .map(|c| match c {
+            '"' | '*' | '(' | ')' | '+' | '-' | '~' | '^' | '<' | '>' | '@' | '#' => ' ',
+            _ => c,
+        })
+        .collect();
+    format!("\"{}\"", sanitized.trim())
+}
+
+/// Run a BM25 query via FTS5, optionally constrained to chunks at or before
+/// `max_page`. Returns `(rowid, rank)` pairs ordered by BM25 rank.
+fn run_bm25(
+    conn: &Connection,
+    escaped_query: &str,
+    book_hash: &str,
+    max_page: Option<u32>,
+    limit: usize,
+) -> Result<Vec<(i64, f32)>, String> {
+    if escaped_query == "\"\"" {
+        return Ok(vec![]);
+    }
+    let max_page_i64 = max_page.map(|mp| mp as i64);
+    let (sql, mut sql_params): (&str, Vec<&dyn ToSql>) = match max_page_i64 {
+        Some(ref mp) => (
+            "SELECT f.rowid, f.rank FROM chunks_fts f
+             JOIN chunks c ON c.id = f.rowid
+             WHERE f.text MATCH ?1 AND c.book_hash = ?2 AND c.page_number <= ?3
+             ORDER BY f.rank LIMIT ?4",
+            vec![&escaped_query, &book_hash, mp],
+        ),
+        None => (
+            "SELECT f.rowid, f.rank FROM chunks_fts f
+             JOIN chunks c ON c.id = f.rowid
+             WHERE f.text MATCH ?1 AND c.book_hash = ?2
+             ORDER BY f.rank LIMIT ?3",
+            vec![&escaped_query, &book_hash],
+        ),
+    };
+    let limit_i64 = limit as i64;
+    sql_params.push(&limit_i64 as &dyn ToSql);
+    let mut bm25_stmt = conn.prepare(sql).map_err(|e| e.to_string())?;
+    let rows = bm25_stmt
+        .query_map(params_from_iter(sql_params), |row| {
+            let rowid: i64 = row.get(0)?;
+            let rank: f32 = row.get(1)?;
+            Ok((rowid, rank))
+        })
+        .map_err(|e| e.to_string())?;
+    let scores = rows
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+    Ok(scores)
 }
 
 /// Deserialize a `Vec<f32>` from its on-disk BLOB (little-endian f32 bytes).
@@ -78,22 +137,8 @@ pub fn text_search(
         .filter(|(_, _, _, _, pn)| max_page.map_or(true, |mp| *pn <= mp))
         .collect();
 
-    let mut bm25_stmt = conn
-        .prepare(
-            "SELECT rowid, rank FROM chunks_fts WHERE text MATCH ?1
-             AND rowid IN (SELECT id FROM chunks WHERE book_hash = ?2)
-             ORDER BY rank LIMIT ?3",
-        )
-        .map_err(|e| e.to_string())?;
-    let bm25_scores: Vec<(i64, f32)> = bm25_stmt
-        .query_map(rusqlite::params![query_text, book_hash, top_k * 3], |row| {
-            let rowid: i64 = row.get(0)?;
-            let rank: f32 = row.get(1)?;
-            Ok((rowid, rank))
-        })
-        .map_err(|e| e.to_string())?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+    let escaped_query = escape_fts5_query(&query_text);
+    let bm25_scores = run_bm25(&conn, &escaped_query, &book_hash, max_page, top_k * 3)?;
 
     let top_ids: std::collections::HashSet<String> = bm25_scores
         .iter()
@@ -119,12 +164,12 @@ pub fn text_search(
     results.sort_by(|a, b| {
         let ra = bm25_scores
             .iter()
-            .find(|(id, _)| *id.to_string() == a.id)
+            .find(|(id, _)| id.to_string() == a.id)
             .map(|(_, r)| *r)
             .unwrap_or(f32::INFINITY);
         let rb = bm25_scores
             .iter()
-            .find(|(id, _)| *id.to_string() == b.id)
+            .find(|(id, _)| id.to_string() == b.id)
             .map(|(_, r)| *r)
             .unwrap_or(f32::INFINITY);
         ra.total_cmp(&rb)
@@ -200,22 +245,8 @@ pub fn hybrid_search(
     vec_scored.sort_unstable_by(|a, b| b.5.total_cmp(&a.5));
 
     // BM25 via FTS5
-    let mut bm25_stmt = conn
-        .prepare(
-            "SELECT rowid, rank FROM chunks_fts WHERE text MATCH ?1
-             AND rowid IN (SELECT id FROM chunks WHERE book_hash = ?2)
-             ORDER BY rank LIMIT ?3",
-        )
-        .map_err(|e| e.to_string())?;
-    let bm25_scores: Vec<(i64, f32)> = bm25_stmt
-        .query_map(rusqlite::params![query_text, book_hash, top_k * 3], |row| {
-            let rowid: i64 = row.get(0)?;
-            let rank: f32 = row.get(1)?;
-            Ok((rowid, rank))
-        })
-        .map_err(|e| e.to_string())?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+    let escaped_query = escape_fts5_query(&query_text);
+    let bm25_scores = run_bm25(&conn, &escaped_query, &book_hash, max_page, top_k * 3)?;
 
     // RRF merge: 1/(60 + rank) per system, summed
     let mut combined: Vec<(String, f32)> = vec_scored
