@@ -1,6 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 docker/.env
 
+# Local code-map tooling (CodeGraph / Understand-Anything) — machine-specific
+/.codegraph
+/.understand-anything
+tGD/map/.codegraph/
+tGD/map/.understand-anything/
+
 # dependencies
 /node_modules
 /.pnp
