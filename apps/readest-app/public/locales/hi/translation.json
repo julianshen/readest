@@ -1769,5 +1769,13 @@
   "Speed follows audio": "गति ऑडियो का अनुसरण करती है",
   "Stopped following audio": "ऑडियो का अनुसरण रोक दिया",
   "Webtoon": "वेबटून",
-  "Webtoon Mode": "वेबटून मोड"
+  "Webtoon Mode": "वेबटून मोड",
+  "Configure an AI provider in Settings → AI Assistant first.": "पहले सेटिंग्स → AI सहायक में एक AI प्रदाता कॉन्फ़िगर करें।",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "यह मॉडल छवियाँ नहीं पढ़ सकता — सेटिंग्स → AI सहायक में एक विज़न-सक्षम मॉडल चुनें।",
+  "Translation failed. Please try again.": "अनुवाद विफल रहा। कृपया पुनः प्रयास करें।",
+  "Bubble Translation": "बबल अनुवाद",
+  "No text detected in this region": "इस क्षेत्र में कोई टेक्स्ट नहीं मिला",
+  "Hide original": "मूल छिपाएँ",
+  "Show original": "मूल दिखाएँ",
+  "Translate Region": "क्षेत्र अनुवाद करें"
 }

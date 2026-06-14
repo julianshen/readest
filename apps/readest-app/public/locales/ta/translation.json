@@ -1769,5 +1769,13 @@
   "Speed follows audio": "வேகம் ஆடியோவைப் பின்தொடர்கிறது",
   "Stopped following audio": "ஆடியோ பின்தொடர்தல் நிறுத்தப்பட்டது",
   "Webtoon": "வெப்டூன்",
-  "Webtoon Mode": "வெப்டூன் பயன்முறை"
+  "Webtoon Mode": "வெப்டூன் பயன்முறை",
+  "Configure an AI provider in Settings → AI Assistant first.": "முதலில் அமைப்புகள் → AI உதவியாளர் இல் ஒரு AI வழங்குநரை அமைக்கவும்.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "இந்த மாதிரி படங்களைப் படிக்க முடியாது — அமைப்புகள் → AI உதவியாளர் இல் பார்வைத் திறன் கொண்ட மாதிரியைத் தேர்ந்தெடுக்கவும்.",
+  "Translation failed. Please try again.": "மொழிபெயர்ப்பு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.",
+  "Bubble Translation": "குமிழி மொழிபெயர்ப்பு",
+  "No text detected in this region": "இந்தப் பகுதியில் உரை எதுவும் கண்டறியப்படவில்லை",
+  "Hide original": "மூலத்தை மறை",
+  "Show original": "மூலத்தைக் காட்டு",
+  "Translate Region": "பகுதியை மொழிபெயர்"
 }

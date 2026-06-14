@@ -1769,5 +1769,13 @@
   "Speed follows audio": "গতি অডিও অনুসরণ করে",
   "Stopped following audio": "অডিও অনুসরণ বন্ধ হয়েছে",
   "Webtoon": "ওয়েবটুন",
-  "Webtoon Mode": "ওয়েবটুন মোড"
+  "Webtoon Mode": "ওয়েবটুন মোড",
+  "Configure an AI provider in Settings → AI Assistant first.": "প্রথমে সেটিংস → এআই অ্যাসিস্ট্যান্ট-এ একটি এআই প্রদানকারী কনফিগার করুন।",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "এই মডেলটি ছবি পড়তে পারে না — সেটিংস → এআই অ্যাসিস্ট্যান্ট-এ একটি ভিশন-সক্ষম মডেল বেছে নিন।",
+  "Translation failed. Please try again.": "অনুবাদ ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+  "Bubble Translation": "বাবল অনুবাদ",
+  "No text detected in this region": "এই অঞ্চলে কোনো লেখা পাওয়া যায়নি",
+  "Hide original": "মূল লুকান",
+  "Show original": "মূল দেখান",
+  "Translate Region": "অঞ্চল অনুবাদ করুন"
 }

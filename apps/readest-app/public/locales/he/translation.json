@@ -1802,5 +1802,13 @@
   "Speed follows audio": "המהירות עוקבת אחר השמע",
   "Stopped following audio": "המעקב אחר השמע הופסק",
   "Webtoon": "וובטון",
-  "Webtoon Mode": "מצב וובטון"
+  "Webtoon Mode": "מצב וובטון",
+  "Configure an AI provider in Settings → AI Assistant first.": "הגדר תחילה ספק AI בהגדרות → עוזר AI.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "מודל זה אינו יכול לקרוא תמונות — בחר מודל התומך בראייה בהגדרות → עוזר AI.",
+  "Translation failed. Please try again.": "התרגום נכשל. נסה שוב.",
+  "Bubble Translation": "תרגום בועה",
+  "No text detected in this region": "לא זוהה טקסט באזור זה",
+  "Hide original": "הסתר מקור",
+  "Show original": "הצג מקור",
+  "Translate Region": "תרגום אזור"
 }

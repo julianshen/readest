@@ -1736,5 +1736,13 @@
   "Speed follows audio": "Tốc độ theo âm thanh",
   "Stopped following audio": "Đã dừng theo âm thanh",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Chế độ Webtoon"
+  "Webtoon Mode": "Chế độ Webtoon",
+  "Configure an AI provider in Settings → AI Assistant first.": "Trước tiên hãy thiết lập nhà cung cấp AI trong Cài đặt → Trợ lý AI.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Mô hình này không thể đọc hình ảnh — hãy chọn một mô hình có khả năng thị giác trong Cài đặt → Trợ lý AI.",
+  "Translation failed. Please try again.": "Dịch thất bại. Vui lòng thử lại.",
+  "Bubble Translation": "Dịch bong bóng",
+  "No text detected in this region": "Không phát hiện văn bản trong vùng này",
+  "Hide original": "Ẩn bản gốc",
+  "Show original": "Hiện bản gốc",
+  "Translate Region": "Dịch vùng"
 }

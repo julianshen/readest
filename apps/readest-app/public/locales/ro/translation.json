@@ -1802,5 +1802,13 @@
   "Speed follows audio": "Viteza urmează audio",
   "Stopped following audio": "Urmărirea audio a fost oprită",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Mod Webtoon"
+  "Webtoon Mode": "Mod Webtoon",
+  "Configure an AI provider in Settings → AI Assistant first.": "Configurează mai întâi un furnizor AI în Setări → Asistent AI.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Acest model nu poate citi imagini — alege un model capabil de viziune în Setări → Asistent AI.",
+  "Translation failed. Please try again.": "Traducerea a eșuat. Încearcă din nou.",
+  "Bubble Translation": "Traducere bulă",
+  "No text detected in this region": "Nu s-a detectat text în această regiune",
+  "Hide original": "Ascunde originalul",
+  "Show original": "Arată originalul",
+  "Translate Region": "Tradu regiunea"
 }

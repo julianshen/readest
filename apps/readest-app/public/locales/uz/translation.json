@@ -1769,5 +1769,13 @@
   "Speed follows audio": "Tezlik audioga ergashadi",
   "Stopped following audio": "Audioga ergashish to'xtatildi",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Webtoon rejimi"
+  "Webtoon Mode": "Webtoon rejimi",
+  "Configure an AI provider in Settings → AI Assistant first.": "Avval Sozlamalar → AI yordamchisi bo'limida AI provayderini sozlang.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Bu model rasmlarni o'qiy olmaydi — Sozlamalar → AI yordamchisi bo'limida ko'rish qobiliyatiga ega modelni tanlang.",
+  "Translation failed. Please try again.": "Tarjima amalga oshmadi. Iltimos, qayta urinib ko'ring.",
+  "Bubble Translation": "Pufak tarjimasi",
+  "No text detected in this region": "Bu hududda matn aniqlanmadi",
+  "Hide original": "Aslini yashirish",
+  "Show original": "Aslini ko'rsatish",
+  "Translate Region": "Hududni tarjima qilish"
 }

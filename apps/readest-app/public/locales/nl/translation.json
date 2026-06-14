@@ -1769,5 +1769,13 @@
   "Speed follows audio": "Snelheid volgt audio",
   "Stopped following audio": "Audio niet meer gevolgd",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Webtoon-modus"
+  "Webtoon Mode": "Webtoon-modus",
+  "Configure an AI provider in Settings → AI Assistant first.": "Stel eerst een AI-provider in via Instellingen → AI-assistent.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Dit model kan geen afbeeldingen lezen — kies een model met beeldherkenning via Instellingen → AI-assistent.",
+  "Translation failed. Please try again.": "Vertaling mislukt. Probeer het opnieuw.",
+  "Bubble Translation": "Tekstballonvertaling",
+  "No text detected in this region": "Geen tekst gedetecteerd in dit gebied",
+  "Hide original": "Origineel verbergen",
+  "Show original": "Origineel tonen",
+  "Translate Region": "Gebied vertalen"
 }

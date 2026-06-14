@@ -1769,5 +1769,13 @@
   "Speed follows audio": "Hız sesi takip eder",
   "Stopped following audio": "Ses takibi durduruldu",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Webtoon Modu"
+  "Webtoon Mode": "Webtoon Modu",
+  "Configure an AI provider in Settings → AI Assistant first.": "Önce Ayarlar → Yapay Zekâ Asistanı bölümünden bir yapay zekâ sağlayıcısı yapılandırın.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Bu model görselleri okuyamaz — Ayarlar → Yapay Zekâ Asistanı bölümünden görme yeteneğine sahip bir model seçin.",
+  "Translation failed. Please try again.": "Çeviri başarısız oldu. Lütfen tekrar deneyin.",
+  "Bubble Translation": "Balon çevirisi",
+  "No text detected in this region": "Bu bölgede metin algılanmadı",
+  "Hide original": "Orijinali gizle",
+  "Show original": "Orijinali göster",
+  "Translate Region": "Bölgeyi çevir"
 }

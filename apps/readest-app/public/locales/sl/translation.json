@@ -1835,5 +1835,13 @@
   "Speed follows audio": "Hitrost sledi zvoku",
   "Stopped following audio": "Sledenje zvoku ustavljeno",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Način Webtoon"
+  "Webtoon Mode": "Način Webtoon",
+  "Configure an AI provider in Settings → AI Assistant first.": "Najprej nastavite ponudnika UI v Nastavitve → Pomočnik UI.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Ta model ne zna brati slik — izberite model z zmožnostjo vida v Nastavitve → Pomočnik UI.",
+  "Translation failed. Please try again.": "Prevod ni uspel. Poskusite znova.",
+  "Bubble Translation": "Prevod oblačka",
+  "No text detected in this region": "Na tem območju ni zaznanega besedila",
+  "Hide original": "Skrij izvirnik",
+  "Show original": "Pokaži izvirnik",
+  "Translate Region": "Prevedi območje"
 }

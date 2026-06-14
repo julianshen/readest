@@ -1769,5 +1769,13 @@
   "Speed follows audio": "A sebesség a hangot követi",
   "Stopped following audio": "A hang követése leállt",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Webtoon mód"
+  "Webtoon Mode": "Webtoon mód",
+  "Configure an AI provider in Settings → AI Assistant first.": "Először állíts be egy MI-szolgáltatót a Beállítások → MI-asszisztens menüben.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Ez a modell nem tud képeket olvasni — válassz egy látásra képes modellt a Beállítások → MI-asszisztens menüben.",
+  "Translation failed. Please try again.": "A fordítás nem sikerült. Kérlek, próbáld újra.",
+  "Bubble Translation": "Buborékfordítás",
+  "No text detected in this region": "Nem található szöveg ezen a területen",
+  "Hide original": "Eredeti elrejtése",
+  "Show original": "Eredeti megjelenítése",
+  "Translate Region": "Terület fordítása"
 }

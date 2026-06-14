@@ -103,7 +103,7 @@ function setupMockBookDoc() {
   mockOpen.mockResolvedValue({ book: bookDoc, format: 'CBZ' });
 }
 
-describe('importBook CBR/CB7 pre-conversion', () => {
+describe('importBook CB7 pre-conversion', () => {
   let service: TestAppService;
 
   beforeEach(() => {
@@ -119,7 +119,7 @@ describe('importBook CBR/CB7 pre-conversion', () => {
     setupMockBookDoc();
   });
 
-  it('does NOT convert a .cbr file (RAR support deferred)', async () => {
+  it('does NOT convert a .cbr file (CBR/RAR unsupported)', async () => {
     const books: Book[] = [];
     const mockFile = new File(['rar content'], 'test.cbr');
     await service.importBook(mockFile, books);

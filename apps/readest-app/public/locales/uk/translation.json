@@ -1835,5 +1835,13 @@
   "Speed follows audio": "Швидкість слідує за аудіо",
   "Stopped following audio": "Стеження за аудіо зупинено",
   "Webtoon": "Вебтун",
-  "Webtoon Mode": "Режим вебтуна"
+  "Webtoon Mode": "Режим вебтуна",
+  "Configure an AI provider in Settings → AI Assistant first.": "Спершу налаштуйте постачальника ШІ в Налаштування → ШІ-асистент.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Ця модель не вміє читати зображення — виберіть модель із підтримкою зору в Налаштування → ШІ-асистент.",
+  "Translation failed. Please try again.": "Не вдалося виконати переклад. Спробуйте ще раз.",
+  "Bubble Translation": "Переклад бульбашки",
+  "No text detected in this region": "У цій області текст не виявлено",
+  "Hide original": "Сховати оригінал",
+  "Show original": "Показати оригінал",
+  "Translate Region": "Перекласти область"
 }

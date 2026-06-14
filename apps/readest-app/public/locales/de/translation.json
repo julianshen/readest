@@ -1769,5 +1769,13 @@
   "Speed follows audio": "Tempo folgt dem Audio",
   "Stopped following audio": "Audio wird nicht mehr verfolgt",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Webtoon-Modus"
+  "Webtoon Mode": "Webtoon-Modus",
+  "Configure an AI provider in Settings → AI Assistant first.": "Richte zuerst einen KI-Anbieter unter Einstellungen → KI-Assistent ein.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Dieses Modell kann keine Bilder lesen — wähle unter Einstellungen → KI-Assistent ein bildfähiges Modell.",
+  "Translation failed. Please try again.": "Übersetzung fehlgeschlagen. Bitte versuche es erneut.",
+  "Bubble Translation": "Sprechblasen-Übersetzung",
+  "No text detected in this region": "In diesem Bereich wurde kein Text erkannt",
+  "Hide original": "Original ausblenden",
+  "Show original": "Original anzeigen",
+  "Translate Region": "Bereich übersetzen"
 }

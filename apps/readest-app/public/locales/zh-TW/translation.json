@@ -1736,5 +1736,13 @@
   "Speed follows audio": "速度跟隨音訊",
   "Stopped following audio": "已停止跟隨音訊",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Webtoon 模式"
+  "Webtoon Mode": "Webtoon 模式",
+  "Configure an AI provider in Settings → AI Assistant first.": "請先在設定 → AI 助手中設定 AI 供應商。",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "此模型無法讀取圖片 — 請在設定 → AI 助手中選擇支援視覺的模型。",
+  "Translation failed. Please try again.": "翻譯失敗。請再試一次。",
+  "Bubble Translation": "氣泡翻譯",
+  "No text detected in this region": "此區域未偵測到文字",
+  "Hide original": "隱藏原文",
+  "Show original": "顯示原文",
+  "Translate Region": "翻譯區域"
 }

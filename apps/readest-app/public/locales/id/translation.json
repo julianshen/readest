@@ -1736,5 +1736,13 @@
   "Speed follows audio": "Kecepatan mengikuti audio",
   "Stopped following audio": "Berhenti mengikuti audio",
   "Webtoon": "Webtoon",
-  "Webtoon Mode": "Mode Webtoon"
+  "Webtoon Mode": "Mode Webtoon",
+  "Configure an AI provider in Settings → AI Assistant first.": "Konfigurasikan penyedia AI di Pengaturan → Asisten AI terlebih dahulu.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Model ini tidak dapat membaca gambar — pilih model yang mendukung visi di Pengaturan → Asisten AI.",
+  "Translation failed. Please try again.": "Terjemahan gagal. Silakan coba lagi.",
+  "Bubble Translation": "Terjemahan Balon",
+  "No text detected in this region": "Tidak ada teks terdeteksi di wilayah ini",
+  "Hide original": "Sembunyikan asli",
+  "Show original": "Tampilkan asli",
+  "Translate Region": "Terjemahkan Wilayah"
 }
