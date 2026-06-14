@@ -43,7 +43,9 @@ const BubbleTranslationPopup: React.FC<Props> = ({
   return (
     <div
       className={clsx(
-        'bg-base-100 eink-bordered absolute z-50 rounded-lg p-3 shadow-lg',
+        // `fixed` (viewport coords) — `position` is viewport-based; `absolute`
+        // would mis-anchor inside a split-view gridcell and clip on overflow.
+        'bg-base-100 eink-bordered fixed z-50 rounded-lg p-3 shadow-lg',
         'not-eink:border not-eink:border-base-300',
       )}
       style={{ left: position.x, top: position.y, width }}
