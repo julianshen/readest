@@ -1812,5 +1812,8 @@
   "System Lookup App": "Системний застосунок для пошуку",
   "Brightness": "Яскравість",
   "E-Ink Boost": "Підсилення E-Ink",
-  "On": "Увімк."
+  "On": "Увімк.",
+  "Webtoon": "Вебтун",
+  "Webtoon Mode": "Режим вебтуна",
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Безперервне вертикальне прокручування без проміжків, для манхви та вебтунів."
 }

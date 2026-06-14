@@ -5,6 +5,7 @@ import { convertBlobUrlToDataUrl, BookDoc, getDirection } from '@/libs/document'
 import { BOOK_IDS_SEPARATOR } from '@/services/constants';
 import { BookConfig, IMAGE_BOOK_FORMATS, PageInfo } from '@/types/book';
 import { getComicPreloadAttributes } from '@/utils/comicPreload';
+import { getWebtoonRendererAttributes } from '@/utils/webtoon';
 import { FoliateView, wrappedFoliateView } from '@/types/view';
 import { Insets } from '@/types/misc';
 import { useEnv } from '@/context/EnvContext';
@@ -341,7 +342,7 @@ const FoliateViewer: React.FC<{
       applyScrollableStyle(detail.doc);
       applyTableTouchScroll(detail.doc);
       applyThemeModeClass(detail.doc, isDarkMode);
-      applyScrollModeClass(detail.doc, viewSettings.scrolled || false);
+      applyScrollModeClass(detail.doc, !!(viewSettings.scrolled || viewSettings.webtoonMode));
       applyScrollbarStyle(document, viewSettings.hideScrollbar || false);
       keepTextAlignment(detail.doc);
       handleA11yNavigation(viewRef.current, detail.doc, {
@@ -745,7 +746,11 @@ const FoliateViewer: React.FC<{
     viewRef.current?.renderer.setAttribute('margin-bottom', `${bottomMargin}px`);
     viewRef.current?.renderer.setAttribute('margin-left', `${leftMargin}px`);
 
-    if (viewSettings.scrolled) {
+    // Webtoon is a fixed-layout-only preset; gate on isFixedLayout so a stray
+    // webtoonMode value can never force a reflowable book into scrolled flow.
+    const webtoon = !!viewSettings.webtoonMode && !!bookData?.isFixedLayout;
+    const scrolled = viewSettings.scrolled || webtoon;
+    if (scrolled) {
       const headerVisible = showTopHeader;
       const footerVisible = showBottomFooter;
       const safeBottomPadding = appService?.hasSafeAreaInset ? gridInsets.bottom * 0.33 : 0;
@@ -757,13 +762,21 @@ const FoliateViewer: React.FC<{
       setScrollMargins({ top: 0, bottom: 0 });
     }
     viewRef.current?.renderer.setAttribute('gap', `${viewSettings.gapPercent}%`);
-    if (viewSettings.scrolled) {
+    const webtoonAttrs = getWebtoonRendererAttributes(webtoon, viewSettings.scrolled);
+    viewRef.current?.renderer.setAttribute('page-gap', webtoonAttrs['page-gap']);
+    viewRef.current?.renderer.setAttribute('scroll-lookahead', webtoonAttrs['scroll-lookahead']);
+    if (scrolled) {
       viewRef.current?.renderer.setAttribute('flow', 'scrolled');
       if (viewSettings.noContinuousScroll) {
         viewRef.current?.renderer.setAttribute('no-continuous-scroll', '');
       } else {
         viewRef.current?.renderer.removeAttribute('no-continuous-scroll');
       }
+    } else if (bookData?.isFixedLayout) {
+      // Fixed-layout (comic/PDF) not scrolled: assert paginated so toggling
+      // webtoon mode off restores paging even if this runs after the toggle
+      // (e.g. an insets/TTS change). foliate no-ops when flow is unchanged.
+      viewRef.current?.renderer.setAttribute('flow', 'paginated');
     }
   };
 
@@ -778,7 +791,7 @@ const FoliateViewer: React.FC<{
           applyFixedlayoutStyles(doc, viewSettings);
         }
         applyThemeModeClass(doc, isDarkMode);
-        applyScrollModeClass(doc, viewSettings.scrolled || false);
+        applyScrollModeClass(doc, !!(viewSettings.scrolled || viewSettings.webtoonMode));
         applyScrollbarStyle(document, viewSettings.hideScrollbar || false);
       });
 
@@ -796,6 +809,7 @@ const FoliateViewer: React.FC<{
     themeCode,
     isDarkMode,
     viewSettings?.scrolled,
+    viewSettings?.webtoonMode,
     viewSettings?.overrideColor,
     viewSettings?.invertImgColorInDark,
     viewSettings?.imageContrast,
@@ -852,6 +866,7 @@ const FoliateViewer: React.FC<{
     viewSettings?.showFooter,
     viewSettings?.showTTSBar,
     viewSettings?.scrolled,
+    viewSettings?.webtoonMode,
     viewSettings?.noContinuousScroll,
     viewState?.ttsEnabled,
   ]);

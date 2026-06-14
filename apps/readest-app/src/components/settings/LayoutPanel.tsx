@@ -13,6 +13,7 @@ import { useResetViewSettings } from '@/hooks/useResetSettings';
 import { isCJKEnv } from '@/utils/misc';
 import { getStyles } from '@/utils/style';
 import { getMaxInlineSize } from '@/utils/config';
+import { getWebtoonRendererAttributes } from '@/utils/webtoon';
 import { lockScreenOrientation } from '@/utils/bridge';
 import { saveViewSettings } from '@/helpers/settings';
 import {
@@ -70,6 +71,7 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
   const [maxInlineSize, setMaxInlineSize] = useState(viewSettings.maxInlineSize);
   const [maxBlockSize, setMaxBlockSize] = useState(viewSettings.maxBlockSize);
   const [writingMode, setWritingMode] = useState(viewSettings.writingMode);
+  const [webtoonMode, setWebtoonMode] = useState(viewSettings.webtoonMode);
   const [overrideLayout, setOverrideLayout] = useState(viewSettings.overrideLayout);
   const [useBookLayout, setUseBookLayout] = useState(viewSettings.useBookLayout);
   const [doubleBorder, setDoubleBorder] = useState(viewSettings.doubleBorder);
@@ -267,6 +269,18 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gapPercent]);
+
+  useEffect(() => {
+    if (webtoonMode === viewSettings.webtoonMode) return;
+    // Per-book only (skipGlobal): webtoon must not leak into globalViewSettings
+    // and force unrelated books — including reflowable EPUBs — into scrolled flow.
+    saveViewSettings(envConfig, bookKey, 'webtoonMode', webtoonMode, true, false);
+    const attrs = getWebtoonRendererAttributes(webtoonMode, viewSettings.scrolled);
+    view?.renderer.setAttribute('flow', attrs.flow);
+    view?.renderer.setAttribute('page-gap', attrs['page-gap']);
+    view?.renderer.setAttribute('scroll-lookahead', attrs['scroll-lookahead']);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [webtoonMode]);
 
   useEffect(() => {
     if (maxColumnCount === viewSettings.maxColumnCount) return;
@@ -541,6 +555,17 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
             </div>
           </div>
         )
+      )}
+
+      {bookData?.isFixedLayout && (
+        <BoxedList title={_('Webtoon')} data-setting-id='settings.layout.webtoon'>
+          <SettingsSwitchRow
+            label={_('Webtoon Mode')}
+            description={_('Seamless vertical scroll with no gaps, for manhwa and webtoons.')}
+            checked={webtoonMode}
+            onChange={() => setWebtoonMode(!webtoonMode)}
+          />
+        </BoxedList>
       )}
 
       {viewSettings.vertical && (

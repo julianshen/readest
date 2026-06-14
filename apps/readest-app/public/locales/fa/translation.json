@@ -1746,5 +1746,8 @@
   "System Lookup App": "برنامهٔ جستجوی سیستم",
   "Brightness": "روشنایی",
   "E-Ink Boost": "تقویت جوهر الکترونیکی",
-  "On": "روشن"
+  "On": "روشن",
+  "Webtoon": "وبتون",
+  "Webtoon Mode": "حالت وبتون",
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "پیمایش عمودی پیوسته بدون فاصله، برای مانهوا و وبتون."
 }

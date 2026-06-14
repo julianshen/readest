@@ -1713,5 +1713,8 @@
   "System Lookup App": "시스템 검색 앱",
   "Brightness": "밝기",
   "E-Ink Boost": "E-Ink 부스트",
-  "On": "켜짐"
+  "On": "켜짐",
+  "Webtoon": "웹툰",
+  "Webtoon Mode": "웹툰 모드",
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "여백 없이 끊김 없는 세로 스크롤로, 만화와 웹툰에 적합합니다."
 }
