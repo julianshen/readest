@@ -349,6 +349,30 @@ const createSeriesGroups = (books: Book[]): (Book | BooksGroup)[] => {
   return [...groups, ...ungroupedBooks];
 };
 
+// Finds the next volume in `book`'s series within `library` (pass the visible
+// library). Prefers the lowest seriesIndex strictly greater than the current;
+// falls back to title order (first title sorting after the current) when indices
+// are absent or equal. Returns null when there is no series or no next volume.
+export const findNextInSeries = (library: Book[], book: Book): Book | null => {
+  const series = book.metadata?.series?.trim();
+  if (!series) return null;
+  const inSeries = library.filter(
+    (b) => b.hash !== book.hash && b.metadata?.series?.trim() === series,
+  );
+  if (inSeries.length === 0) return null;
+
+  const currentIndex = book.metadata?.seriesIndex;
+  if (currentIndex != null) {
+    const ahead = inSeries
+      .filter((b) => (b.metadata?.seriesIndex ?? -Infinity) > currentIndex)
+      .sort((a, b) => a.metadata!.seriesIndex! - b.metadata!.seriesIndex!);
+    if (ahead.length) return ahead[0]!;
+  }
+
+  const byTitle = [...inSeries].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+  return byTitle.find((b) => (b.title || '').localeCompare(book.title || '') > 0) ?? null;
+};
+
 /**
  * Group books by author.
  * Books with multiple authors appear in ALL matching author groups.
