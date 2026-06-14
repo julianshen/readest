@@ -4,10 +4,16 @@
 // lookahead so strips decode before they enter view. When off, the renderer
 // returns to the user's scrolled/paginated layout with the default gap.
 // Attribute names match FixedLayout's observedAttributes.
+export interface WebtoonRendererAttributes {
+  flow: 'scrolled' | 'paginated';
+  'page-gap': string;
+  'scroll-lookahead': string;
+}
+
 export const getWebtoonRendererAttributes = (
   webtoon: boolean,
   scrolled: boolean,
-): Record<string, string> => ({
+): WebtoonRendererAttributes => ({
   flow: webtoon || scrolled ? 'scrolled' : 'paginated',
   'page-gap': webtoon ? '0' : '4',
   'scroll-lookahead': webtoon ? '200%' : '50%',

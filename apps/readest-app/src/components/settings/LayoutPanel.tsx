@@ -272,11 +272,13 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
 
   useEffect(() => {
     if (webtoonMode === viewSettings.webtoonMode) return;
-    saveViewSettings(envConfig, bookKey, 'webtoonMode', webtoonMode, false, false);
+    // Per-book only (skipGlobal): webtoon must not leak into globalViewSettings
+    // and force unrelated books — including reflowable EPUBs — into scrolled flow.
+    saveViewSettings(envConfig, bookKey, 'webtoonMode', webtoonMode, true, false);
     const attrs = getWebtoonRendererAttributes(webtoonMode, viewSettings.scrolled);
-    view?.renderer.setAttribute('flow', attrs['flow']!);
-    view?.renderer.setAttribute('page-gap', attrs['page-gap']!);
-    view?.renderer.setAttribute('scroll-lookahead', attrs['scroll-lookahead']!);
+    view?.renderer.setAttribute('flow', attrs.flow);
+    view?.renderer.setAttribute('page-gap', attrs['page-gap']);
+    view?.renderer.setAttribute('scroll-lookahead', attrs['scroll-lookahead']);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webtoonMode]);
 

@@ -746,7 +746,9 @@ const FoliateViewer: React.FC<{
     viewRef.current?.renderer.setAttribute('margin-bottom', `${bottomMargin}px`);
     viewRef.current?.renderer.setAttribute('margin-left', `${leftMargin}px`);
 
-    const webtoon = !!viewSettings.webtoonMode;
+    // Webtoon is a fixed-layout-only preset; gate on isFixedLayout so a stray
+    // webtoonMode value can never force a reflowable book into scrolled flow.
+    const webtoon = !!viewSettings.webtoonMode && !!bookData?.isFixedLayout;
     const scrolled = viewSettings.scrolled || webtoon;
     if (scrolled) {
       const headerVisible = showTopHeader;
@@ -761,8 +763,8 @@ const FoliateViewer: React.FC<{
     }
     viewRef.current?.renderer.setAttribute('gap', `${viewSettings.gapPercent}%`);
     const webtoonAttrs = getWebtoonRendererAttributes(webtoon, viewSettings.scrolled);
-    viewRef.current?.renderer.setAttribute('page-gap', webtoonAttrs['page-gap']!);
-    viewRef.current?.renderer.setAttribute('scroll-lookahead', webtoonAttrs['scroll-lookahead']!);
+    viewRef.current?.renderer.setAttribute('page-gap', webtoonAttrs['page-gap']);
+    viewRef.current?.renderer.setAttribute('scroll-lookahead', webtoonAttrs['scroll-lookahead']);
     if (scrolled) {
       viewRef.current?.renderer.setAttribute('flow', 'scrolled');
       if (viewSettings.noContinuousScroll) {
@@ -770,7 +772,7 @@ const FoliateViewer: React.FC<{
       } else {
         viewRef.current?.renderer.removeAttribute('no-continuous-scroll');
       }
-    } else if (bookDoc?.rendition?.layout === 'pre-paginated') {
+    } else if (bookData?.isFixedLayout) {
       // Fixed-layout (comic/PDF) not scrolled: assert paginated so toggling
       // webtoon mode off restores paging even if this runs after the toggle
       // (e.g. an insets/TTS change). foliate no-ops when flow is unchanged.

@@ -277,7 +277,7 @@ export const usePagination = (
           }
         } else if (
           msg.data.type === 'iframe-wheel' &&
-          !viewSettings.scrolled &&
+          !(viewSettings.scrolled || viewSettings.webtoonMode) &&
           !isPanningView(viewRef.current, viewSettings)
         ) {
           // The wheel event is handled by the iframe itself in scrolled mode.
@@ -469,7 +469,8 @@ export const usePagination = (
       if (bk !== bookKey || detail.phase !== 'end') return false;
       const bookData = getBookData(bookKey);
       const viewSettings = getViewSettings(bookKey);
-      if (!bookData?.isFixedLayout || viewSettings?.scrolled) return false;
+      if (!bookData?.isFixedLayout || viewSettings?.scrolled || viewSettings?.webtoonMode)
+        return false;
       if (viewSettings?.disableSwipe) return false;
       if (isPanningView(viewRef.current, viewSettings)) return false;
 
