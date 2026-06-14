@@ -24,6 +24,8 @@ import { isTauriAppPlatform } from '@/services/environment';
 import type { AppService } from '@/types/system';
 import { getAIProvider } from '@/services/ai/providers';
 import { buildSystemPrompt } from '@/services/ai/prompts';
+import { resolveAnswerLanguageName } from '@/services/ai/answerLanguage';
+import i18n from '@/i18n/i18n';
 
 import { ReedyAssistant } from '@/services/reedy/ui/ReedyAssistant';
 import type { ReadingContextSnapshot } from '@/services/reedy/tools/builtins/types';
@@ -171,7 +173,7 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
 
   const sendMessage = useCallback(
     async (text: string) => {
-      if (!text || !aiSettings || isGenerating) return;
+      if (!text || !aiSettings || !bookData?.bookDoc || isGenerating) return;
 
       const userMsg: ChatMessage = {
         id: `user-${Date.now()}`,
@@ -196,7 +198,18 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
       try {
         const provider = getAIProvider(aiSettings);
         const model = provider.getModel();
-        const systemPrompt = buildSystemPrompt(bookTitle, authorName, [], currentPage);
+        const answerLanguage = resolveAnswerLanguageName(
+          aiSettings.answerLanguage,
+          bookData.bookDoc,
+          i18n.language,
+        );
+        const systemPrompt = buildSystemPrompt(
+          bookTitle,
+          authorName,
+          [],
+          currentPage,
+          answerLanguage,
+        );
 
         let chunks = '';
         if (backend && (await backend.isIndexed(bookHash))) {

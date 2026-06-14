@@ -107,6 +107,7 @@ describe('TauriChatAdapter wiring (M1.11)', () => {
       bookTitle: 'Title',
       authorName: 'Author',
       currentPage: 0,
+      answerLanguage: 'English',
       backend,
       sourceStore,
     }));
@@ -154,6 +155,7 @@ describe('TauriChatAdapter wiring (M1.11)', () => {
       bookTitle: 'Title',
       authorName: 'Author',
       currentPage: 0,
+      answerLanguage: 'English',
       backend,
       sourceStore,
     }));
@@ -186,6 +188,7 @@ describe('TauriChatAdapter wiring (M1.11)', () => {
       bookTitle: 'Title',
       authorName: 'Author',
       currentPage: 0,
+      answerLanguage: 'English',
       backend,
       sourceStore,
       onTurnStart: (id) => turnStartedWith.push(id),
@@ -212,6 +215,7 @@ describe('TauriChatAdapter wiring (M1.11)', () => {
       bookTitle: 'My Book',
       authorName: '',
       currentPage: 5,
+      answerLanguage: 'English',
       backend: fakeReedy(),
       sourceStore,
     }));
