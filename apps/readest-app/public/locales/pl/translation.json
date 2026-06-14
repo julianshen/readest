@@ -1812,5 +1812,8 @@
   "System Lookup App": "Aplikacja wyszukiwania systemowego",
   "Brightness": "Jasność",
   "E-Ink Boost": "Wzmocnienie E-Ink",
-  "On": "Wł."
+  "On": "Wł.",
+  "Webtoon": "Webtoon",
+  "Webtoon Mode": "Tryb Webtoon",
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Płynne pionowe przewijanie bez przerw, do manhwy i webtoonów."
 }

@@ -1746,5 +1746,8 @@
   "System Lookup App": "Rendszer keresőalkalmazás",
   "Brightness": "Fényerő",
   "E-Ink Boost": "E-Ink-erősítés",
-  "On": "Be"
+  "On": "Be",
+  "Webtoon": "Webtoon",
+  "Webtoon Mode": "Webtoon mód",
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Folyamatos függőleges görgetés szünetek nélkül, manhwákhoz és webtoonokhoz."
 }

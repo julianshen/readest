@@ -1746,5 +1746,8 @@
   "System Lookup App": "System-Nachschlage-App",
   "Brightness": "Helligkeit",
   "E-Ink Boost": "E-Ink-Verstärkung",
-  "On": "Ein"
+  "On": "Ein",
+  "Webtoon": "Webtoon",
+  "Webtoon Mode": "Webtoon-Modus",
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Nahtloses vertikales Scrollen ohne Lücken, für Manhwa und Webtoons."
 }

@@ -1713,5 +1713,8 @@
   "System Lookup App": "རྒྱུད་ཁོངས་འཚོལ་བཤེར་ཉེར་སྤྱོད།",
   "Brightness": "འོད་གདངས།",
   "E-Ink Boost": "E-Ink ཡར་སྐུལ།",
-  "On": "ཁ་ཕྱེ།"
+  "On": "ཁ་ཕྱེ།",
+  "Webtoon": "Webtoon",
+  "Webtoon Mode": "Webtoon ངང་ཚུལ།",
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "བར་སྟོང་མེད་པའི་གཡས་གཡོན་འཁྱིལ་སྒུལ་རྒྱུན་མཐུད། manhwa དང་ webtoon ལ་འོས་འཚམ།"
 }
