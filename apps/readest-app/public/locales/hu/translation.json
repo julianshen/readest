@@ -1749,5 +1749,6 @@
   "On": "Be",
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Webtoon mód",
-  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Folyamatos függőleges görgetés szünetek nélkül, manhwákhoz és webtoonokhoz."
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Folyamatos függőleges görgetés szünetek nélkül, manhwákhoz és webtoonokhoz.",
+  "Page {{page}}": "{{page}}. oldal"
 }

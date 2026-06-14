@@ -1749,5 +1749,6 @@
   "On": "روشن",
   "Webtoon": "وبتون",
   "Webtoon Mode": "حالت وبتون",
-  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "پیمایش عمودی پیوسته بدون فاصله، برای مانهوا و وبتون."
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "پیمایش عمودی پیوسته بدون فاصله، برای مانهوا و وبتون.",
+  "Page {{page}}": "صفحه {{page}}"
 }

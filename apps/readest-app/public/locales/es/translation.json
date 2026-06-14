@@ -1782,5 +1782,6 @@
   "On": "Activado",
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Modo Webtoon",
-  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Desplazamiento vertical continuo sin espacios, para manhwa y webtoons."
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Desplazamiento vertical continuo sin espacios, para manhwa y webtoons.",
+  "Page {{page}}": "Página {{page}}"
 }

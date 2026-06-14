@@ -33,7 +33,13 @@ export const useSectionThumbnail = (
         canvas.width = THUMB_WIDTH;
         canvas.height = Math.max(1, Math.round(bitmap.height * scale));
         const ctx = canvas.getContext('2d');
-        ctx?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        if (!ctx) {
+          // No 2D context (e.g. canvas-count pressure): bail rather than cache a
+          // blank dataURL; the cell keeps its numbered placeholder.
+          bitmap.close();
+          return;
+        }
+        ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
         bitmap.close();
         const url = canvas.toDataURL('image/jpeg', 0.7);
         cache.set(index, url);

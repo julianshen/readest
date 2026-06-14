@@ -1,20 +1,17 @@
 import clsx from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { BookDoc } from '@/libs/document';
+import { BookDoc, SectionItem } from '@/libs/document';
 import { useReaderStore } from '@/store/readerStore';
+import { useBookProgress } from '@/store/readerProgressStore';
 import { useSidebarStore } from '@/store/sidebarStore';
+import { useTranslation } from '@/hooks/useTranslation';
 import { clearThumbnailCache } from '@/utils/thumbnailCache';
 import { useSectionThumbnail } from '../../hooks/useSectionThumbnail';
 
-interface ComicSection {
-  id: string;
-  loadImage?: () => Promise<Blob>;
-}
-
 interface ThumbCellProps {
   bookKey: string;
-  section: ComicSection;
+  section: SectionItem;
   index: number;
   href: string;
   current: boolean;
@@ -29,6 +26,7 @@ const ThumbCell: React.FC<ThumbCellProps> = ({
   current,
   onSelect,
 }) => {
+  const _ = useTranslation();
   const ref = useRef<HTMLButtonElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -52,7 +50,7 @@ const ThumbCell: React.FC<ThumbCellProps> = ({
         'flex flex-col items-center gap-1 rounded p-1',
         current ? 'bg-base-300 ring-primary ring-2' : 'hover:bg-base-200',
       )}
-      aria-label={`Page ${index + 1}`}
+      aria-label={_('Page {{page}}', { page: index + 1 })}
       aria-current={current ? 'true' : undefined}
     >
       <div className='bg-base-200 flex aspect-[2/3] w-full items-center justify-center overflow-hidden rounded'>
@@ -71,11 +69,12 @@ const PageThumbnailGrid: React.FC<{ bookKey: string; bookDoc: BookDoc }> = ({
   bookKey,
   bookDoc,
 }) => {
-  const { getView, getProgress } = useReaderStore();
+  const getView = useReaderStore((s) => s.getView);
   const { setSideBarVisible } = useSidebarStore();
-  const sections = (bookDoc.sections ?? []) as unknown as ComicSection[];
+  const sections: SectionItem[] = bookDoc.sections ?? [];
   const toc = bookDoc.toc ?? [];
-  const currentIndex = getProgress(bookKey)?.index ?? 0;
+  // Reactive: the highlight must track page turns while the grid is open.
+  const currentIndex = useBookProgress(bookKey)?.index ?? 0;
   const rtl = bookDoc.dir === 'rtl';
   const isMobile = window.innerWidth < 640 || window.innerHeight < 640;
 
