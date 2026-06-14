@@ -19,10 +19,32 @@ export const useSectionThumbnail = (
   enabled: boolean,
 ): string | null => {
   const cache = getThumbnailCache(bookKey);
+  const [identity, setIdentity] = useState({ bookKey, index });
   const [dataUrl, setDataUrl] = useState<string | null>(() => cache.get(index) ?? null);
 
+  // Cells are keyed by page filename, which can repeat across books; reset
+  // synchronously when this instance is reused for a different book/page so a
+  // stale thumbnail never flashes.
+  if (identity.bookKey !== bookKey || identity.index !== index) {
+    setIdentity({ bookKey, index });
+    setDataUrl(cache.get(index) ?? null);
+  }
+
   useEffect(() => {
-    if (!enabled || dataUrl || !section.loadImage) return;
+    // Off-screen: drop the local dataURL so memory is bounded by the LRU cache
+    // (cap), not by how many pages have been scrolled past. The cache still
+    // holds it (up to capacity), so coming back into view restores it without a
+    // re-decode.
+    if (!enabled) {
+      setDataUrl(null);
+      return;
+    }
+    const cached = cache.get(index);
+    if (cached) {
+      setDataUrl(cached);
+      return;
+    }
+    if (!section.loadImage) return;
     let cancelled = false;
     (async () => {
       try {
@@ -51,8 +73,7 @@ export const useSectionThumbnail = (
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, index]);
+  }, [enabled, index, bookKey, section, cache]);
 
   return dataUrl;
 };

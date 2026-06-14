@@ -33,7 +33,7 @@ const ThumbCell: React.FC<ThumbCellProps> = ({
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setVisible(true)),
+      (entries) => entries.forEach((e) => setVisible(e.isIntersecting)),
       { rootMargin: '200px' },
     );
     obs.observe(el);
