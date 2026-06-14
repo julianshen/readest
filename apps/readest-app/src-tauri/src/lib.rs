@@ -22,6 +22,7 @@ use tauri_plugin_fs::FsExt;
 
 #[cfg(desktop)]
 use tauri::{Listener, Url};
+mod ai;
 mod clip_url;
 mod comic_parser;
 mod dir_scanner;
@@ -292,6 +293,13 @@ pub fn run() {
             #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
             discord_rpc::clear_book_presence,
             clip_url::clip_url,
+            ai::storage::is_book_indexed,
+            ai::storage::get_chunk_count,
+            ai::storage::clear_book_index,
+            ai::embed::embed_texts,
+            ai::searcher::hybrid_search,
+            ai::searcher::text_search,
+            ai::indexer::index_book_chunks,
         ])
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_persisted_scope::init())
@@ -377,6 +385,10 @@ pub fn run() {
                 let discord_client = Arc::new(Mutex::new(discord_rpc::DiscordRpcClient::new()));
                 app.manage(discord_client);
             }
+
+            // Initialize AI index database (all platforms).
+            // Falls back to in-memory SQLite on failure.
+            app.manage(ai::storage::IndexDb::new(app.handle()));
 
             #[cfg(desktop)]
             {

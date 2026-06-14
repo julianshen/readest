@@ -19,6 +19,13 @@ const fakeReedy: RetrievalBackend = {
   clearBook: vi.fn(async () => {}),
 };
 
+const fakeTauriRust: RetrievalBackend = {
+  kind: 'tauri-rust',
+  isIndexed: vi.fn(async () => true),
+  indexBook: vi.fn(async () => {}),
+  clearBook: vi.fn(async () => {}),
+};
+
 function settingsWith(reedyEnabled: boolean): AISettings {
   return { ...DEFAULT_AI_SETTINGS, enabled: true, reedy: { enabled: reedyEnabled } };
 }
@@ -29,6 +36,7 @@ describe('selectBackend', () => {
       settings: settingsWith(true),
       isTauri: true,
       legacy: fakeLegacy,
+      tauriRust: null,
       reedy: fakeReedy,
     });
     expect(out.kind).toBe('reedy');
@@ -39,6 +47,7 @@ describe('selectBackend', () => {
       settings: settingsWith(true),
       isTauri: false,
       legacy: fakeLegacy,
+      tauriRust: null,
       reedy: fakeReedy,
     });
     expect(out.kind).toBe('legacy-idb');
@@ -49,6 +58,7 @@ describe('selectBackend', () => {
       settings: settingsWith(false),
       isTauri: true,
       legacy: fakeLegacy,
+      tauriRust: null,
       reedy: fakeReedy,
     });
     expect(out.kind).toBe('legacy-idb');
@@ -59,6 +69,7 @@ describe('selectBackend', () => {
       settings: settingsWith(true),
       isTauri: true,
       legacy: fakeLegacy,
+      tauriRust: null,
       reedy: null,
     });
     expect(out.kind).toBe('legacy-idb');
@@ -69,7 +80,52 @@ describe('selectBackend', () => {
       settings: { ...DEFAULT_AI_SETTINGS, enabled: true, reedy: undefined },
       isTauri: true,
       legacy: fakeLegacy,
+      tauriRust: null,
       reedy: fakeReedy,
+    });
+    expect(out.kind).toBe('legacy-idb');
+  });
+
+  it('prefers tauri-rust over legacy-idb when reedy is disabled and provider is supported', () => {
+    const out = selectBackend({
+      settings: { ...DEFAULT_AI_SETTINGS, enabled: true, provider: 'openrouter' },
+      isTauri: true,
+      legacy: fakeLegacy,
+      tauriRust: fakeTauriRust,
+      reedy: null,
+    });
+    expect(out.kind).toBe('tauri-rust');
+  });
+
+  it('prefers reedy over tauri-rust when both are available', () => {
+    const out = selectBackend({
+      settings: settingsWith(true),
+      isTauri: true,
+      legacy: fakeLegacy,
+      tauriRust: fakeTauriRust,
+      reedy: fakeReedy,
+    });
+    expect(out.kind).toBe('reedy');
+  });
+
+  it('falls back to legacy-idb on Tauri when provider is not supported by Rust embedder', () => {
+    const out = selectBackend({
+      settings: { ...DEFAULT_AI_SETTINGS, enabled: true, provider: 'ai-gateway' },
+      isTauri: true,
+      legacy: fakeLegacy,
+      tauriRust: fakeTauriRust,
+      reedy: null,
+    });
+    expect(out.kind).toBe('legacy-idb');
+  });
+
+  it('falls back to legacy-idb on Tauri for ollama (native /api/embed endpoint)', () => {
+    const out = selectBackend({
+      settings: { ...DEFAULT_AI_SETTINGS, enabled: true, provider: 'ollama' },
+      isTauri: true,
+      legacy: fakeLegacy,
+      tauriRust: fakeTauriRust,
+      reedy: null,
     });
     expect(out.kind).toBe('legacy-idb');
   });

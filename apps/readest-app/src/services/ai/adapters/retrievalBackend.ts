@@ -1,9 +1,10 @@
 import type { Tool } from 'ai';
 import type { BookDoc } from '@/libs/document';
+import { isRustEmbeddingSupported } from '../providers';
 import type { AISettings, EmbeddingProgress, ScoredChunk } from '../types';
 import type { ReedySourceStore } from './reedySourceStore';
 
-export type RetrievalBackendKind = 'legacy-idb' | 'reedy';
+export type RetrievalBackendKind = 'legacy-idb' | 'reedy' | 'tauri-rust';
 
 export interface BackendIndexOptions {
   onProgress?: (progress: EmbeddingProgress) => void;
@@ -62,11 +63,17 @@ export interface RetrievalBackend {
 export function selectBackend(args: {
   settings: AISettings;
   isTauri: boolean;
+  tauriRust: RetrievalBackend | null;
   legacy: RetrievalBackend;
   reedy: RetrievalBackend | null;
 }): RetrievalBackend {
   if (args.settings.reedy?.enabled && args.isTauri && args.reedy) {
     return args.reedy;
+  }
+  // Rust embedder only supports OpenAI-compatible endpoints (OpenAI, OpenRouter,
+  // Ollama). AI Gateway uses the Vercel AI SDK and must stay on legacy JS path.
+  if (args.isTauri && args.tauriRust && isRustEmbeddingSupported(args.settings)) {
+    return args.tauriRust;
   }
   return args.legacy;
 }
