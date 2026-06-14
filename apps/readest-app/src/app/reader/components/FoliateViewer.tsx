@@ -770,6 +770,11 @@ const FoliateViewer: React.FC<{
       } else {
         viewRef.current?.renderer.removeAttribute('no-continuous-scroll');
       }
+    } else if (bookDoc?.rendition?.layout === 'pre-paginated') {
+      // Fixed-layout (comic/PDF) not scrolled: assert paginated so toggling
+      // webtoon mode off restores paging even if this runs after the toggle
+      // (e.g. an insets/TTS change). foliate no-ops when flow is unchanged.
+      viewRef.current?.renderer.setAttribute('flow', 'paginated');
     }
   };
 
