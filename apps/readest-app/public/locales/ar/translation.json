@@ -1883,5 +1883,13 @@
   "Webtoon Mode": "وضع ويبتون",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "تمرير عمودي متواصل بلا فواصل، مناسب للمانهوا والويبتون.",
   "Next Volume": "المجلد التالي",
-  "Page {{page}}": "صفحة {{page}}"
+  "Page {{page}}": "صفحة {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "قم بإعداد مزود ذكاء اصطناعي في الإعدادات → مساعد الذكاء الاصطناعي أولاً.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "لا يمكن لهذا النموذج قراءة الصور — اختر نموذجًا يدعم الرؤية في الإعدادات → مساعد الذكاء الاصطناعي.",
+  "Translation failed. Please try again.": "فشلت الترجمة. يُرجى المحاولة مرة أخرى.",
+  "Bubble Translation": "ترجمة الفقاعة",
+  "No text detected in this region": "لم يُكتشف نص في هذه المنطقة",
+  "Hide original": "إخفاء الأصل",
+  "Show original": "إظهار الأصل",
+  "Translate Region": "ترجمة منطقة"
 }

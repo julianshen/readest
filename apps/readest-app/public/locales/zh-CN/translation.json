@@ -1718,5 +1718,13 @@
   "Webtoon Mode": "Webtoon 模式",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "无缝垂直滚动、页面之间没有间隙，适合条漫和韩漫。",
   "Next Volume": "下一卷",
-  "Page {{page}}": "第 {{page}} 页"
+  "Page {{page}}": "第 {{page}} 页",
+  "Configure an AI provider in Settings → AI Assistant first.": "请先在设置 → AI 助手中配置 AI 提供商。",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "此模型无法读取图像 — 请在设置 → AI 助手中选择支持视觉的模型。",
+  "Translation failed. Please try again.": "翻译失败。请重试。",
+  "Bubble Translation": "气泡翻译",
+  "No text detected in this region": "此区域未检测到文本",
+  "Hide original": "隐藏原文",
+  "Show original": "显示原文",
+  "Translate Region": "翻译区域"
 }

@@ -1718,5 +1718,13 @@
   "Webtoon Mode": "Webtoon ངང་ཚུལ།",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "བར་སྟོང་མེད་པའི་གཡས་གཡོན་འཁྱིལ་སྒུལ་རྒྱུན་མཐུད། manhwa དང་ webtoon ལ་འོས་འཚམ།",
   "Next Volume": "པོད་རྗེས་མ།",
-  "Page {{page}}": "ཤོག་ངོས་ {{page}}"
+  "Page {{page}}": "ཤོག་ངོས་ {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "ཐོག་མར་སྒྲིག་འགོད་ → AI རོགས་པའི་ནང་དུ་ AI མཁོ་སྤྲོད་པ་ཞིག་སྒྲིག་འགོད་གྱིས།",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "དཔེ་དབྱིབས་འདིས་པར་རིས་ཀློག་མི་ཐུབ་ — སྒྲིག་འགོད་ → AI རོགས་པའི་ནང་དུ་མཐོང་ནུས་ལྡན་པའི་དཔེ་དབྱིབས་ཤིག་འདེམས།",
+  "Translation failed. Please try again.": "སྒྱུར་བ་ལ་འཐུས་ཤོར་བྱུང་། ཡང་བསྐྱར་ཚོད་ལྟ་གྱིས།",
+  "Bubble Translation": "འགས་སྒྲ་སྒྱུར་བ།",
+  "No text detected in this region": "ས་ཁུལ་འདིར་ཡི་གེ་མ་རྙེད།",
+  "Hide original": "ངོ་མ་སྦས།",
+  "Show original": "ངོ་མ་སྟོན།",
+  "Translate Region": "ས་ཁུལ་སྒྱུར་བ།"
 }

@@ -1751,5 +1751,13 @@
   "Webtoon Mode": "حالت وبتون",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "پیمایش عمودی پیوسته بدون فاصله، برای مانهوا و وبتون.",
   "Next Volume": "جلد بعدی",
-  "Page {{page}}": "صفحه {{page}}"
+  "Page {{page}}": "صفحه {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "ابتدا یک ارائه‌دهنده هوش مصنوعی را در تنظیمات → دستیار هوش مصنوعی پیکربندی کنید.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "این مدل نمی‌تواند تصاویر را بخواند — در تنظیمات → دستیار هوش مصنوعی یک مدل با قابلیت بینایی انتخاب کنید.",
+  "Translation failed. Please try again.": "ترجمه ناموفق بود. لطفاً دوباره تلاش کنید.",
+  "Bubble Translation": "ترجمه حباب",
+  "No text detected in this region": "هیچ متنی در این ناحیه شناسایی نشد",
+  "Hide original": "پنهان کردن متن اصلی",
+  "Show original": "نمایش متن اصلی",
+  "Translate Region": "ترجمه ناحیه"
 }

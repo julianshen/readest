@@ -1718,5 +1718,13 @@
   "Webtoon Mode": "웹툰 모드",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "여백 없이 끊김 없는 세로 스크롤로, 만화와 웹툰에 적합합니다.",
   "Next Volume": "다음 권",
-  "Page {{page}}": "{{page}}페이지"
+  "Page {{page}}": "{{page}}페이지",
+  "Configure an AI provider in Settings → AI Assistant first.": "먼저 설정 → AI 어시스턴트에서 AI 제공업체를 구성하세요.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "이 모델은 이미지를 읽을 수 없습니다 — 설정 → AI 어시스턴트에서 비전 지원 모델을 선택하세요.",
+  "Translation failed. Please try again.": "번역에 실패했습니다. 다시 시도해 주세요.",
+  "Bubble Translation": "말풍선 번역",
+  "No text detected in this region": "이 영역에서 텍스트를 찾을 수 없습니다",
+  "Hide original": "원문 숨기기",
+  "Show original": "원문 보기",
+  "Translate Region": "영역 번역"
 }

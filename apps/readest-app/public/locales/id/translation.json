@@ -1718,5 +1718,13 @@
   "Webtoon Mode": "Mode Webtoon",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Gulir vertikal mulus tanpa jeda, untuk manhwa dan webtoon.",
   "Next Volume": "Volume Berikutnya",
-  "Page {{page}}": "Halaman {{page}}"
+  "Page {{page}}": "Halaman {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "Konfigurasikan penyedia AI di Pengaturan → Asisten AI terlebih dahulu.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Model ini tidak dapat membaca gambar — pilih model yang mendukung visi di Pengaturan → Asisten AI.",
+  "Translation failed. Please try again.": "Terjemahan gagal. Silakan coba lagi.",
+  "Bubble Translation": "Terjemahan Balon",
+  "No text detected in this region": "Tidak ada teks terdeteksi di wilayah ini",
+  "Hide original": "Sembunyikan asli",
+  "Show original": "Tampilkan asli",
+  "Translate Region": "Terjemahkan Wilayah"
 }

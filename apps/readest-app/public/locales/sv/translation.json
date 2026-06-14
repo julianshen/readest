@@ -1751,5 +1751,13 @@
   "Webtoon Mode": "Webtoon-läge",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Sömlös vertikal rullning utan mellanrum, för manhwa och webtoons.",
   "Next Volume": "Nästa volym",
-  "Page {{page}}": "Sida {{page}}"
+  "Page {{page}}": "Sida {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "Konfigurera först en AI-leverantör under Inställningar → AI-assistent.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Den här modellen kan inte läsa bilder — välj en bildkapabel modell under Inställningar → AI-assistent.",
+  "Translation failed. Please try again.": "Översättningen misslyckades. Försök igen.",
+  "Bubble Translation": "Pratbubbleöversättning",
+  "No text detected in this region": "Ingen text hittades i detta område",
+  "Hide original": "Dölj original",
+  "Show original": "Visa original",
+  "Translate Region": "Översätt område"
 }

@@ -1751,5 +1751,13 @@
   "Webtoon Mode": "Λειτουργία Webtoon",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Αδιάκοπη κατακόρυφη κύλιση χωρίς κενά, για manhwa και webtoons.",
   "Next Volume": "Επόμενος τόμος",
-  "Page {{page}}": "Σελίδα {{page}}"
+  "Page {{page}}": "Σελίδα {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "Ρυθμίστε πρώτα έναν πάροχο AI στις Ρυθμίσεις → Βοηθός AI.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Αυτό το μοντέλο δεν μπορεί να διαβάσει εικόνες — επιλέξτε ένα μοντέλο με δυνατότητα όρασης στις Ρυθμίσεις → Βοηθός AI.",
+  "Translation failed. Please try again.": "Η μετάφραση απέτυχε. Δοκιμάστε ξανά.",
+  "Bubble Translation": "Μετάφραση συννεφάκι",
+  "No text detected in this region": "Δεν εντοπίστηκε κείμενο σε αυτήν την περιοχή",
+  "Hide original": "Απόκρυψη πρωτοτύπου",
+  "Show original": "Εμφάνιση πρωτοτύπου",
+  "Translate Region": "Μετάφραση περιοχής"
 }

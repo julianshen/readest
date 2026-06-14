@@ -1751,5 +1751,13 @@
   "Webtoon Mode": "Webtoon ආකාරය",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "හිඩැස් නොමැති අඛණ්ඩ සිරස් අනුචලනය, manhwa සහ webtoon සඳහා.",
   "Next Volume": "ඊළඟ වෙළුම",
-  "Page {{page}}": "පිටුව {{page}}"
+  "Page {{page}}": "පිටුව {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "පළමුව සැකසීම් → AI සහායක තුළ AI සැපයුම්කරුවෙකු වින්‍යාස කරන්න.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "මෙම ආකෘතියට රූප කියවිය නොහැක — සැකසීම් → AI සහායක තුළ දෘශ්‍ය හැකියාව ඇති ආකෘතියක් තෝරන්න.",
+  "Translation failed. Please try again.": "පරිවර්තනය අසාර්ථක විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+  "Bubble Translation": "බුබුළු පරිවර්තනය",
+  "No text detected in this region": "මෙම කලාපයේ පෙළක් හමු නොවීය",
+  "Hide original": "මුල් පිටපත සඟවන්න",
+  "Show original": "මුල් පිටපත පෙන්වන්න",
+  "Translate Region": "කලාපය පරිවර්තනය කරන්න"
 }
