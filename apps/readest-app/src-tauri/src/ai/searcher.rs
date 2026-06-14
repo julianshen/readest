@@ -16,7 +16,9 @@ pub struct ScoredChunk {
 }
 
 /// Escape a user query so it can be safely passed to an FTS5 MATCH expression.
-/// Removes FTS5 syntax metacharacters and wraps the result in double quotes.
+/// Removes FTS5 syntax metacharacters, splits into tokens, and joins them with
+/// spaces so multi-word prompts match documents containing the terms (AND
+/// semantics) rather than requiring the exact phrase.
 fn escape_fts5_query(query: &str) -> String {
     let sanitized: String = query
         .chars()
@@ -25,7 +27,8 @@ fn escape_fts5_query(query: &str) -> String {
             _ => c,
         })
         .collect();
-    format!("\"{}\"", sanitized.trim())
+    let tokens: Vec<&str> = sanitized.split_whitespace().collect();
+    tokens.join(" ")
 }
 
 /// Run a BM25 query via FTS5, optionally constrained to chunks at or before
@@ -37,7 +40,7 @@ fn run_bm25(
     max_page: Option<u32>,
     limit: usize,
 ) -> Result<Vec<(i64, f32)>, String> {
-    if escaped_query == "\"\"" {
+    if escaped_query.is_empty() {
         return Ok(vec![]);
     }
     let max_page_i64 = max_page.map(|mp| mp as i64);
@@ -88,9 +91,10 @@ fn blob_to_vec(blob: &[u8]) -> Result<Vec<f32>, String> {
         .collect())
 }
 
-/// Dot-product helper for normalized vectors (cosine sim = dot).
-/// Returns an error if the vectors have different dimensions.
-fn dot_simd(a: &[f32], b: &[f32]) -> Result<f32, String> {
+/// Cosine similarity helper. Normalizes both vectors before computing the dot
+/// product so the score is independent of vector magnitude, matching the
+/// behavior of the legacy IndexedDB backend.
+fn cosine_sim(a: &[f32], b: &[f32]) -> Result<f32, String> {
     if a.len() != b.len() {
         return Err(format!(
             "Embedding dimension mismatch: query={}, stored={}",
@@ -98,7 +102,16 @@ fn dot_simd(a: &[f32], b: &[f32]) -> Result<f32, String> {
             b.len()
         ));
     }
-    Ok(a.iter().zip(b.iter()).map(|(x, y)| x * y).sum())
+    fn norm(v: &[f32]) -> f32 {
+        v.iter().map(|x| x * x).sum::<f32>().sqrt()
+    }
+    let norm_a = norm(a);
+    let norm_b = norm(b);
+    if norm_a == 0.0 || norm_b == 0.0 {
+        return Ok(0.0);
+    }
+    let dot: f32 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
+    Ok(dot / (norm_a * norm_b))
 }
 
 /// BM25-only search via FTS5. Used as a fallback when query embedding fails.
@@ -235,7 +248,7 @@ pub fn hybrid_search(
         .map(
             |(id, si, ct, text, blob, pn)| -> Result<(i64, u32, String, String, u32, f32), String> {
                 let emb = blob_to_vec(&blob)?;
-                let score = dot_simd(&query_embedding, &emb)?;
+                let score = cosine_sim(&query_embedding, &emb)?;
                 Ok((id, si, ct, text, pn, score))
             },
         )
