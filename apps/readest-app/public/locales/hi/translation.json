@@ -1750,5 +1750,6 @@
   "Webtoon": "वेबटून",
   "Webtoon Mode": "वेबटून मोड",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "बिना किसी अंतराल के निर्बाध लंबवत स्क्रॉल, मानह्वा और वेबटून के लिए।",
-  "Next Volume": "अगला खंड"
+  "Next Volume": "अगला खंड",
+  "Page {{page}}": "पृष्ठ {{page}}"
 }

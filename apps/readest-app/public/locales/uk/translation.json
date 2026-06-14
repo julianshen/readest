@@ -1816,5 +1816,6 @@
   "Webtoon": "Вебтун",
   "Webtoon Mode": "Режим вебтуна",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Безперервне вертикальне прокручування без проміжків, для манхви та вебтунів.",
-  "Next Volume": "Наступний том"
+  "Next Volume": "Наступний том",
+  "Page {{page}}": "Сторінка {{page}}"
 }

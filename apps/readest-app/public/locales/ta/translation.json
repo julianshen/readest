@@ -1750,5 +1750,6 @@
   "Webtoon": "வெப்டூன்",
   "Webtoon Mode": "வெப்டூன் பயன்முறை",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "இடைவெளி இல்லாத தொடர்ச்சியான செங்குத்து உருளல், மன்வா மற்றும் வெப்டூன்களுக்கு.",
-  "Next Volume": "அடுத்த தொகுதி"
+  "Next Volume": "அடுத்த தொகுதி",
+  "Page {{page}}": "பக்கம் {{page}}"
 }

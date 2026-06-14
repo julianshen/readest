@@ -1783,5 +1783,6 @@
   "Webtoon": "וובטון",
   "Webtoon Mode": "מצב וובטון",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "גלילה אנכית רציפה ללא רווחים, עבור מנהווה ווובטונים.",
-  "Next Volume": "כרך הבא"
+  "Next Volume": "כרך הבא",
+  "Page {{page}}": "עמוד {{page}}"
 }

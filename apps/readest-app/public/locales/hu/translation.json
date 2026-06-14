@@ -1750,5 +1750,6 @@
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Webtoon mód",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Folyamatos függőleges görgetés szünetek nélkül, manhwákhoz és webtoonokhoz.",
-  "Next Volume": "Következő kötet"
+  "Next Volume": "Következő kötet",
+  "Page {{page}}": "{{page}}. oldal"
 }

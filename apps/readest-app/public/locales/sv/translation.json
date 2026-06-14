@@ -1750,5 +1750,6 @@
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Webtoon-läge",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Sömlös vertikal rullning utan mellanrum, för manhwa och webtoons.",
-  "Next Volume": "Nästa volym"
+  "Next Volume": "Nästa volym",
+  "Page {{page}}": "Sida {{page}}"
 }

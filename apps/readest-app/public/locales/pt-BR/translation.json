@@ -1783,5 +1783,6 @@
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Modo Webtoon",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Rolagem vertical contínua sem espaços, para manhwa e webtoons.",
-  "Next Volume": "Próximo volume"
+  "Next Volume": "Próximo volume",
+  "Page {{page}}": "Página {{page}}"
 }

@@ -1717,5 +1717,6 @@
   "Webtoon": "Webtoon",
   "Webtoon Mode": "โหมด Webtoon",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "เลื่อนแนวตั้งต่อเนื่องไร้ช่องว่าง เหมาะสำหรับมานฮวาและเว็บตูน",
-  "Next Volume": "เล่มถัดไป"
+  "Next Volume": "เล่มถัดไป",
+  "Page {{page}}": "หน้า {{page}}"
 }

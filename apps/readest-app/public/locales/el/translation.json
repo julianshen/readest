@@ -1750,5 +1750,6 @@
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Λειτουργία Webtoon",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Αδιάκοπη κατακόρυφη κύλιση χωρίς κενά, για manhwa και webtoons.",
-  "Next Volume": "Επόμενος τόμος"
+  "Next Volume": "Επόμενος τόμος",
+  "Page {{page}}": "Σελίδα {{page}}"
 }

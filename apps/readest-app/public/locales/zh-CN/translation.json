@@ -1717,5 +1717,6 @@
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Webtoon 模式",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "无缝垂直滚动、页面之间没有间隙，适合条漫和韩漫。",
-  "Next Volume": "下一卷"
+  "Next Volume": "下一卷",
+  "Page {{page}}": "第 {{page}} 页"
 }
