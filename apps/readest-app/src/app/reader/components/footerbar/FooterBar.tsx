@@ -5,7 +5,9 @@ import { useSpatialNavigation } from '@/app/reader/hooks/useSpatialNavigation';
 import { useReaderStore } from '@/store/readerStore';
 import { useSidebarStore } from '@/store/sidebarStore';
 import { useBookDataStore } from '@/store/bookDataStore';
+import { useLibraryStore } from '@/store/libraryStore';
 import { FIXED_LAYOUT_FORMATS } from '@/types/book';
+import { findNextInSeries } from '@/app/library/utils/libraryUtils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useDeviceControlStore } from '@/store/deviceStore';
 import { eventDispatcher } from '@/utils/event';
@@ -16,6 +18,7 @@ import MobileFooterBar from './MobileFooterBar';
 import DesktopFooterBar from './DesktopFooterBar';
 import { getFooterBarPosition } from './position';
 import TTSControl from '../tts/TTSControl';
+import NextVolumePill from './NextVolumePill';
 
 const FooterBar: React.FC<FooterBarProps> = ({
   bookKey,
@@ -53,6 +56,18 @@ const FooterBar: React.FC<FooterBarProps> = ({
   );
 
   const progressValid = !!progressInfo && progressInfo.total > 0 && progressInfo.current >= 0;
+
+  const getVisibleLibrary = useLibraryStore((state) => state.getVisibleLibrary);
+  const atEnd = progressValid && !!progressInfo && progressInfo.current + 1 >= progressInfo.total;
+  // Recomputed when the reader reaches the end (atEnd flips) — the library is
+  // read fresh at that moment. We intentionally don't track later library
+  // mutations mid-read (rare; would need a visibleLibrary subscription).
+  const nextVolume = useMemo(
+    () => (atEnd && bookData?.book ? findNextInSeries(getVisibleLibrary(), bookData.book) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [atEnd, bookData?.book?.hash],
+  );
+
   const progressFraction = useMemo(() => {
     if (progressValid && progressInfo.total > 0 && progressInfo.current >= 0) {
       return (progressInfo.current + 1) / progressInfo.total;
@@ -240,6 +255,14 @@ const FooterBar: React.FC<FooterBarProps> = ({
 
   return (
     <>
+      {nextVolume && (
+        <div
+          className='pointer-events-none absolute left-0 z-20 flex w-full justify-center px-3'
+          style={{ bottom: 60 + gridInsets.bottom }}
+        >
+          <NextVolumePill key={nextVolume.hash} nextBook={nextVolume} />
+        </div>
+      )}
       {/* Hover trigger area */}
       <div
         role='none'
