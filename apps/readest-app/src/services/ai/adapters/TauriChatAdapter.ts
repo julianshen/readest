@@ -19,6 +19,7 @@ export interface TauriAdapterOptions {
   bookTitle: string;
   authorName: string;
   currentPage: number;
+  answerLanguage: string;
   backend: RetrievalBackend;
   /** Per-adapter-instance source store; the same one the UI subscribes to. */
   sourceStore: ReedySourceStore;
@@ -150,7 +151,13 @@ export function createTauriAdapter(getOptions: () => TauriAdapterOptions): ChatM
             }
           }
 
-          const systemPrompt = buildSystemPrompt(bookTitle, authorName, chunks, currentPage);
+          const systemPrompt = buildSystemPrompt(
+            bookTitle,
+            authorName,
+            chunks,
+            currentPage,
+            options.answerLanguage,
+          );
 
           if (useApiRoute) {
             for await (const chunk of streamViaApiRoute(

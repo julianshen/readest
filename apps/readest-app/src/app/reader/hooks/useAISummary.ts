@@ -3,8 +3,11 @@ import { useReaderStore } from '@/store/readerStore';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useNotebookStore } from '@/store/notebookStore';
 import { useAIChatStore } from '@/store/aiChatStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { eventDispatcher } from '@/utils/event';
 import { useTranslation } from '@/hooks/useTranslation';
+import { resolveAnswerLanguageName } from '@/services/ai/answerLanguage';
+import i18n from '@/i18n/i18n';
 
 const PROMPTS: Record<'recap' | 'chapter', string> = {
   recap:
@@ -15,6 +18,7 @@ const PROMPTS: Record<'recap' | 'chapter', string> = {
 
 export function useAISummary(bookKey: string) {
   const _ = useTranslation();
+  const { settings } = useSettingsStore();
   const { getProgress } = useReaderStore();
   const { getBookData } = useBookDataStore();
   const { setNotebookVisible, setNotebookActiveTab } = useNotebookStore();
@@ -45,10 +49,22 @@ export function useAISummary(bookKey: string) {
           return;
         }
 
+        // Resolve the answer language and reinforce it in the prompt so the
+        // model responds in the user's chosen language even when the base
+        // prompt is in English.
+        const answerLanguage = bookData?.bookDoc
+          ? resolveAnswerLanguageName(
+              settings?.aiSettings?.answerLanguage,
+              bookData.bookDoc,
+              i18n.language,
+            )
+          : i18n.language;
+        const prompt = `${PROMPTS[kind]}\n\nPlease respond in ${answerLanguage}.`;
+
         // Open the notebook panel — this causes CopilotMvpAssistant to mount.
         // The prompt is written to the store first so CopilotMvpAssistant can
         // pick it up in a useEffect regardless of mount timing.
-        setPendingPrompt(PROMPTS[kind]);
+        setPendingPrompt(prompt);
         setNotebookVisible(true);
         setNotebookActiveTab('ai');
       } finally {

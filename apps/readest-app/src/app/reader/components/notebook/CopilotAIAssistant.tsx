@@ -9,10 +9,12 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useReaderStore } from '@/store/readerStore';
 import { useAIChatStore } from '@/store/aiChatStore';
+import { eventDispatcher } from '@/utils/event';
 import { aiLogger } from '@/services/ai';
 import {
   LegacyIdbBackend,
   ReedyBackend,
+  TauriRustBackend,
   selectBackend,
   type RetrievalBackend,
 } from '@/services/ai/adapters';
@@ -22,6 +24,8 @@ import { isTauriAppPlatform } from '@/services/environment';
 import type { AppService } from '@/types/system';
 import { getAIProvider } from '@/services/ai/providers';
 import { buildSystemPrompt } from '@/services/ai/prompts';
+import { resolveAnswerLanguageName } from '@/services/ai/answerLanguage';
+import i18n from '@/i18n/i18n';
 
 import { ReedyAssistant } from '@/services/reedy/ui/ReedyAssistant';
 import type { ReadingContextSnapshot } from '@/services/reedy/tools/builtins/types';
@@ -107,17 +111,45 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
   const aiSettings = settings?.aiSettings;
 
   const backend = useMemo<RetrievalBackend | null>(() => {
-    if (!aiSettings) return null;
+    if (!aiSettings) {
+      console.error('[CopilotAIAssistant] aiSettings is null; backend unavailable');
+      return null;
+    }
+    const isTauri = isTauriAppPlatform();
+    console.log(
+      '[CopilotAIAssistant] platform=',
+      isTauri ? 'tauri' : 'web',
+      'aiSettings.provider=',
+      aiSettings.provider,
+    );
     const legacy = new LegacyIdbBackend(aiSettings);
+    const tauriRust: RetrievalBackend | null = isTauri ? new TauriRustBackend(aiSettings) : null;
     const reedy: RetrievalBackend | null =
-      appService && isTauriAppPlatform()
-        ? new ReedyBackend(appService as AppService, aiSettings)
-        : null;
-    return selectBackend({ settings: aiSettings, isTauri: isTauriAppPlatform(), legacy, reedy });
+      appService && isTauri ? new ReedyBackend(appService as AppService, aiSettings) : null;
+    const selected = selectBackend({
+      settings: aiSettings,
+      isTauri,
+      tauriRust,
+      legacy,
+      reedy,
+    });
+    console.log('[CopilotAIAssistant] selected backend=', selected?.kind);
+    return selected;
   }, [aiSettings, appService]);
 
   const handleIndex = useCallback(async () => {
-    if (!bookData?.bookDoc || !aiSettings || !backend) return;
+    if (!bookData?.bookDoc) {
+      console.error('[CopilotAIAssistant] handleIndex: bookDoc missing');
+      return;
+    }
+    if (!aiSettings) {
+      console.error('[CopilotAIAssistant] handleIndex: aiSettings missing');
+      return;
+    }
+    if (!backend) {
+      console.error('[CopilotAIAssistant] handleIndex: backend missing');
+      return;
+    }
     setIsIndexing(true);
     try {
       await backend.indexBook(bookData.bookDoc, bookHash, { onProgress: setIndexProgress });
@@ -129,16 +161,19 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
         sendMessageRef.current?.(p);
       }
     } catch (e) {
-      aiLogger.rag.indexError(bookHash, (e as Error).message);
+      const msg = (e as Error).message;
+      aiLogger.rag.indexError(bookHash, msg);
+      console.error('[CopilotAIAssistant] indexBook failed:', msg);
+      eventDispatcher.dispatch('toast', { message: `${_('Indexing failed')}: ${msg}` });
     } finally {
       setIsIndexing(false);
       setIndexProgress(null);
     }
-  }, [bookData?.bookDoc, bookHash, aiSettings, backend]);
+  }, [bookData?.bookDoc, bookHash, aiSettings, backend, _]);
 
   const sendMessage = useCallback(
     async (text: string) => {
-      if (!text || !aiSettings || isGenerating) return;
+      if (!text || !aiSettings || !bookData?.bookDoc || isGenerating) return;
 
       const userMsg: ChatMessage = {
         id: `user-${Date.now()}`,
@@ -163,7 +198,18 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
       try {
         const provider = getAIProvider(aiSettings);
         const model = provider.getModel();
-        const systemPrompt = buildSystemPrompt(bookTitle, authorName, [], currentPage);
+        const answerLanguage = resolveAnswerLanguageName(
+          aiSettings.answerLanguage,
+          bookData.bookDoc,
+          i18n.language,
+        );
+        const systemPrompt = buildSystemPrompt(
+          bookTitle,
+          authorName,
+          [],
+          currentPage,
+          answerLanguage,
+        );
 
         let chunks = '';
         if (backend && (await backend.isIndexed(bookHash))) {
@@ -333,6 +379,7 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
 
   // ---- Not yet indexed, no existing conversations ----
   if (!indexed && !isIndexing && conversations.length === 0) {
+    const canIndex = Boolean(bookData?.bookDoc && aiSettings && backend);
     return (
       <div className='flex h-full flex-col items-center justify-center gap-3 p-4 text-center'>
         <div className='bg-primary/10 rounded-full p-3'>
@@ -344,7 +391,16 @@ const CopilotMvpAssistant = ({ bookKey }: CopilotAIAssistantProps) => {
             {_('Enable AI search and chat for this book')}
           </p>
         </div>
-        <Button onClick={handleIndex} size='sm' className='h-8 text-xs'>
+        {!canIndex && (
+          <p className='text-error text-xs'>
+            {!aiSettings
+              ? _('AI settings not loaded. Please configure AI in Settings.')
+              : !backend
+                ? _('Backend unavailable. Restart the app or check Settings.')
+                : _('Book document not ready. Please wait or reopen the book.')}
+          </p>
+        )}
+        <Button onClick={handleIndex} size='sm' className='h-8 text-xs' disabled={!canIndex}>
           <BookOpenIcon className='mr-1.5 size-3.5' />
           {_('Start Indexing')}
         </Button>

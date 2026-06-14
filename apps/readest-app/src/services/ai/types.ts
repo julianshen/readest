@@ -111,6 +111,7 @@ export interface EmbeddingProgress {
   current: number;
   total: number;
   phase: 'chunking' | 'embedding' | 'indexing';
+  bookHash?: string;
 }
 
 // stored AI conversation for a book
