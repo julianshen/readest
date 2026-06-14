@@ -21,6 +21,7 @@ import FooterBar from './footerbar/FooterBar';
 import ProgressBar from './ProgressBar';
 import Ribbon from './Ribbon';
 import Annotator from './annotator/Annotator';
+import MangaBubbleTranslator from './annotator/MangaBubbleTranslator';
 import FootnotePopup from './FootnotePopup';
 import HintInfo from './HintInfo';
 import ReadingRuler from './ReadingRuler';
@@ -267,6 +268,7 @@ const BookCellInner: React.FC<BookCellProps> = ({
       )}
       <PageNavigationButtons bookKey={bookKey} isDropdownOpen={isDropdownOpen} />
       <Annotator bookKey={bookKey} contentInsets={contentInsets} />
+      <MangaBubbleTranslator bookKey={bookKey} />
       <SearchResultsNav bookKey={bookKey} gridInsets={gridInsets} />
       <BooknotesNav bookKey={bookKey} gridInsets={gridInsets} toc={bookDoc.toc || []} />
       <FootnotePopup bookKey={bookKey} bookDoc={bookDoc} />
