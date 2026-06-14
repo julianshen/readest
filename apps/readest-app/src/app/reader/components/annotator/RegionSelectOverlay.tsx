@@ -50,6 +50,7 @@ const RegionSelectOverlay: React.FC<Props> = ({ onSelect, onCancel }) => {
         if (r && r.right - r.left >= MIN_DRAG && r.bottom - r.top >= MIN_DRAG) onSelect(r);
         else onCancel();
       }}
+      onPointerCancel={onCancel}
     >
       {box && (
         <div

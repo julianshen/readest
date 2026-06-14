@@ -40,9 +40,12 @@ const systemPromptFor = (targetLang: string): string =>
 
 // Exported for unit testing.
 export const parseRegionResult = (text: string): RegionResult => {
+  // LLMs often bold the labels (**TRANSCRIPTION:**) or vary case; strip asterisks
+  // and match case-insensitively so the contract is robust.
+  const clean = text.replace(/\*/g, '');
   const grab = (label: string): string => {
-    const re = new RegExp(`${label}:\\s*([\\s\\S]*?)(?=\\n[A-Z]+:|$)`);
-    const raw = text.match(re)?.[1]?.trim() ?? '';
+    const re = new RegExp(`${label}:\\s*([\\s\\S]*?)(?=\\n\\s*[A-Za-z]+:|$)`, 'i');
+    const raw = clean.match(re)?.[1]?.trim() ?? '';
     return raw === 'NO_TEXT' ? '' : raw;
   };
   return { transcription: grab('TRANSCRIPTION'), translation: grab('TRANSLATION') };

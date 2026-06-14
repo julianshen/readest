@@ -30,6 +30,10 @@ const MIN_NATURAL_EDGE = 8;
 // Pure geometry: map a viewport drag rect to a source-pixel crop on the page
 // image, clamped to image bounds and capped at maxEdge on the long side.
 export const computeNaturalCropRect = (g: CropGeometry): CropResult | null => {
+  const imgW = g.imgRect.right - g.imgRect.left;
+  const imgH = g.imgRect.bottom - g.imgRect.top;
+  if (imgW <= 0 || imgH <= 0) return null; // image not laid out yet
+
   const localLeft = (g.screenRect.left - g.frameRect.left) / g.frameScaleX;
   const localTop = (g.screenRect.top - g.frameRect.top) / g.frameScaleY;
   const localRight = (g.screenRect.right - g.frameRect.left) / g.frameScaleX;
@@ -41,8 +45,8 @@ export const computeNaturalCropRect = (g: CropGeometry): CropResult | null => {
   const clampedBottom = Math.min(localBottom, g.imgRect.bottom);
   if (clampedRight <= clampedLeft || clampedBottom <= clampedTop) return null;
 
-  const kx = g.naturalWidth / (g.imgRect.right - g.imgRect.left);
-  const ky = g.naturalHeight / (g.imgRect.bottom - g.imgRect.top);
+  const kx = g.naturalWidth / imgW;
+  const ky = g.naturalHeight / imgH;
   const sx = (clampedLeft - g.imgRect.left) * kx;
   const sy = (clampedTop - g.imgRect.top) * ky;
   const sw = (clampedRight - clampedLeft) * kx;
@@ -51,13 +55,20 @@ export const computeNaturalCropRect = (g: CropGeometry): CropResult | null => {
 
   const longEdge = Math.max(sw, sh);
   const k = longEdge > g.maxEdge ? g.maxEdge / longEdge : 1;
+  // Clamp rounded source coords to the image bounds so drawImage never throws
+  // IndexSizeError on a sub-pixel rounding overflow.
+  const rsx = Math.round(sx);
+  const rsy = Math.round(sy);
+  const rsw = Math.min(Math.round(sw), g.naturalWidth - rsx);
+  const rsh = Math.min(Math.round(sh), g.naturalHeight - rsy);
+  if (rsw < MIN_NATURAL_EDGE || rsh < MIN_NATURAL_EDGE) return null;
   return {
-    sx: Math.round(sx),
-    sy: Math.round(sy),
-    sw: Math.round(sw),
-    sh: Math.round(sh),
-    outW: Math.round(sw * k),
-    outH: Math.round(sh * k),
+    sx: rsx,
+    sy: rsy,
+    sw: rsw,
+    sh: rsh,
+    outW: Math.max(1, Math.round(rsw * k)),
+    outH: Math.max(1, Math.round(rsh * k)),
   };
 };
 

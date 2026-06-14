@@ -30,6 +30,12 @@ describe('parseRegionResult', () => {
       translation: '',
     });
   });
+  it('tolerates markdown-bold labels and mixed case', () => {
+    expect(parseRegionResult('**Transcription:** やあ\n**Translation:** Hi')).toEqual({
+      transcription: 'やあ',
+      translation: 'Hi',
+    });
+  });
 });
 
 describe('translateRegion', () => {

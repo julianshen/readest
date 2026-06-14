@@ -10,7 +10,7 @@ interface Props {
   transcription: string;
   translation: string;
   error: string | null; // a BubbleErrorCodes value or null
-  position: { x: number; y: number };
+  position: { x: number; y: number; placeAbove?: boolean };
   width: number;
   onDismiss: () => void;
 }
@@ -48,7 +48,12 @@ const BubbleTranslationPopup: React.FC<Props> = ({
         'bg-base-100 eink-bordered fixed z-50 rounded-lg p-3 shadow-lg',
         'not-eink:border not-eink:border-base-300',
       )}
-      style={{ left: position.x, top: position.y, width }}
+      style={{
+        left: position.x,
+        top: position.y,
+        width,
+        transform: position.placeAbove ? 'translateY(-100%)' : undefined,
+      }}
       data-setting-id='reader.manga-bubble-popup'
     >
       <div className='mb-1 flex items-center justify-between'>

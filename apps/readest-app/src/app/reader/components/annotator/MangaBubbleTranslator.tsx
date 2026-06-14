@@ -26,7 +26,7 @@ interface PopupState {
   loading: boolean;
   result: RegionResult;
   error: string | null;
-  position: { x: number; y: number };
+  position: { x: number; y: number; placeAbove?: boolean };
 }
 
 const MangaBubbleTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
@@ -51,7 +51,21 @@ const MangaBubbleTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
     setSelecting(false);
     const view = getView(bookKey);
     const contents = view?.renderer?.getContents?.() ?? [];
-    const primary = contents[0];
+    // getContents() returns ALL loaded pages (incl. off-screen preloaded ones)
+    // sorted by index, so contents[0] isn't necessarily the visible page. Pick
+    // the content whose iframe contains the drag rect's center; fall back to the
+    // renderer's primary index, then the first content.
+    const cx = (screenRect.left + screenRect.right) / 2;
+    const cy = (screenRect.top + screenRect.bottom) / 2;
+    const frameRectOf = (c: { doc?: Document }) =>
+      (c.doc?.defaultView?.frameElement as HTMLElement | null)?.getBoundingClientRect();
+    const primary =
+      contents.find((c) => {
+        const r = frameRectOf(c);
+        return !!r && cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+      }) ??
+      contents.find((c) => c.index === view?.renderer?.primaryIndex) ??
+      contents[0];
     const doc = primary?.doc as Document | undefined;
     const img = doc?.querySelector('img') as HTMLImageElement | null;
     const iframe = doc?.defaultView?.frameElement as HTMLIFrameElement | null;
@@ -77,9 +91,13 @@ const MangaBubbleTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
     if (!crop) return;
 
     const targetLang = getLanguageName(getLocale());
+    // If the region is near the bottom, anchor the popup above it (the popup
+    // applies translateY(-100%)) so it can't run off the bottom edge.
+    const placeAbove = screenRect.bottom + 160 > window.innerHeight;
     const position = {
       x: Math.max(8, Math.min(screenRect.left, window.innerWidth - POPUP_WIDTH - 8)),
-      y: screenRect.bottom + 6,
+      y: placeAbove ? screenRect.top - 6 : screenRect.bottom + 6,
+      placeAbove,
     };
     const key = regionCacheKey(primary?.index ?? 0, screenRect, targetLang);
     const cached = cacheRef.current.get(key);
