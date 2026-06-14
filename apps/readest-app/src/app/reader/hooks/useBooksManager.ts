@@ -28,6 +28,17 @@ const useBooksManager = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookKeys, shouldUpdateSearchParams]);
 
+  // Open a single book, replacing the current reader contents (e.g. continue to
+  // the next volume in a series). Drives a reactive re-render via bookKeys and
+  // syncs the URL.
+  const openBook = (id: string) => {
+    const newKey = `${id}-${uniqueId()}`;
+    initViewState(envConfig, id, newKey, true);
+    setBookKeys([newKey]);
+    setSideBarBookKey(newKey);
+    setShouldUpdateSearchParams(true);
+  };
+
   // Append a new book and sync with bookKeys and URL
   const appendBook = (id: string, isPrimary: boolean, isParallel: boolean) => {
     const newKey = `${id}-${uniqueId()}`;
@@ -61,6 +72,7 @@ const useBooksManager = () => {
 
   return {
     bookKeys,
+    openBook,
     appendBook,
     dismissBook,
     getNextBookKey,

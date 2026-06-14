@@ -57,8 +57,8 @@ const FooterBar: React.FC<FooterBarProps> = ({
 
   const progressValid = !!progressInfo && progressInfo.total > 0 && progressInfo.current >= 0;
 
-  const { getVisibleLibrary } = useLibraryStore();
-  const atEnd = progressValid && progressInfo.current + 1 >= progressInfo.total;
+  const getVisibleLibrary = useLibraryStore((state) => state.getVisibleLibrary);
+  const atEnd = progressValid && !!progressInfo && progressInfo.current + 1 >= progressInfo.total;
   // Recomputed when the reader reaches the end (atEnd flips) — the library is
   // read fresh at that moment. We intentionally don't track later library
   // mutations mid-read (rare; would need a visibleLibrary subscription).

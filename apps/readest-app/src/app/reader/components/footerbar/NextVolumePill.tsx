@@ -1,16 +1,15 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { MdClose, MdChevronRight } from 'react-icons/md';
 
 import { useTranslation } from '@/hooks/useTranslation';
-import { navigateToReader } from '@/utils/nav';
+import useBooksManager from '../../hooks/useBooksManager';
 import type { Book } from '@/types/book';
 
 // Dismissible footer pill shown at end-of-book when a next volume exists.
 const NextVolumePill: React.FC<{ nextBook: Book }> = ({ nextBook }) => {
   const _ = useTranslation();
-  const router = useRouter();
+  const { openBook } = useBooksManager();
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
 
@@ -23,8 +22,8 @@ const NextVolumePill: React.FC<{ nextBook: Book }> = ({ nextBook }) => {
       data-setting-id='reader.footer.next-volume'
     >
       <button
-        className='btn-primary flex min-w-0 flex-1 items-center gap-1 rounded-full px-2 py-1'
-        onClick={() => navigateToReader(router, [nextBook.hash])}
+        className='btn btn-primary flex min-w-0 flex-1 items-center gap-1 rounded-full px-2 py-1'
+        onClick={() => openBook(nextBook.hash)}
       >
         <span className='text-base-content/70 shrink-0 text-xs'>{_('Next Volume')}</span>
         <span className='truncate text-sm font-medium'>{nextBook.title}</span>

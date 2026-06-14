@@ -365,7 +365,10 @@ export const findNextInSeries = (library: Book[], book: Book): Book | null => {
   if (currentIndex != null) {
     const ahead = inSeries
       .filter((b) => (b.metadata?.seriesIndex ?? -Infinity) > currentIndex)
-      .sort((a, b) => a.metadata!.seriesIndex! - b.metadata!.seriesIndex!);
+      .sort((a, b) => {
+        const diff = a.metadata!.seriesIndex! - b.metadata!.seriesIndex!;
+        return diff !== 0 ? diff : (a.title || '').localeCompare(b.title || '');
+      });
     // When the current book is indexed, only an indexed successor counts as
     // "next"; don't fall through to title order (which could surface a lower or
     // un-indexed volume).
