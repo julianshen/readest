@@ -1718,5 +1718,13 @@
   "Webtoon Mode": "ウェブトゥーンモード",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "隙間のない連続した縦スクロール。マンファやウェブトゥーンに最適です。",
   "Next Volume": "次の巻",
-  "Page {{page}}": "{{page}}ページ"
+  "Page {{page}}": "{{page}}ページ",
+  "Configure an AI provider in Settings → AI Assistant first.": "まず設定 → AIアシスタントでAIプロバイダーを設定してください。",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "このモデルは画像を読み取れません — 設定 → AIアシスタントで画像対応モデルを選択してください。",
+  "Translation failed. Please try again.": "翻訳に失敗しました。もう一度お試しください。",
+  "Bubble Translation": "吹き出し翻訳",
+  "No text detected in this region": "この範囲にテキストが見つかりませんでした",
+  "Hide original": "原文を非表示",
+  "Show original": "原文を表示",
+  "Translate Region": "範囲を翻訳"
 }

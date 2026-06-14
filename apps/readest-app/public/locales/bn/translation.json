@@ -1751,5 +1751,13 @@
   "Webtoon Mode": "ওয়েবটুন মোড",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "ফাঁক ছাড়াই নিরবচ্ছিন্ন উল্লম্ব স্ক্রল, মানহওয়া ও ওয়েবটুনের জন্য।",
   "Next Volume": "পরবর্তী খণ্ড",
-  "Page {{page}}": "পৃষ্ঠা {{page}}"
+  "Page {{page}}": "পৃষ্ঠা {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "প্রথমে সেটিংস → এআই অ্যাসিস্ট্যান্ট-এ একটি এআই প্রদানকারী কনফিগার করুন।",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "এই মডেলটি ছবি পড়তে পারে না — সেটিংস → এআই অ্যাসিস্ট্যান্ট-এ একটি ভিশন-সক্ষম মডেল বেছে নিন।",
+  "Translation failed. Please try again.": "অনুবাদ ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+  "Bubble Translation": "বাবল অনুবাদ",
+  "No text detected in this region": "এই অঞ্চলে কোনো লেখা পাওয়া যায়নি",
+  "Hide original": "মূল লুকান",
+  "Show original": "মূল দেখান",
+  "Translate Region": "অঞ্চল অনুবাদ করুন"
 }

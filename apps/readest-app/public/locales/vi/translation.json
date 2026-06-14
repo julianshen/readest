@@ -1718,5 +1718,13 @@
   "Webtoon Mode": "Chế độ Webtoon",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Cuộn dọc liền mạch không có khoảng trống, dành cho manhwa và webtoon.",
   "Next Volume": "Tập tiếp theo",
-  "Page {{page}}": "Trang {{page}}"
+  "Page {{page}}": "Trang {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "Trước tiên hãy thiết lập nhà cung cấp AI trong Cài đặt → Trợ lý AI.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Mô hình này không thể đọc hình ảnh — hãy chọn một mô hình có khả năng thị giác trong Cài đặt → Trợ lý AI.",
+  "Translation failed. Please try again.": "Dịch thất bại. Vui lòng thử lại.",
+  "Bubble Translation": "Dịch bong bóng",
+  "No text detected in this region": "Không phát hiện văn bản trong vùng này",
+  "Hide original": "Ẩn bản gốc",
+  "Show original": "Hiện bản gốc",
+  "Translate Region": "Dịch vùng"
 }

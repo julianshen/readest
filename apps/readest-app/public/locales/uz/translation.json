@@ -1751,5 +1751,13 @@
   "Webtoon Mode": "Webtoon rejimi",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Bo'shliqsiz uzluksiz vertikal aylantirish, manhva va webtoonlar uchun.",
   "Next Volume": "Keyingi jild",
-  "Page {{page}}": "{{page}}-sahifa"
+  "Page {{page}}": "{{page}}-sahifa",
+  "Configure an AI provider in Settings → AI Assistant first.": "Avval Sozlamalar → AI yordamchisi bo'limida AI provayderini sozlang.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Bu model rasmlarni o'qiy olmaydi — Sozlamalar → AI yordamchisi bo'limida ko'rish qobiliyatiga ega modelni tanlang.",
+  "Translation failed. Please try again.": "Tarjima amalga oshmadi. Iltimos, qayta urinib ko'ring.",
+  "Bubble Translation": "Pufak tarjimasi",
+  "No text detected in this region": "Bu hududda matn aniqlanmadi",
+  "Hide original": "Aslini yashirish",
+  "Show original": "Aslini ko'rsatish",
+  "Translate Region": "Hududni tarjima qilish"
 }

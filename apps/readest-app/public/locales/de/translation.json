@@ -1751,5 +1751,13 @@
   "Webtoon Mode": "Webtoon-Modus",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Nahtloses vertikales Scrollen ohne Lücken, für Manhwa und Webtoons.",
   "Next Volume": "Nächster Band",
-  "Page {{page}}": "Seite {{page}}"
+  "Page {{page}}": "Seite {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "Richte zuerst einen KI-Anbieter unter Einstellungen → KI-Assistent ein.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Dieses Modell kann keine Bilder lesen — wähle unter Einstellungen → KI-Assistent ein bildfähiges Modell.",
+  "Translation failed. Please try again.": "Übersetzung fehlgeschlagen. Bitte versuche es erneut.",
+  "Bubble Translation": "Sprechblasen-Übersetzung",
+  "No text detected in this region": "In diesem Bereich wurde kein Text erkannt",
+  "Hide original": "Original ausblenden",
+  "Show original": "Original anzeigen",
+  "Translate Region": "Bereich übersetzen"
 }

@@ -1817,5 +1817,13 @@
   "Webtoon Mode": "Режим вебтуна",
   "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "Непрерывная вертикальная прокрутка без промежутков, для манхвы и вебтунов.",
   "Next Volume": "Следующий том",
-  "Page {{page}}": "Страница {{page}}"
+  "Page {{page}}": "Страница {{page}}",
+  "Configure an AI provider in Settings → AI Assistant first.": "Сначала настройте поставщика ИИ в Настройки → ИИ-ассистент.",
+  "This model can't read images — choose a vision-capable model in Settings → AI Assistant.": "Эта модель не умеет читать изображения — выберите модель с поддержкой зрения в Настройки → ИИ-ассистент.",
+  "Translation failed. Please try again.": "Не удалось выполнить перевод. Попробуйте ещё раз.",
+  "Bubble Translation": "Перевод облачка",
+  "No text detected in this region": "В этой области текст не найден",
+  "Hide original": "Скрыть оригинал",
+  "Show original": "Показать оригинал",
+  "Translate Region": "Перевести область"
 }
