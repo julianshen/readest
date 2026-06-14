@@ -315,12 +315,14 @@ describe('computeNaturalCropRect', () => {
 });
 
 describe('regionCacheKey', () => {
-  it('snaps the rect to an 8px grid and includes section + lang', () => {
-    expect(regionCacheKey(3, rect(10, 17, 90, 113), 'English')).toBe(
-      regionCacheKey(3, rect(12, 15, 88, 111), 'English'),
+  it('snaps near-identical rects (same 8px cell) to one key', () => {
+    expect(regionCacheKey(3, rect(9, 17, 89, 113), 'English')).toBe(
+      regionCacheKey(3, rect(11, 15, 87, 111), 'English'),
     );
-    expect(regionCacheKey(3, rect(10, 17, 90, 113), 'English')).not.toBe(
-      regionCacheKey(4, rect(10, 17, 90, 113), 'English'),
+  });
+  it('keys differ by section index and target language', () => {
+    expect(regionCacheKey(3, rect(9, 17, 89, 113), 'English')).not.toBe(
+      regionCacheKey(4, rect(9, 17, 89, 113), 'English'),
     );
   });
 });
