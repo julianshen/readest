@@ -59,6 +59,9 @@ const FooterBar: React.FC<FooterBarProps> = ({
 
   const { getVisibleLibrary } = useLibraryStore();
   const atEnd = progressValid && progressInfo.current + 1 >= progressInfo.total;
+  // Recomputed when the reader reaches the end (atEnd flips) — the library is
+  // read fresh at that moment. We intentionally don't track later library
+  // mutations mid-read (rare; would need a visibleLibrary subscription).
   const nextVolume = useMemo(
     () => (atEnd && bookData?.book ? findNextInSeries(getVisibleLibrary(), bookData.book) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps

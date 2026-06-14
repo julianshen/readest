@@ -37,6 +37,14 @@ describe('findNextInSeries', () => {
     expect(findNextInSeries([v1, other], v1)).toBeNull();
   });
 
+  it('does not fall back to title order when an indexed book has no indexed successor', () => {
+    const v1 = mk('a', 'Vol 1', 'S', 1);
+    const v2 = mk('b', 'Vol 2', 'S', 2);
+    const extra = mk('z', 'Zebra', 'S'); // no index, sorts after v2 by title
+    // v2 is the last indexed volume; an un-indexed companion must NOT be offered.
+    expect(findNextInSeries([v1, v2, extra], v2)).toBeNull();
+  });
+
   it('falls back to title order when indices are absent', () => {
     const a = mk('a', 'Arc A', 'S');
     const b = mk('b', 'Arc B', 'S');
