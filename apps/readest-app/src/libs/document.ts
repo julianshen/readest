@@ -37,6 +37,8 @@ export interface SectionItem {
   id: string;
   cfi: string;
   size: number;
+  // CBZ comic sections expose the raw page image Blob for thumbnail generation.
+  loadImage?: () => Promise<Blob>;
   linear: string;
   href?: string;
   location?: Location;

@@ -1716,5 +1716,6 @@
   "On": "開",
   "Webtoon": "Webtoon",
   "Webtoon Mode": "Webtoon 模式",
-  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "無縫垂直捲動、頁面之間沒有間隙，適合條漫和韓漫。"
+  "Seamless vertical scroll with no gaps, for manhwa and webtoons.": "無縫垂直捲動、頁面之間沒有間隙，適合條漫和韓漫。",
+  "Page {{page}}": "第 {{page}} 頁"
 }

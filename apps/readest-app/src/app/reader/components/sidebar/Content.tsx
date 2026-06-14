@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 
 import { BookDoc } from '@/libs/document';
+import { IMAGE_BOOK_FORMATS } from '@/types/book';
 import { useReaderStore } from '@/store/readerStore';
 import { useSidebarStore } from '@/store/sidebarStore';
 import { useBookDataStore } from '@/store/bookDataStore';
@@ -10,6 +11,7 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
 import TOCView from './TOCView';
+import PageThumbnailGrid from './PageThumbnailGrid';
 import BooknoteView from './BooknoteView';
 import TabNavigation from './TabNavigation';
 import ChatHistoryView from './ChatHistoryView';
@@ -20,9 +22,11 @@ const SidebarContent: React.FC<{
 }> = ({ bookDoc, sideBarBookKey }) => {
   const { setHoveredBookKey } = useReaderStore();
   const { setSideBarVisible } = useSidebarStore();
-  const { getConfig, setConfig } = useBookDataStore();
+  const { getConfig, setConfig, getBookData } = useBookDataStore();
   const { settings } = useSettingsStore();
   const config = getConfig(sideBarBookKey);
+  const bookData = getBookData(sideBarBookKey);
+  const isComic = !!bookData?.book && IMAGE_BOOK_FORMATS.has(bookData.book.format);
   const [activeTab, setActiveTab] = useState(config?.viewSettings?.sideBarTab || 'toc');
   const [fade, setFade] = useState(false);
   const [targetTab, setTargetTab] = useState(activeTab);
@@ -94,9 +98,12 @@ const SidebarContent: React.FC<{
                 },
               )}
             >
-              {targetTab === 'toc' && bookDoc.toc && (
-                <TOCView toc={bookDoc.toc} bookKey={sideBarBookKey} />
-              )}
+              {targetTab === 'toc' &&
+                (isComic ? (
+                  <PageThumbnailGrid bookKey={sideBarBookKey} bookDoc={bookDoc} />
+                ) : (
+                  bookDoc.toc && <TOCView toc={bookDoc.toc} bookKey={sideBarBookKey} />
+                ))}
               {targetTab === 'annotations' && (
                 <BooknoteView type='annotation' toc={bookDoc.toc ?? []} bookKey={sideBarBookKey} />
               )}
