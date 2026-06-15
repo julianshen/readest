@@ -765,6 +765,7 @@ const FoliateViewer: React.FC<{
     const webtoonAttrs = getWebtoonRendererAttributes(webtoon, viewSettings.scrolled);
     viewRef.current?.renderer.setAttribute('page-gap', webtoonAttrs['page-gap']);
     viewRef.current?.renderer.setAttribute('scroll-lookahead', webtoonAttrs['scroll-lookahead']);
+    viewRef.current?.renderer.setAttribute('scroll-max-loaded', webtoonAttrs['scroll-max-loaded']);
     if (scrolled) {
       viewRef.current?.renderer.setAttribute('flow', 'scrolled');
       if (viewSettings.noContinuousScroll) {
