@@ -65,7 +65,17 @@ export const computeParagraphHighlightOffsets = (
     pre.setStart(paragraphRange.startContainer, paragraphRange.startOffset);
     pre.setEnd(targetRange.startContainer, targetRange.startOffset);
     const start = pre.toString().length;
-    const length = targetRange.toString().length;
+    // Clamp the target's end to the paragraph end: a sentence range can begin in
+    // this paragraph and spill into the next, and measuring its full text would
+    // overshoot the paragraph clone and produce invalid highlight offsets.
+    const measured = doc.createRange();
+    measured.setStart(targetRange.startContainer, targetRange.startOffset);
+    if (paragraphRange.isPointInRange(targetRange.endContainer, targetRange.endOffset)) {
+      measured.setEnd(targetRange.endContainer, targetRange.endOffset);
+    } else {
+      measured.setEnd(paragraphRange.endContainer, paragraphRange.endOffset);
+    }
+    const length = measured.toString().length;
     if (length <= 0) return null;
     return { start, end: start + length };
   } catch {

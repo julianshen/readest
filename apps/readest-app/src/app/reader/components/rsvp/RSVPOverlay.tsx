@@ -764,7 +764,6 @@ const RSVPOverlay: React.FC<RSVPOverlayProps> = ({
             <button
               className='eink-bordered flex items-center gap-1.5 rounded-full border border-gray-500/20 bg-gray-500/10 px-3 py-1.5 text-sm transition-colors hover:bg-gray-500/20'
               onClick={() => setShowRateDropdown(!showRateDropdown)}
-              aria-disabled='true'
               aria-label={_('Audio pace')}
               title={_('Speed follows audio')}
             >

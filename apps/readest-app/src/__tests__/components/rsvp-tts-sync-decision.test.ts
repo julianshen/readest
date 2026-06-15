@@ -105,6 +105,7 @@ describe('decideRsvpTtsPosition (slice 5, #3235)', () => {
       cfi: 'epubcfi(/6/12!/4/2/1:0)',
       sequence: 9,
       sectionIndex: 5,
+      kind: 'word',
     });
   });
 

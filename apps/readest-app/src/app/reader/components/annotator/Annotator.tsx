@@ -208,10 +208,13 @@ const Annotator: React.FC<{ bookKey: string; contentInsets: Insets }> = ({
   // since they show the wider highlight options / notes instead of the buttons.
   const annotPopupMaxWidth = Math.min(useResponsiveSize(300), maxWidth);
   const annotPopupToolSize = useResponsiveSize(44);
+  // Mirror the button-render filter below ('ai' is dropped when the AI assistant
+  // isn't configured) so the popup width matches the actual button count and
+  // doesn't leave an empty trailing slot.
   const visibleToolCount = getToolbarToolTypes(
     viewSettings.annotationToolbarItems,
     canShare,
-  ).length;
+  ).filter((type) => type !== 'ai' || isAIAssistantConfigured(settings.aiSettings)).length;
   const annotPopupWidth = selection?.annotated
     ? annotPopupMaxWidth
     : Math.min(Math.max(visibleToolCount, 1) * annotPopupToolSize, annotPopupMaxWidth);

@@ -786,9 +786,11 @@ export const useParagraphMode = ({ bookKey, viewRef }: UseParagraphModeProps) =>
         followingTtsRef.current = true;
       }
       if (!active) {
-        // Full stop: forget word-boundary state and clear the word highlight so a
-        // later engine (which may lack word boundaries) starts clean.
+        // Full stop: forget word-boundary state and any stashed cross-section
+        // sync, and clear the word highlight so a later engine (which may lack
+        // word boundaries) starts clean.
         hasWordPositionsRef.current = false;
+        pendingSyncRef.current = null;
         eventDispatcher.dispatch('paragraph-tts-highlight', {
           bookKey: bookKeyRef.current,
           clear: true,

@@ -68,6 +68,9 @@ export interface RsvpTtsPendingSync {
   cfi: string;
   sequence: number;
   sectionIndex: number;
+  // Whether the stashed position was word- or sentence-level, so the estimator
+  // pacing can be resumed correctly after the new section re-extracts.
+  kind?: 'word' | 'sentence';
 }
 
 export interface RsvpTtsSyncState {
@@ -136,7 +139,12 @@ export const decideRsvpTtsPosition = (
       nextState: {
         ...state,
         lastSequenceSeen: sequence,
-        pendingSync: { cfi: detail.cfi, sequence, sectionIndex: detail.sectionIndex },
+        pendingSync: {
+          cfi: detail.cfi,
+          sequence,
+          sectionIndex: detail.sectionIndex,
+          kind: detail.kind,
+        },
       },
     };
   }
@@ -401,8 +409,18 @@ const RSVPControl = forwardRef<RSVPControlHandle, RSVPControlProps>(function RSV
         pending.sequence === syncStateRef.current.lastSequenceSeen &&
         pending.sectionIndex === view.renderer.primaryIndex
       ) {
-        if (syncStateRef.current.pendingSync?.cfi) {
-          controller.syncToCfi(pending.cfi);
+        if (pending.cfi) {
+          if (pending.kind === 'sentence') {
+            // Sentence-only engine: resume estimator pacing, else RSVP freezes
+            // on the new section's first word until the next sentence mark.
+            const viewSettings = getViewSettings(bookKey);
+            const wpm = RSVPController.estimatedWpmFromRate(viewSettings?.ttsRate ?? 1);
+            controller.driveEstimatedFromCfi(pending.cfi, wpm);
+            setTtsEstimated(true);
+          } else {
+            controller.syncToCfi(pending.cfi);
+            setTtsEstimated(false);
+          }
         }
         syncStateRef.current.pendingSync = undefined;
       }
