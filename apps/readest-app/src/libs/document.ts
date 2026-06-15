@@ -329,6 +329,16 @@ export class DocumentLoader {
     );
   }
 
+  private isTxt(): boolean {
+    // Tolerate MIME params (text/plain;charset=utf-8), uppercase extensions
+    // (BOOK.TXT), and a nameless Blob — otherwise a TXT can slip onto the
+    // non-text path and yield a null book.
+    return (
+      this.file.type.startsWith('text/plain') ||
+      (this.file.name?.toLowerCase().endsWith(`.${EXTS.TXT}`) ?? false)
+    );
+  }
+
   public async open(): Promise<{ book: BookDoc; format: BookFormat }> {
     let book = null;
     let format: BookFormat = 'EPUB';
@@ -336,6 +346,16 @@ export class DocumentLoader {
       throw new Error('File is empty');
     }
     try {
+      // A raw .txt has no binary book format, so the checks below all miss and
+      // `book` stays null. Convert it to EPUB in-memory first (the same
+      // conversion the import path runs) and parse that. The managed library
+      // stores the already-converted EPUB, but the Android "Open with" transient
+      // path points the book at the original .txt, so it reaches us unconverted.
+      if (this.isTxt()) {
+        const { TxtToEpubConverter } = await import('@/utils/txt');
+        const { file: epubFile } = await new TxtToEpubConverter().convert({ file: this.file });
+        return await new DocumentLoader(epubFile).open();
+      }
       if (await this.isZip()) {
         // EPUB-only fast path: ask Rust to pre-read OPF/nav/ncx + sizes.
         // CBZ/FBZ skip this -- they have no OPF and Rust has no parser

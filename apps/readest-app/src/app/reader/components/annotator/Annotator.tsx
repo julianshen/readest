@@ -48,6 +48,9 @@ import { runSimpleCC } from '@/utils/simplecc';
 import { getWordCount } from '@/utils/word';
 import { getIndexFromCfi } from '@/utils/cfi';
 import { writeTextToClipboard } from '@/utils/clipboard';
+import { canShareText, shareSelectedText } from '@/utils/share';
+import { getToolbarToolTypes } from '@/utils/annotationToolbar';
+import { AnnotationToolType } from '@/types/annotator';
 import { TransformContext } from '@/services/transformers/types';
 import { transformContent } from '@/services/transformService';
 import {
@@ -198,7 +201,23 @@ const Annotator: React.FC<{ bookKey: string; contentInsets: Insets }> = ({
   const selectionAIPopupHeight = Math.min(240, maxHeight);
   const proofreadPopupWidth = Math.min(440, maxWidth);
   const proofreadPopupHeight = Math.min(200, maxHeight);
-  const annotPopupWidth = Math.min(useResponsiveSize(300), maxWidth);
+  const canShare = canShareText(appService);
+  // The toolbar is now customizable, so size the selection popup to the number
+  // of visible tools (responsive) up to a max — otherwise a 2-tool toolbar
+  // renders a sparse, full-width bar. Annotated selections keep the max width
+  // since they show the wider highlight options / notes instead of the buttons.
+  const annotPopupMaxWidth = Math.min(useResponsiveSize(300), maxWidth);
+  const annotPopupToolSize = useResponsiveSize(44);
+  // Mirror the button-render filter below ('ai' is dropped when the AI assistant
+  // isn't configured) so the popup width matches the actual button count and
+  // doesn't leave an empty trailing slot.
+  const visibleToolCount = getToolbarToolTypes(
+    viewSettings.annotationToolbarItems,
+    canShare,
+  ).filter((type) => type !== 'ai' || isAIAssistantConfigured(settings.aiSettings)).length;
+  const annotPopupWidth = selection?.annotated
+    ? annotPopupMaxWidth
+    : Math.min(Math.max(visibleToolCount, 1) * annotPopupToolSize, annotPopupMaxWidth);
   const annotPopupHeight = useResponsiveSize(44);
   const androidSelectionHandlerHeight = 0;
 
@@ -760,6 +779,9 @@ const Annotator: React.FC<{ bookKey: string; contentInsets: Insets }> = ({
         case 'tts':
           handleSpeakText(true);
           break;
+        case 'share':
+          handleShare();
+          break;
       }
     };
     // On Android, a long-press fires selectionchange (and this handler) while
@@ -953,6 +975,19 @@ const Annotator: React.FC<{ bookKey: string; contentInsets: Insets }> = ({
     if (!appService?.isMobile) {
       setNotebookVisible(true);
     }
+  };
+
+  const handleShare = () => {
+    if (!selection?.text) return;
+    const position = trianglePosition
+      ? {
+          x: trianglePosition.point.x,
+          y: trianglePosition.point.y,
+          preferredEdge: 'bottom' as const,
+        }
+      : undefined;
+    void shareSelectedText(selection.text, position, appService);
+    handleDismissPopupAndSelection();
   };
 
   const handleHighlight = (update = false, highlightStyle?: HighlightStyle) => {
@@ -1486,53 +1521,49 @@ const Annotator: React.FC<{ bookKey: string; contentInsets: Insets }> = ({
     selection.text.trim().length > 0;
   const globalToggleActive = !!currentAnnotation?.global;
   const aiAvailable = isAIAssistantConfigured(settings.aiSettings);
-  const toolButtons = annotationToolButtons
-    .filter((b) => b.type !== 'ai' || aiAvailable)
-    .map(({ type, label, Icon }) => {
-      switch (type) {
-        case 'copy':
-          return { tooltipText: _(label), Icon, onClick: handleCopy };
-        case 'highlight':
-          return {
-            tooltipText: selectionAnnotated ? _('Delete Highlight') : _(label),
-            Icon: selectionAnnotated ? RiDeleteBinLine : Icon,
-            onClick: handleHighlight,
-          };
-        case 'annotate':
-          return {
-            tooltipText: _(label),
-            Icon,
-            onClick: handleAnnotate,
-          };
-        case 'search':
-          return {
-            tooltipText: _(label),
-            Icon,
-            onClick: handleSearch,
-          };
-        case 'dictionary':
-          return { tooltipText: _(label), Icon, onClick: handleDictionary };
-        case 'translate':
-          return { tooltipText: _(label), Icon, onClick: handleTranslation };
-        case 'ai':
-          return { tooltipText: _(label), Icon, onClick: handleSelectionAI };
-        case 'tts':
-          return {
-            tooltipText: _(label),
-            Icon,
-            onClick: handleSpeakText,
-          };
-        case 'proofread':
-          return {
-            tooltipText: _(label),
-            Icon,
-            onClick: handleProofread,
-            disabled: bookData.book?.format !== 'EPUB',
-          };
-        default:
-          return { tooltipText: '', Icon, onClick: () => {} };
-      }
-    });
+  const buildToolButton = (type: AnnotationToolType) => {
+    const def = annotationToolButtons.find((button) => button.type === type);
+    if (!def) return null;
+    const { label, Icon } = def;
+    switch (type) {
+      case 'copy':
+        return { tooltipText: _(label), Icon, onClick: handleCopy };
+      case 'highlight':
+        return {
+          tooltipText: selectionAnnotated ? _('Delete Highlight') : _(label),
+          Icon: selectionAnnotated ? RiDeleteBinLine : Icon,
+          onClick: handleHighlight,
+        };
+      case 'annotate':
+        return { tooltipText: _(label), Icon, onClick: handleAnnotate };
+      case 'search':
+        return { tooltipText: _(label), Icon, onClick: handleSearch };
+      case 'dictionary':
+        return { tooltipText: _(label), Icon, onClick: handleDictionary };
+      case 'translate':
+        return { tooltipText: _(label), Icon, onClick: handleTranslation };
+      case 'ai':
+        return { tooltipText: _(label), Icon, onClick: handleSelectionAI };
+      case 'tts':
+        return { tooltipText: _(label), Icon, onClick: handleSpeakText };
+      case 'proofread':
+        return {
+          tooltipText: _(label),
+          Icon,
+          onClick: handleProofread,
+          disabled: bookData.book?.format !== 'EPUB',
+        };
+      case 'share':
+        return { tooltipText: _(label), Icon, onClick: handleShare };
+      default:
+        return null;
+    }
+  };
+
+  const toolButtons = getToolbarToolTypes(viewSettings.annotationToolbarItems, canShare)
+    .filter((type) => type !== 'ai' || aiAvailable)
+    .map(buildToolButton)
+    .filter((button): button is NonNullable<typeof button> => button !== null);
 
   return (
     <div ref={containerRef} role='toolbar' tabIndex={-1}>
@@ -1596,27 +1627,33 @@ const Annotator: React.FC<{ bookKey: string; contentInsets: Insets }> = ({
           onDismiss={handleDismissPopupAndSelection}
         />
       )}
-      {showAnnotPopup && trianglePosition && annotPopupPosition && (
-        <AnnotationPopup
-          bookKey={bookKey}
-          dir={viewSettings.rtl ? 'rtl' : 'ltr'}
-          isVertical={viewSettings.vertical}
-          buttons={toolButtons}
-          notes={annotationNotes}
-          position={annotPopupPosition}
-          trianglePosition={trianglePosition}
-          highlightOptionsVisible={highlightOptionsVisible}
-          selectedStyle={selectedStyle}
-          selectedColor={selectedColor}
-          popupWidth={annotPopupWidth}
-          popupHeight={annotPopupHeight}
-          globalToggleAvailable={globalToggleAvailable}
-          globalToggleActive={globalToggleActive}
-          onToggleGlobal={handleToggleGlobal}
-          onHighlight={handleHighlight}
-          onDismiss={handleDismissPopupAndSelection}
-        />
-      )}
+      {showAnnotPopup &&
+        trianglePosition &&
+        annotPopupPosition &&
+        // With an empty toolbar, suppress the popup on a plain selection rather
+        // than showing an empty bar. Still allow it for editing an existing
+        // highlight (options) or viewing its notes.
+        (toolButtons.length > 0 || highlightOptionsVisible || annotationNotes.length > 0) && (
+          <AnnotationPopup
+            bookKey={bookKey}
+            dir={viewSettings.rtl ? 'rtl' : 'ltr'}
+            isVertical={viewSettings.vertical}
+            buttons={toolButtons}
+            notes={annotationNotes}
+            position={annotPopupPosition}
+            trianglePosition={trianglePosition}
+            highlightOptionsVisible={highlightOptionsVisible}
+            selectedStyle={selectedStyle}
+            selectedColor={selectedColor}
+            popupWidth={annotPopupWidth}
+            popupHeight={annotPopupHeight}
+            globalToggleAvailable={globalToggleAvailable}
+            globalToggleActive={globalToggleActive}
+            onToggleGlobal={handleToggleGlobal}
+            onHighlight={handleHighlight}
+            onDismiss={handleDismissPopupAndSelection}
+          />
+        )}
       {showProofreadPopup && trianglePosition && proofreadPopupPosition && selection && (
         <ProofreadPopup
           bookKey={bookKey}

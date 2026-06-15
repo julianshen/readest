@@ -32,6 +32,7 @@ mod epub_parser;
 #[cfg(target_os = "macos")]
 mod macos;
 mod mobi_parser;
+mod nightly_update;
 mod parser_common;
 mod range_file;
 mod transfer_file;
@@ -300,6 +301,9 @@ pub fn run() {
             ai::searcher::hybrid_search,
             ai::searcher::text_search,
             ai::indexer::index_book_chunks,
+            nightly_update::verify_update_signature,
+            #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
+            nightly_update::install_nightly_update,
         ])
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_persisted_scope::init())
