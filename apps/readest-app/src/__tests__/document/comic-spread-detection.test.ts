@@ -32,6 +32,9 @@ const openComic = async (images: Record<string, Dimensions | null>) => {
   );
 };
 
+// Flush pending microtasks/timers so the non-blocking spread probe finishes.
+const flushProbe = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 afterEach(() => {
   vi.unstubAllGlobals();
 });
@@ -56,6 +59,7 @@ describe('comic-book wide-image spread detection', () => {
     const hint = vi.fn();
     book.onSectionSpreadHint = hint;
     await book.sections[1].load();
+    await flushProbe();
     expect(book.sections[1].pageSpread).toBe('center');
     expect(hint).toHaveBeenCalledWith(book.sections[1]);
   });
@@ -65,6 +69,7 @@ describe('comic-book wide-image spread detection', () => {
     const hint = vi.fn();
     book.onSectionSpreadHint = hint;
     await book.sections[0].load();
+    await flushProbe();
     expect(book.sections[0].pageSpread).toBeUndefined();
     expect(hint).not.toHaveBeenCalled();
   });
@@ -74,6 +79,7 @@ describe('comic-book wide-image spread detection', () => {
     const hint = vi.fn();
     book.onSectionSpreadHint = hint;
     await expect(book.sections[0].load()).resolves.toBeTruthy();
+    await flushProbe();
     expect(book.sections[0].pageSpread).toBeUndefined();
     expect(hint).not.toHaveBeenCalled();
   });
@@ -90,8 +96,45 @@ describe('comic-book wide-image spread detection', () => {
     const hint = vi.fn();
     book.onSectionSpreadHint = hint;
     await book.sections[0].load();
+    await flushProbe();
     await book.sections[0].load();
+    await flushProbe();
     expect(hint).toHaveBeenCalledTimes(1);
+  });
+
+  // The spread probe decodes the full-resolution image only to detect wide
+  // (double-page) scans. In scroll/webtoon mode the hint is ignored anyway, so
+  // load() must NOT block page appearance on that decode — the image renders
+  // immediately and the hint arrives later (matching the late-hint design).
+  it('resolves load() without waiting for the spread-probe decode', async () => {
+    const names = ['0.png'];
+    const entries = names.map((filename) => ({ filename }));
+    const loadBlob = async (name: string) => new Blob([name], { type: 'image/png' });
+    let releaseDecode!: () => void;
+    const decodeGate = new Promise<void>((resolve) => {
+      releaseDecode = resolve;
+    });
+    vi.stubGlobal('createImageBitmap', async () => {
+      await decodeGate; // stays pending until the test releases it
+      return { width: 2000, height: 1000, close: vi.fn() };
+    });
+    const book = await makeComicBook(
+      { entries, loadBlob, getSize: () => 0, getComment: async () => '' },
+      new File([], 'fixture.cbz'),
+    );
+    const hint = vi.fn();
+    book.onSectionSpreadHint = hint;
+
+    // load() must resolve even though the decode is still gated.
+    const page = await book.sections[0].load();
+    expect(page).toBeTruthy();
+    expect(hint).not.toHaveBeenCalled();
+
+    // Once the decode completes, the hint still fires for paginated respread.
+    releaseDecode();
+    await flushProbe();
+    expect(book.sections[0].pageSpread).toBe('center');
+    expect(hint).toHaveBeenCalledWith(book.sections[0]);
   });
 });
 
