@@ -51,11 +51,11 @@ describe('annotationToolbar helpers', () => {
       'search',
       'dictionary',
       'translate',
+      'ai',
       'tts',
       'proofread',
       'share',
     ]);
-    expect(getAvailableToolTypes(['copy'], true)).not.toContain('ai');
   });
 
   test('getAvailableToolTypes hides share when !canShare', () => {

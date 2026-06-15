@@ -9,9 +9,9 @@ export const ALL_ANNOTATION_TOOL_TYPES: AnnotationToolType[] = [
   'search',
   'dictionary',
   'translate',
+  'ai',
   'tts',
   'proofread',
-  'ai',
   'share',
 ];
 
