@@ -1,5 +1,18 @@
 {
   "releases": {
+    "0.11.9": {
+      "date": "2026-06-15",
+      "notes": [
+        "Comics: Manga bubble translation — on a CBZ, tap Translate Region, drag over a speech bubble, and a vision AI transcribes and translates the text into a popup anchored at the bubble",
+        "Comics: Webtoon continuous-scroll mode for fixed-layout comics, now with faster, smoother scrolling (non-blocking decode and wider preloading)",
+        "Comics: E-ink manga rendering — per-image Contrast/Brightness, E-Ink Boost, and per-page refresh for crisp reading on e-paper",
+        "Comics: Page-thumbnail grid for quick CBZ navigation, near-instant page turns from smarter preloading, and a 'Next Volume' pill to continue a series at the end of a book",
+        "Comics: CB7 (7z) archives are now supported alongside CBZ",
+        "Reader: Speed reader and paragraph mode now follow TTS read-along, with word-by-word highlighting for Edge TTS",
+        "AI: On-device Rust/Tauri vector indexing for faster, private book search",
+        "App: Nightly update channel, share-to-Readest intent, and a customizable annotation toolbar"
+      ]
+    },
     "0.11.8": {
       "date": "2026-06-12",
       "notes": [
