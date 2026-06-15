@@ -279,6 +279,7 @@ const LayoutPanel: React.FC<SettingsPanelPanelProp> = ({ bookKey, onRegisterRese
     view?.renderer.setAttribute('flow', attrs.flow);
     view?.renderer.setAttribute('page-gap', attrs['page-gap']);
     view?.renderer.setAttribute('scroll-lookahead', attrs['scroll-lookahead']);
+    view?.renderer.setAttribute('scroll-max-loaded', attrs['scroll-max-loaded']);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webtoonMode]);
 
