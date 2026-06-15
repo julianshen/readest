@@ -64,6 +64,19 @@ describe('comic-book wide-image spread detection', () => {
     expect(hint).toHaveBeenCalledWith(book.sections[1]);
   });
 
+  it('emits the page image with async decoding to keep decode off the main thread', async () => {
+    const htmlBlobs: Blob[] = [];
+    URL.createObjectURL = (obj: Blob | MediaSource) => {
+      if (obj instanceof Blob && obj.type === 'text/html') htmlBlobs.push(obj);
+      return 'blob:fake';
+    };
+    const book = await openComic({ '0.png': { width: 800, height: 1200 } });
+    await book.sections[0].load();
+    expect(htmlBlobs).toHaveLength(1);
+    const html = await htmlBlobs[0]!.text();
+    expect(html).toContain('decoding="async"');
+  });
+
   it('leaves tall pages unmarked and fires no hint', async () => {
     const book = await openComic({ '0.png': { width: 800, height: 1200 } });
     const hint = vi.fn();

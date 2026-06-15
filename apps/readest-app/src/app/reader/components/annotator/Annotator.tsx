@@ -392,10 +392,10 @@ const Annotator: React.FC<{ bookKey: string; contentInsets: Insets }> = ({
     // Attach generic selection listeners for all formats, including PDF.
     // For PDF we only guarantee Copy & Translate; highlight/annotate may be limited by CFI support.
     view?.renderer?.addEventListener('scroll', handleScroll);
-    // Reposition popups on scroll to keep them in view
-    view?.renderer?.addEventListener('scroll', () => {
-      repositionPopups();
-    });
+    // Popup repositioning on scroll is handled by a managed effect (see the
+    // showingPopup scroll listener below). Adding another listener here — once
+    // per section load, anonymous and never removed — accumulated duplicates
+    // across a webtoon session, firing repositionPopups N times per scroll.
     const opts = { passive: false };
     detail.doc?.addEventListener('touchstart', handleTouchStart, opts);
     detail.doc?.addEventListener('touchmove', handleTouchmove, opts);
