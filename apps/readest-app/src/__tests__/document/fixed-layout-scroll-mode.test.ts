@@ -22,11 +22,13 @@ describe('fixed-layout scroll page eviction selection', () => {
 
   it('keeps the current page and its closest neighbors when centered', () => {
     const loaded = pages([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    const evicted = selectScrollPagesToEvict(loaded, 5, 3).map((p) => p.index);
-    expect(evicted).toContain(0);
-    expect(evicted).toContain(9);
-    expect(evicted).not.toContain(5);
-    expect(evicted).toHaveLength(7);
+    const evicted = selectScrollPagesToEvict(loaded, 5, 3)
+      .map((p) => p.index)
+      .sort((a, b) => a - b);
+    // Cap 3 around index 5 keeps exactly {4, 5, 6}; everything else is evicted.
+    // Asserting the full set verifies the closest neighbors (4, 6) are retained,
+    // not just that the farthest are dropped.
+    expect(evicted).toEqual([0, 1, 2, 3, 7, 8, 9]);
   });
 });
 
