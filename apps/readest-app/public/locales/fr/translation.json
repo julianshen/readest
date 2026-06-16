@@ -1810,5 +1810,6 @@
   "No text detected in this region": "Aucun texte détecté dans cette zone",
   "Hide original": "Masquer l'original",
   "Show original": "Afficher l'original",
-  "Translate Region": "Traduire la zone"
+  "Translate Region": "Traduire la zone",
+  "The target language matches the book language. Pick a different target language.": "La langue cible est identique à celle du livre. Choisissez une autre langue cible."
 }

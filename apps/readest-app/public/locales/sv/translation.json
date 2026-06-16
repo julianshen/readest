@@ -1777,5 +1777,6 @@
   "No text detected in this region": "Ingen text hittades i detta område",
   "Hide original": "Dölj original",
   "Show original": "Visa original",
-  "Translate Region": "Översätt område"
+  "Translate Region": "Översätt område",
+  "The target language matches the book language. Pick a different target language.": "Målspråket är samma som bokens språk. Välj ett annat målspråk."
 }

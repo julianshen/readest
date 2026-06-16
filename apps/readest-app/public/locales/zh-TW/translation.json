@@ -1744,5 +1744,6 @@
   "No text detected in this region": "此區域未偵測到文字",
   "Hide original": "隱藏原文",
   "Show original": "顯示原文",
-  "Translate Region": "翻譯區域"
+  "Translate Region": "翻譯區域",
+  "The target language matches the book language. Pick a different target language.": "目標語言與本書語言相同。請選擇其他目標語言。"
 }

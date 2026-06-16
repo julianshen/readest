@@ -1810,5 +1810,6 @@
   "No text detected in this region": "לא זוהה טקסט באזור זה",
   "Hide original": "הסתר מקור",
   "Show original": "הצג מקור",
-  "Translate Region": "תרגום אזור"
+  "Translate Region": "תרגום אזור",
+  "The target language matches the book language. Pick a different target language.": "שפת היעד זהה לשפת הספר. בחרו שפת יעד אחרת."
 }

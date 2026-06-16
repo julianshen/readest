@@ -1777,5 +1777,6 @@
   "No text detected in this region": "Nem található szöveg ezen a területen",
   "Hide original": "Eredeti elrejtése",
   "Show original": "Eredeti megjelenítése",
-  "Translate Region": "Terület fordítása"
+  "Translate Region": "Terület fordítása",
+  "The target language matches the book language. Pick a different target language.": "A célnyelv megegyezik a könyv nyelvével. Válassz másik célnyelvet."
 }

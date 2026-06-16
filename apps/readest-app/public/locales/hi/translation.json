@@ -1777,5 +1777,6 @@
   "No text detected in this region": "इस क्षेत्र में कोई टेक्स्ट नहीं मिला",
   "Hide original": "मूल छिपाएँ",
   "Show original": "मूल दिखाएँ",
-  "Translate Region": "क्षेत्र अनुवाद करें"
+  "Translate Region": "क्षेत्र अनुवाद करें",
+  "The target language matches the book language. Pick a different target language.": "लक्ष्य भाषा पुस्तक की भाषा के समान है। कोई दूसरी लक्ष्य भाषा चुनें।"
 }

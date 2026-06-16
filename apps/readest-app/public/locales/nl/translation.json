@@ -1777,5 +1777,6 @@
   "No text detected in this region": "Geen tekst gedetecteerd in dit gebied",
   "Hide original": "Origineel verbergen",
   "Show original": "Origineel tonen",
-  "Translate Region": "Gebied vertalen"
+  "Translate Region": "Gebied vertalen",
+  "The target language matches the book language. Pick a different target language.": "De doeltaal is gelijk aan de taal van het boek. Kies een andere doeltaal."
 }

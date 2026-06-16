@@ -1744,5 +1744,6 @@
   "No text detected in this region": "この範囲にテキストが見つかりませんでした",
   "Hide original": "原文を非表示",
   "Show original": "原文を表示",
-  "Translate Region": "範囲を翻訳"
+  "Translate Region": "範囲を翻訳",
+  "The target language matches the book language. Pick a different target language.": "翻訳先の言語が本の言語と同じです。別の翻訳先言語を選んでください。"
 }
