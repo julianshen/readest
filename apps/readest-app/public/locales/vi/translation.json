@@ -1744,5 +1744,6 @@
   "No text detected in this region": "Không phát hiện văn bản trong vùng này",
   "Hide original": "Ẩn bản gốc",
   "Show original": "Hiện bản gốc",
-  "Translate Region": "Dịch vùng"
+  "Translate Region": "Dịch vùng",
+  "The target language matches the book language. Pick a different target language.": "Ngôn ngữ đích giống với ngôn ngữ của sách. Hãy chọn một ngôn ngữ đích khác."
 }

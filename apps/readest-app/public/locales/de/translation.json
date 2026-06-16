@@ -1777,5 +1777,6 @@
   "No text detected in this region": "In diesem Bereich wurde kein Text erkannt",
   "Hide original": "Original ausblenden",
   "Show original": "Original anzeigen",
-  "Translate Region": "Bereich übersetzen"
+  "Translate Region": "Bereich übersetzen",
+  "The target language matches the book language. Pick a different target language.": "Die Zielsprache stimmt mit der Sprache des Buches überein. Wähle eine andere Zielsprache."
 }

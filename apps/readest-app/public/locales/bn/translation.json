@@ -1777,5 +1777,6 @@
   "No text detected in this region": "এই অঞ্চলে কোনো লেখা পাওয়া যায়নি",
   "Hide original": "মূল লুকান",
   "Show original": "মূল দেখান",
-  "Translate Region": "অঞ্চল অনুবাদ করুন"
+  "Translate Region": "অঞ্চল অনুবাদ করুন",
+  "The target language matches the book language. Pick a different target language.": "লক্ষ্য ভাষা বইয়ের ভাষার সঙ্গে একই। একটি ভিন্ন লক্ষ্য ভাষা নির্বাচন করুন।"
 }

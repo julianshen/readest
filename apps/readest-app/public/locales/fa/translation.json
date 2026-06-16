@@ -1777,5 +1777,6 @@
   "No text detected in this region": "هیچ متنی در این ناحیه شناسایی نشد",
   "Hide original": "پنهان کردن متن اصلی",
   "Show original": "نمایش متن اصلی",
-  "Translate Region": "ترجمه ناحیه"
+  "Translate Region": "ترجمه ناحیه",
+  "The target language matches the book language. Pick a different target language.": "زبان مقصد با زبان کتاب یکسان است. زبان مقصد دیگری انتخاب کنید."
 }

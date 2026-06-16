@@ -1777,5 +1777,6 @@
   "No text detected in this region": "Δεν εντοπίστηκε κείμενο σε αυτήν την περιοχή",
   "Hide original": "Απόκρυψη πρωτοτύπου",
   "Show original": "Εμφάνιση πρωτοτύπου",
-  "Translate Region": "Μετάφραση περιοχής"
+  "Translate Region": "Μετάφραση περιοχής",
+  "The target language matches the book language. Pick a different target language.": "Η γλώσσα προορισμού είναι ίδια με τη γλώσσα του βιβλίου. Επιλέξτε διαφορετική γλώσσα προορισμού."
 }

@@ -1843,5 +1843,6 @@
   "No text detected in this region": "В этой области текст не найден",
   "Hide original": "Скрыть оригинал",
   "Show original": "Показать оригинал",
-  "Translate Region": "Перевести область"
+  "Translate Region": "Перевести область",
+  "The target language matches the book language. Pick a different target language.": "Язык перевода совпадает с языком книги. Выберите другой язык перевода."
 }

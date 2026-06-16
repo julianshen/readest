@@ -1777,5 +1777,6 @@
   "No text detected in this region": "මෙම කලාපයේ පෙළක් හමු නොවීය",
   "Hide original": "මුල් පිටපත සඟවන්න",
   "Show original": "මුල් පිටපත පෙන්වන්න",
-  "Translate Region": "කලාපය පරිවර්තනය කරන්න"
+  "Translate Region": "කලාපය පරිවර්තනය කරන්න",
+  "The target language matches the book language. Pick a different target language.": "ඉලක්ක භාෂාව පොතේ භාෂාවට සමාන වේ. වෙනත් ඉලක්ක භාෂාවක් තෝරන්න."
 }

@@ -1777,5 +1777,6 @@
   "No text detected in this region": "Bu bölgede metin algılanmadı",
   "Hide original": "Orijinali gizle",
   "Show original": "Orijinali göster",
-  "Translate Region": "Bölgeyi çevir"
+  "Translate Region": "Bölgeyi çevir",
+  "The target language matches the book language. Pick a different target language.": "Hedef dil kitabın diliyle aynı. Farklı bir hedef dil seçin."
 }

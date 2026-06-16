@@ -1744,5 +1744,6 @@
   "No text detected in this region": "Tidak ada teks terdeteksi di wilayah ini",
   "Hide original": "Sembunyikan asli",
   "Show original": "Tampilkan asli",
-  "Translate Region": "Terjemahkan Wilayah"
+  "Translate Region": "Terjemahkan Wilayah",
+  "The target language matches the book language. Pick a different target language.": "Bahasa tujuan sama dengan bahasa buku. Pilih bahasa tujuan yang berbeda."
 }

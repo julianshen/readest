@@ -1909,5 +1909,6 @@
   "No text detected in this region": "لم يُكتشف نص في هذه المنطقة",
   "Hide original": "إخفاء الأصل",
   "Show original": "إظهار الأصل",
-  "Translate Region": "ترجمة منطقة"
+  "Translate Region": "ترجمة منطقة",
+  "The target language matches the book language. Pick a different target language.": "لغة الترجمة مطابقة للغة الكتاب. اختر لغة هدف مختلفة."
 }

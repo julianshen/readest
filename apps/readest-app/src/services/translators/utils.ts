@@ -26,23 +26,29 @@ export const getDailyUsage = (date?: string): number | null => {
   return null;
 };
 
-export const isTranslationAvailable = (book?: Book | null, targetLanguage?: string | null) => {
-  if (!book || book.format === 'PDF') {
-    return false;
-  }
+// Why inline translation can't run for this book + target. `same-language` is
+// the soft case the UI surfaces as a hint (the target equals the book's own
+// language, so every paragraph would translate to itself); the rest are hard
+// "not supported here" reasons.
+export type TranslationUnavailableReason = 'no-book' | 'pdf' | 'no-language' | 'same-language';
+
+export const getTranslationUnavailableReason = (
+  book?: Book | null,
+  targetLanguage?: string | null,
+): TranslationUnavailableReason | null => {
+  if (!book) return 'no-book';
+  if (book.format === 'PDF') return 'pdf';
 
   const primaryLanguage = book.primaryLanguage || '';
-  if (!primaryLanguage || primaryLanguage.toLowerCase() === 'und') {
-    return false;
-  }
+  if (!primaryLanguage || primaryLanguage.toLowerCase() === 'und') return 'no-language';
 
-  if (targetLanguage && isSameLang(primaryLanguage, targetLanguage)) {
-    return false;
-  }
+  // Target falls back to the app locale when no explicit target is set —
+  // mirror useTextTranslation's `translateTargetLang || getLocale()`.
+  const effectiveTarget = targetLanguage || getLocale();
+  if (isSameLang(primaryLanguage, effectiveTarget)) return 'same-language';
 
-  if (!targetLanguage && isSameLang(primaryLanguage, getLocale())) {
-    return false;
-  }
-
-  return true;
+  return null;
 };
+
+export const isTranslationAvailable = (book?: Book | null, targetLanguage?: string | null) =>
+  getTranslationUnavailableReason(book, targetLanguage) === null;

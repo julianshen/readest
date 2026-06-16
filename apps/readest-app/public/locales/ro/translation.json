@@ -1810,5 +1810,6 @@
   "No text detected in this region": "Nu s-a detectat text în această regiune",
   "Hide original": "Ascunde originalul",
   "Show original": "Arată originalul",
-  "Translate Region": "Tradu regiunea"
+  "Translate Region": "Tradu regiunea",
+  "The target language matches the book language. Pick a different target language.": "Limba țintă este aceeași cu limba cărții. Alege o altă limbă țintă."
 }

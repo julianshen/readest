@@ -7,7 +7,8 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { saveViewSettings } from '@/helpers/settings';
-import { isTranslationAvailable } from '@/services/translators/utils';
+import { getTranslationUnavailableReason } from '@/services/translators/utils';
+import { eventDispatcher } from '@/utils/event';
 import Button from '@/components/Button';
 
 const TranslationToggler = ({ bookKey }: { bookKey: string }) => {
@@ -20,8 +21,11 @@ const TranslationToggler = ({ bookKey }: { bookKey: string }) => {
   const bookData = getBookData(bookKey);
   const viewSettings = getViewSettings(bookKey)!;
   const [translationEnabled, setTranslationEnabled] = useState(viewSettings.translationEnabled!);
-  const [translationAvailable, setTranslationAvailable] = useState(
-    isTranslationAvailable(bookData?.book, viewSettings.translateTargetLang),
+
+  // Derived from props/settings — compute during render, don't mirror in state.
+  const unavailableReason = getTranslationUnavailableReason(
+    bookData?.book,
+    viewSettings.translateTargetLang,
   );
 
   useEffect(() => {
@@ -37,10 +41,26 @@ const TranslationToggler = ({ bookKey }: { bookKey: string }) => {
 
   useEffect(() => {
     setTranslationEnabled(viewSettings.translationEnabled);
-    setTranslationAvailable(
-      isTranslationAvailable(bookData?.book, viewSettings.translateTargetLang),
-    );
-  }, [bookData, viewSettings.translationEnabled, viewSettings.translateTargetLang]);
+  }, [viewSettings.translationEnabled]);
+
+  const translationAvailable = unavailableReason === null;
+  // The target matching the book's own language would translate every line to
+  // itself and render nothing. Keep the button tappable for that case so we can
+  // explain why, instead of a silent no-op or an unexplained greyed-out icon.
+  const sameLanguage = unavailableReason === 'same-language';
+
+  const handleClick = () => {
+    if (!translationEnabled && sameLanguage) {
+      eventDispatcher.dispatch('toast', {
+        type: 'info',
+        message: _(
+          'The target language matches the book language. Pick a different target language.',
+        ),
+      });
+      return;
+    }
+    setTranslationEnabled(!translationEnabled);
+  };
 
   return (
     <Button
@@ -51,8 +71,8 @@ const TranslationToggler = ({ bookKey }: { bookKey: string }) => {
         />
       }
       aria-label={_('Toggle Translation')}
-      disabled={!translationAvailable && !translationEnabled}
-      onClick={() => setTranslationEnabled(!translationEnabled)}
+      disabled={!translationAvailable && !sameLanguage && !translationEnabled}
+      onClick={handleClick}
       label={
         translationAvailable
           ? translationEnabled

@@ -1843,5 +1843,6 @@
   "No text detected in this region": "Na tem območju ni zaznanega besedila",
   "Hide original": "Skrij izvirnik",
   "Show original": "Pokaži izvirnik",
-  "Translate Region": "Prevedi območje"
+  "Translate Region": "Prevedi območje",
+  "The target language matches the book language. Pick a different target language.": "Ciljni jezik je enak jeziku knjige. Izberite drug ciljni jezik."
 }

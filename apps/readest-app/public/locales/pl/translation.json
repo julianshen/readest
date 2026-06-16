@@ -1843,5 +1843,6 @@
   "No text detected in this region": "Nie wykryto tekstu w tym obszarze",
   "Hide original": "Ukryj oryginał",
   "Show original": "Pokaż oryginał",
-  "Translate Region": "Przetłumacz obszar"
+  "Translate Region": "Przetłumacz obszar",
+  "The target language matches the book language. Pick a different target language.": "Język docelowy jest taki sam jak język książki. Wybierz inny język docelowy."
 }
