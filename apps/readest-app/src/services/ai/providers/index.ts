@@ -48,8 +48,14 @@ export function isAIAssistantConfigured(settings: AISettings | undefined): boole
       return !!settings.openrouterApiKey;
     case 'openai':
       return !!settings.openaiApiKey;
-    default:
+    default: {
+      // Exhaustiveness guard: adding a new AIProviderName must be handled
+      // above, or this fails to compile. Malformed runtime data still
+      // safely falls through to `false`.
+      const _exhaustive: never = settings.provider;
+      void _exhaustive;
       return false;
+    }
   }
 }
 
