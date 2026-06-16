@@ -31,15 +31,25 @@ export function getAIProvider(settings: AISettings): AIProvider {
 }
 
 // True when the assistant is enabled AND the selected provider has the
-// credentials it needs (getAIProvider throws otherwise). Used to gate UI that
-// triggers AI calls (e.g. the selection-toolbar AI button).
+// credentials it needs. Used to gate UI that triggers AI calls (e.g. the
+// selection-toolbar AI button) — and called on the reader render path (per
+// page-turn), so it must stay a pure credential check. It deliberately does
+// NOT call getAIProvider: that constructs a provider (AI-SDK client + fetch),
+// which is wasteful churn on the hot path. The conditions below mirror each
+// provider constructor's required credential exactly.
 export function isAIAssistantConfigured(settings: AISettings | undefined): boolean {
   if (!settings?.enabled) return false;
-  try {
-    getAIProvider(settings);
-    return true;
-  } catch {
-    return false;
+  switch (settings.provider) {
+    case 'ollama':
+      return true; // local; no API key required
+    case 'ai-gateway':
+      return !!settings.aiGatewayApiKey;
+    case 'openrouter':
+      return !!settings.openrouterApiKey;
+    case 'openai':
+      return !!settings.openaiApiKey;
+    default:
+      return false;
   }
 }
 
