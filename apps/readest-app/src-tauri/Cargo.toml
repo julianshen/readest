@@ -122,3 +122,6 @@ discord-rich-presence = "1.0.0"
 
 [target.'cfg(target_os = "android")'.dependencies]
 libc = "0.2"
+# Android is the proven on-device path: enable ONNX Runtime (load-dynamic).
+# Desktop builds keep the default (no `onnx`) so they don't compile `ort-sys`.
+manga-ocr = { path = "../crates/manga-ocr", features = ["onnx"] }

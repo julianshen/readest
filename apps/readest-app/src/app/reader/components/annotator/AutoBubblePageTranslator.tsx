@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useReaderStore } from '@/store/readerStore';
+import { useBookProgress } from '@/store/readerProgressStore';
 import { useTranslator } from '@/hooks/useTranslator';
 import { useTranslation } from '@/hooks/useTranslation';
 import { eventDispatcher } from '@/utils/event';
@@ -32,8 +33,17 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
   const _ = useTranslation();
   const { getView } = useReaderStore();
   const { translate } = useTranslator();
-  const { markers, regions, run } = useAutoBubbleTranslate();
+  const { markers, regions, run, clear } = useAutoBubbleTranslate();
   const [popup, setPopup] = useState<PopupState | null>(null);
+
+  // Drop markers/popup when the page turns: they're positioned against the
+  // previous page's geometry, so they'd otherwise float over the new page.
+  // `location` only changes on an actual relocate (page turn / scroll).
+  const location = useBookProgress(bookKey)?.location;
+  useEffect(() => {
+    clear();
+    setPopup(null);
+  }, [location, clear]);
 
   const onAutoTranslate = async () => {
     setPopup(null);

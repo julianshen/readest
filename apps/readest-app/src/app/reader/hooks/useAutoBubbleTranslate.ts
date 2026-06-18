@@ -21,6 +21,10 @@ export const regionsToMarkers = (
 // caller so this hook stays free of foliate/DOM coupling.
 export const useAutoBubbleTranslate = () => {
   const cache = useRef(new Map<string, TranslatedRegion[]>());
+  // Monotonic request token: only the most recent run() (or a clear()) may
+  // commit markers, so a slow OCR/translate that resolves after the user has
+  // turned the page or re-triggered can't paint stale boxes on the new page.
+  const reqSeq = useRef(0);
   const [markers, setMarkers] = useState<BubbleMarker[]>([]);
   const [regions, setRegions] = useState<TranslatedRegion[]>([]);
 
@@ -33,6 +37,7 @@ export const useAutoBubbleTranslate = () => {
       langs: { source: string; target: string };
       translate: (input: string[], o: { source: string; target: string }) => Promise<string[]>;
     }) => {
+      const reqId = ++reqSeq.current;
       const key = pageCacheKey(
         args.cacheKeyParts.bookKey,
         args.cacheKeyParts.sectionIndex,
@@ -44,6 +49,7 @@ export const useAutoBubbleTranslate = () => {
         translated = await translateRegions(detected, args.translate, args.langs);
         cache.current.set(key, translated);
       }
+      if (reqId !== reqSeq.current) return; // superseded by a newer run() or clear()
       setRegions(translated);
       setMarkers(regionsToMarkers(translated, args.geometry));
     },
@@ -51,6 +57,7 @@ export const useAutoBubbleTranslate = () => {
   );
 
   const clear = useCallback(() => {
+    reqSeq.current++; // invalidate any in-flight run() so it won't commit stale markers
     setMarkers([]);
     setRegions([]);
   }, []);
