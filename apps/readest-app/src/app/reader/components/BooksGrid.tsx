@@ -23,6 +23,7 @@ import Ribbon from './Ribbon';
 import Annotator from './annotator/Annotator';
 import MangaBubbleTranslator from './annotator/MangaBubbleTranslator';
 import AutoBubblePageTranslator from './annotator/AutoBubblePageTranslator';
+import { MANGA_AUTO_TRANSLATE_ENABLED } from '@/services/constants';
 import FootnotePopup from './FootnotePopup';
 import HintInfo from './HintInfo';
 import ReadingRuler from './ReadingRuler';
@@ -270,7 +271,7 @@ const BookCellInner: React.FC<BookCellProps> = ({
       <PageNavigationButtons bookKey={bookKey} isDropdownOpen={isDropdownOpen} />
       <Annotator bookKey={bookKey} contentInsets={contentInsets} />
       <MangaBubbleTranslator bookKey={bookKey} />
-      <AutoBubblePageTranslator bookKey={bookKey} />
+      {MANGA_AUTO_TRANSLATE_ENABLED && <AutoBubblePageTranslator bookKey={bookKey} />}
       <SearchResultsNav bookKey={bookKey} gridInsets={gridInsets} />
       <BooknotesNav bookKey={bookKey} gridInsets={gridInsets} toc={bookDoc.toc || []} />
       <FootnotePopup bookKey={bookKey} bookDoc={bookDoc} />

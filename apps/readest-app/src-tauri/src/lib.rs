@@ -24,7 +24,6 @@ use tauri_plugin_fs::FsExt;
 use tauri::{Listener, Url};
 mod ai;
 mod clip_url;
-mod ocr;
 mod comic_parser;
 mod dir_scanner;
 #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
@@ -34,6 +33,7 @@ mod epub_parser;
 mod macos;
 mod mobi_parser;
 mod nightly_update;
+mod ocr;
 mod parser_common;
 mod range_file;
 mod transfer_file;
