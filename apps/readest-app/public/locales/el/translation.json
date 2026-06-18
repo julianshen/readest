@@ -1778,5 +1778,7 @@
   "Hide original": "Απόκρυψη πρωτοτύπου",
   "Show original": "Εμφάνιση πρωτοτύπου",
   "Translate Region": "Μετάφραση περιοχής",
-  "The target language matches the book language. Pick a different target language.": "Η γλώσσα προορισμού είναι ίδια με τη γλώσσα του βιβλίου. Επιλέξτε διαφορετική γλώσσα προορισμού."
+  "The target language matches the book language. Pick a different target language.": "Η γλώσσα προορισμού είναι ίδια με τη γλώσσα του βιβλίου. Επιλέξτε διαφορετική γλώσσα προορισμού.",
+  "Show translation": "Εμφάνιση μετάφρασης",
+  "Auto-translate page": "Αυτόματη μετάφραση σελίδας"
 }

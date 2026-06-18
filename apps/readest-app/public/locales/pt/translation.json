@@ -1811,5 +1811,7 @@
   "Hide original": "Ocultar original",
   "Show original": "Mostrar original",
   "Translate Region": "Traduzir região",
-  "The target language matches the book language. Pick a different target language.": "O idioma de destino é igual ao do livro. Escolha um idioma de destino diferente."
+  "The target language matches the book language. Pick a different target language.": "O idioma de destino é igual ao do livro. Escolha um idioma de destino diferente.",
+  "Show translation": "Mostrar tradução",
+  "Auto-translate page": "Traduzir página automaticamente"
 }

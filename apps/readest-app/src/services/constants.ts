@@ -61,6 +61,12 @@ export const BOOK_UNGROUPED_ID = '';
 export const SUPPORTED_IMAGE_EXTS = ['png', 'jpg', 'jpeg'];
 export const IMAGE_ACCEPT_FORMATS = SUPPORTED_IMAGE_EXTS.map((ext) => `.${ext}`).join(', ');
 
+// Dark-launch flag for whole-page comic auto bubble translation (on-device OCR
+// -> batch translate -> tap-to-reveal overlay). The OCR backend is still a stub
+// (returns fixed placeholder regions), so this ships OFF; flip to true to
+// exercise the full UI loop on a Tauri build.
+export const MANGA_AUTO_TRANSLATE_ENABLED = false;
+
 export const DEFAULT_KOSYNC_SETTINGS = {
   serverUrl: 'https://sync.koreader.rocks/', // https://kosync.ak-team.com:3042/
   username: '',

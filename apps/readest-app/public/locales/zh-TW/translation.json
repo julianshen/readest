@@ -1745,5 +1745,7 @@
   "Hide original": "隱藏原文",
   "Show original": "顯示原文",
   "Translate Region": "翻譯區域",
-  "The target language matches the book language. Pick a different target language.": "目標語言與本書語言相同。請選擇其他目標語言。"
+  "The target language matches the book language. Pick a different target language.": "目標語言與本書語言相同。請選擇其他目標語言。",
+  "Show translation": "顯示譯文",
+  "Auto-translate page": "自動翻譯頁面"
 }

@@ -1778,5 +1778,7 @@
   "Hide original": "மூலத்தை மறை",
   "Show original": "மூலத்தைக் காட்டு",
   "Translate Region": "பகுதியை மொழிபெயர்",
-  "The target language matches the book language. Pick a different target language.": "இலக்கு மொழி புத்தகத்தின் மொழியைப் போலவே உள்ளது. வேறு இலக்கு மொழியைத் தேர்ந்தெடுக்கவும்."
+  "The target language matches the book language. Pick a different target language.": "இலக்கு மொழி புத்தகத்தின் மொழியைப் போலவே உள்ளது. வேறு இலக்கு மொழியைத் தேர்ந்தெடுக்கவும்.",
+  "Show translation": "மொழிபெயர்ப்பைக் காட்டு",
+  "Auto-translate page": "பக்கத்தை தானாக மொழிபெயர்"
 }

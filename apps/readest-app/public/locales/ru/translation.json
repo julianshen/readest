@@ -1844,5 +1844,7 @@
   "Hide original": "Скрыть оригинал",
   "Show original": "Показать оригинал",
   "Translate Region": "Перевести область",
-  "The target language matches the book language. Pick a different target language.": "Язык перевода совпадает с языком книги. Выберите другой язык перевода."
+  "The target language matches the book language. Pick a different target language.": "Язык перевода совпадает с языком книги. Выберите другой язык перевода.",
+  "Show translation": "Показать перевод",
+  "Auto-translate page": "Автоматически перевести страницу"
 }

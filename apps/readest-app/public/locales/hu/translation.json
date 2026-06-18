@@ -1778,5 +1778,7 @@
   "Hide original": "Eredeti elrejtése",
   "Show original": "Eredeti megjelenítése",
   "Translate Region": "Terület fordítása",
-  "The target language matches the book language. Pick a different target language.": "A célnyelv megegyezik a könyv nyelvével. Válassz másik célnyelvet."
+  "The target language matches the book language. Pick a different target language.": "A célnyelv megegyezik a könyv nyelvével. Válassz másik célnyelvet.",
+  "Show translation": "Fordítás megjelenítése",
+  "Auto-translate page": "Oldal automatikus fordítása"
 }
