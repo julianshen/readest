@@ -33,7 +33,7 @@ layer**. The backend returns original text + boxes; the web layer translates and
 draws markers. This reuses 100% of the existing translation code and keeps the
 Rust side focused.
 
-```
+```text
 page image ─► [1 Detect] ─► [2 Route] ─► [3 OCR] ─► returns [{id, bbox, original}]
               comic-text-      by book      JP → manga-ocr
               detector (ONNX)  language     KO/ZH → PaddleOCR rec (ONNX)
@@ -55,7 +55,11 @@ TS layer: originals ─► [4 Translate] (existing useTranslator) ─► markers
 
 ## Rust backend and the Rust↔TS boundary
 
-Location: `src-tauri/src/manga_ocr/`.
+Location (as implemented in Phase 1): the GTK-free `apps/readest-app/crates/manga-ocr`
+crate, with the Tauri command wrappers in `apps/readest-app/src-tauri/src/ocr.rs`.
+*(This design originally proposed a `src-tauri/src/manga_ocr/` module; execution moved
+the logic into a standalone crate so it's unit-testable without the GTK desktop
+toolchain. The path references throughout this doc predate that pivot.)*
 
 **Tauri commands:**
 ```

@@ -8,6 +8,8 @@
 
 **Tech Stack:** Rust + Tauri v2 (`ort` 2.x ONNX Runtime, `image`, `serde`); TypeScript/React (vitest, `@tauri-apps/api`); reuses `utils/pageCapture.ts`, `hooks/useTranslator.ts`, `BubbleTranslationPopup`, `eventDispatcher`.
 
+> **Implementation note (post-execution):** Track A moved out of a `src-tauri/src/manga_ocr/` Tauri module into a **standalone GTK-free crate at `apps/readest-app/crates/manga-ocr`** so the OCR/ONNX logic is unit-testable without the GTK desktop toolchain; the Tauri commands live in `apps/readest-app/src-tauri/src/ocr.rs`. ONNX is gated behind a default-OFF `onnx` cargo feature (enabled for Android; opt-in on desktop). The `manga_ocr/...` file paths in the tasks below reflect the original plan, not the shipped layout. The frontend feature flag shipped as **`MANGA_AUTO_TRANSLATE_ENABLED`**.
+
 **Context the implementer needs (verified facts about this repo):**
 - readest currently has **no** ML runtime. Rust deps live in `apps/readest-app/src-tauri/Cargo.toml`. Commands are registered in `apps/readest-app/src-tauri/src/lib.rs` via `tauri::generate_handler![...]` (around line 270); app state is managed in the `setup` closure (around line 395). Commands return `Result<T, String>`; errors use `.map_err(|e| format!("...: {}", e))?`. Rust tests are `#[cfg(test)] mod tests { ... }` in the same file, run with `pnpm test:rust` (`cargo test -p Readest --lib`). Rust format/lint gates: `pnpm fmt:check`, `pnpm clippy:check`.
 - TS unit tests use **vitest** (`pnpm test -- <path>`), jsdom. Tauri IPC is `invoke` from `@tauri-apps/api/core` and `listen` from `@tauri-apps/api/event`.
@@ -768,7 +770,7 @@ git commit -m "feat(ocr): AutoBubbleOverlay markers component"
 - Create: `apps/readest-app/src/app/reader/hooks/useAutoBubbleTranslate.ts`
 - Modify: `apps/readest-app/src/app/reader/components/annotator/MangaBubbleTranslator.tsx` (mount the overlay + active-region popup; add the "Auto-translate page" path)
 - Modify: `apps/readest-app/src/app/reader/components/MangaBubbleToggler.tsx` (offer "Auto-translate page" when the flag is on; loosen the AI-key gate for the auto path since OCR is on-device + translation can be keyless)
-- Create: `apps/readest-app/src/services/constants.ts` flag — add `AUTO_BUBBLE_TRANSLATE_ENABLED = false` (or reuse the existing feature-flag mechanism if one exists; grep `process.env.NEXT_PUBLIC_` flags first and follow that pattern)
+- Create: `apps/readest-app/src/services/constants.ts` flag — add `MANGA_AUTO_TRANSLATE_ENABLED = false` (or reuse the existing feature-flag mechanism if one exists; grep `process.env.NEXT_PUBLIC_` flags first and follow that pattern)
 - Test: `apps/readest-app/src/__tests__/hooks/useAutoBubbleTranslate.test.ts`
 
 - [ ] **Step 1: Write the failing test (hook core: regions → markers)**
