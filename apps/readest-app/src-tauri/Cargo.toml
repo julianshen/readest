@@ -101,6 +101,11 @@ image = { version = "0.25", default-features = false, features = ["jpeg", "png",
 # WebView). Pure-Rust crate, ships to every Tauri target.
 mobi = "0.8"
 
+# ONNX Runtime for on-device inference (comic OCR). `download-binaries` fetches
+# a prebuilt ORT for desktop targets; Android linking is handled in a later task.
+ort = { version = "2.0.0-rc.10", default-features = false, features = ["std", "ndarray", "download-binaries", "tls-rustls"] }
+ndarray = { version = "0.17", features = ["std"] }
+
 [target."cfg(target_os = \"macos\")".dependencies]
 rand = "0.8"
 cocoa = "0.25"
