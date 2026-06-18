@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "apps/readest-app/src-tauri",
+  "apps/readest-app/crates/manga-ocr",
   "packages/tauri/crates/tauri",
   "packages/tauri-plugins/plugins/fs"
 ]

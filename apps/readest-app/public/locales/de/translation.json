@@ -1778,5 +1778,7 @@
   "Hide original": "Original ausblenden",
   "Show original": "Original anzeigen",
   "Translate Region": "Bereich übersetzen",
-  "The target language matches the book language. Pick a different target language.": "Die Zielsprache stimmt mit der Sprache des Buches überein. Wähle eine andere Zielsprache."
+  "The target language matches the book language. Pick a different target language.": "Die Zielsprache stimmt mit der Sprache des Buches überein. Wähle eine andere Zielsprache.",
+  "Show translation": "Übersetzung anzeigen",
+  "Auto-translate page": "Seite automatisch übersetzen"
 }

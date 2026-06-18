@@ -1745,5 +1745,7 @@
   "Hide original": "Sembunyi asal",
   "Show original": "Tunjuk asal",
   "Translate Region": "Terjemah Kawasan",
-  "The target language matches the book language. Pick a different target language.": "Bahasa sasaran sama dengan bahasa buku. Pilih bahasa sasaran yang berbeza."
+  "The target language matches the book language. Pick a different target language.": "Bahasa sasaran sama dengan bahasa buku. Pilih bahasa sasaran yang berbeza.",
+  "Show translation": "Tunjuk terjemahan",
+  "Auto-translate page": "Terjemah halaman secara automatik"
 }

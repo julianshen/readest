@@ -1745,5 +1745,7 @@
   "Hide original": "Ẩn bản gốc",
   "Show original": "Hiện bản gốc",
   "Translate Region": "Dịch vùng",
-  "The target language matches the book language. Pick a different target language.": "Ngôn ngữ đích giống với ngôn ngữ của sách. Hãy chọn một ngôn ngữ đích khác."
+  "The target language matches the book language. Pick a different target language.": "Ngôn ngữ đích giống với ngôn ngữ của sách. Hãy chọn một ngôn ngữ đích khác.",
+  "Show translation": "Hiện bản dịch",
+  "Auto-translate page": "Tự động dịch trang"
 }

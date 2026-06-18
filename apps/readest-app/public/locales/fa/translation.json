@@ -1778,5 +1778,7 @@
   "Hide original": "پنهان کردن متن اصلی",
   "Show original": "نمایش متن اصلی",
   "Translate Region": "ترجمه ناحیه",
-  "The target language matches the book language. Pick a different target language.": "زبان مقصد با زبان کتاب یکسان است. زبان مقصد دیگری انتخاب کنید."
+  "The target language matches the book language. Pick a different target language.": "زبان مقصد با زبان کتاب یکسان است. زبان مقصد دیگری انتخاب کنید.",
+  "Show translation": "نمایش ترجمه",
+  "Auto-translate page": "ترجمه خودکار صفحه"
 }

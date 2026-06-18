@@ -1778,5 +1778,7 @@
   "Hide original": "Orijinali gizle",
   "Show original": "Orijinali göster",
   "Translate Region": "Bölgeyi çevir",
-  "The target language matches the book language. Pick a different target language.": "Hedef dil kitabın diliyle aynı. Farklı bir hedef dil seçin."
+  "The target language matches the book language. Pick a different target language.": "Hedef dil kitabın diliyle aynı. Farklı bir hedef dil seçin.",
+  "Show translation": "Çeviriyi göster",
+  "Auto-translate page": "Sayfayı otomatik çevir"
 }

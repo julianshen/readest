@@ -1,0 +1,31 @@
+[package]
+name = "manga-ocr"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+# ONNX Runtime (`ort`) is opt-in and OFF by default. Plain desktop builds —
+# including the x86_64 half of the universal macOS release builds, whose pinned
+# `ort` no longer ships an Intel-macOS prebuilt — must not compile `ort-sys`
+# (which would fail to download a binary there, and also raises the MSRV to
+# 1.88 vs the repo's declared 1.77.2). Android enables this feature (see
+# src-tauri/Cargo.toml); desktop dev/tests opt in with `--features onnx`.
+onnx = ["dep:ort", "dep:ndarray"]
+
+[dependencies]
+image = "0.25"
+serde = { version = "1", features = ["derive"] }
+ndarray = { version = "0.17", features = ["std"], optional = true }
+
+# Desktop (incl. local `cargo test -p manga-ocr --features onnx`): fetch + link
+# a prebuilt ONNX Runtime.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+ort = { version = "2.0.0-rc.10", optional = true, default-features = false, features = ["std", "ndarray", "download-binaries", "tls-rustls"] }
+
+# Android: no compile-time ORT. `load-dynamic` dlopen()s libonnxruntime.so
+# (shipped in jniLibs) at runtime. With load-dynamic, ort uses hand-written
+# "stub" bindings whose newer-API fields are gated behind `api-NN`; pin it to
+# match the shipped ONNX Runtime (1.20.0 == API 20) so the stub struct is
+# complete AND ort requests GetApi(20), which a 1.20 runtime supports.
+[target.'cfg(target_os = "android")'.dependencies]
+ort = { version = "2.0.0-rc.10", optional = true, default-features = false, features = ["std", "ndarray", "load-dynamic", "api-20"] }

@@ -1778,5 +1778,7 @@
   "Hide original": "Origineel verbergen",
   "Show original": "Origineel tonen",
   "Translate Region": "Gebied vertalen",
-  "The target language matches the book language. Pick a different target language.": "De doeltaal is gelijk aan de taal van het boek. Kies een andere doeltaal."
+  "The target language matches the book language. Pick a different target language.": "De doeltaal is gelijk aan de taal van het boek. Kies een andere doeltaal.",
+  "Show translation": "Vertaling tonen",
+  "Auto-translate page": "Pagina automatisch vertalen"
 }

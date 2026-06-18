@@ -1811,5 +1811,7 @@
   "Hide original": "Ascunde originalul",
   "Show original": "Arată originalul",
   "Translate Region": "Tradu regiunea",
-  "The target language matches the book language. Pick a different target language.": "Limba țintă este aceeași cu limba cărții. Alege o altă limbă țintă."
+  "The target language matches the book language. Pick a different target language.": "Limba țintă este aceeași cu limba cărții. Alege o altă limbă țintă.",
+  "Show translation": "Arată traducerea",
+  "Auto-translate page": "Tradu automat pagina"
 }

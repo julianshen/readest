@@ -1745,5 +1745,7 @@
   "Hide original": "ངོ་མ་སྦས།",
   "Show original": "ངོ་མ་སྟོན།",
   "Translate Region": "ས་ཁུལ་སྒྱུར་བ།",
-  "The target language matches the book language. Pick a different target language.": "དམིགས་འབེན་སྐད་ཡིག་དེ་དཔེ་ཆའི་སྐད་ཡིག་དང་གཅིག་པ་རེད། དམིགས་འབེན་སྐད་ཡིག་གཞན་ཞིག་འདེམས་རོགས།"
+  "The target language matches the book language. Pick a different target language.": "དམིགས་འབེན་སྐད་ཡིག་དེ་དཔེ་ཆའི་སྐད་ཡིག་དང་གཅིག་པ་རེད། དམིགས་འབེན་སྐད་ཡིག་གཞན་ཞིག་འདེམས་རོགས།",
+  "Show translation": "སྒྱུར་བ་སྟོན།",
+  "Auto-translate page": "ཤོག་ངོས་རང་འགུལ་སྒྱུར་བ།"
 }

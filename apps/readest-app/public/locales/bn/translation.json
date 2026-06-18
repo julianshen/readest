@@ -1778,5 +1778,7 @@
   "Hide original": "মূল লুকান",
   "Show original": "মূল দেখান",
   "Translate Region": "অঞ্চল অনুবাদ করুন",
-  "The target language matches the book language. Pick a different target language.": "লক্ষ্য ভাষা বইয়ের ভাষার সঙ্গে একই। একটি ভিন্ন লক্ষ্য ভাষা নির্বাচন করুন।"
+  "The target language matches the book language. Pick a different target language.": "লক্ষ্য ভাষা বইয়ের ভাষার সঙ্গে একই। একটি ভিন্ন লক্ষ্য ভাষা নির্বাচন করুন।",
+  "Show translation": "অনুবাদ দেখান",
+  "Auto-translate page": "পৃষ্ঠা স্বয়ংক্রিয়ভাবে অনুবাদ করুন"
 }

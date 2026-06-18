@@ -1844,5 +1844,7 @@
   "Hide original": "Skrij izvirnik",
   "Show original": "Pokaži izvirnik",
   "Translate Region": "Prevedi območje",
-  "The target language matches the book language. Pick a different target language.": "Ciljni jezik je enak jeziku knjige. Izberite drug ciljni jezik."
+  "The target language matches the book language. Pick a different target language.": "Ciljni jezik je enak jeziku knjige. Izberite drug ciljni jezik.",
+  "Show translation": "Pokaži prevod",
+  "Auto-translate page": "Samodejno prevedi stran"
 }

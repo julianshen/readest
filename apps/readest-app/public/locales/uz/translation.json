@@ -1778,5 +1778,7 @@
   "Hide original": "Aslini yashirish",
   "Show original": "Aslini ko'rsatish",
   "Translate Region": "Hududni tarjima qilish",
-  "The target language matches the book language. Pick a different target language.": "Maqsad til kitob tili bilan bir xil. Boshqa maqsad tilni tanlang."
+  "The target language matches the book language. Pick a different target language.": "Maqsad til kitob tili bilan bir xil. Boshqa maqsad tilni tanlang.",
+  "Show translation": "Tarjimani ko'rsatish",
+  "Auto-translate page": "Sahifani avtomatik tarjima qilish"
 }
