@@ -6,6 +6,18 @@ use ndarray::Array1;
 use ort::session::Session;
 use ort::value::TensorRef;
 
+/// A trivial ONNX model computing `y = x + 1`, embedded so the runtime can be
+/// self-tested on any platform (notably to verify ONNX Runtime links + runs on
+/// Android, where the dylib is loaded dynamically at runtime).
+const ADD_ONE: &[u8] = include_bytes!("../tests-fixtures/add_one.onnx");
+
+/// Load the embedded fixture and run it; returns `[2.0, 3.0, 4.0]` when the
+/// ONNX runtime is healthy. Used by the `ocr_runtime_selftest` Tauri command.
+pub fn selftest() -> Result<Vec<f32>, String> {
+    let mut session = session_from_bytes(ADD_ONE)?;
+    run_add_one(&mut session, vec![1.0, 2.0, 3.0])
+}
+
 /// Build an `ort` Session from ONNX model bytes (CPU execution provider).
 pub fn session_from_bytes(model: &[u8]) -> Result<Session, String> {
     Session::builder()
@@ -32,12 +44,15 @@ pub fn run_add_one(session: &mut Session, x: Vec<f32>) -> Result<Vec<f32>, Strin
 mod tests {
     use super::*;
 
-    const ADD_ONE: &[u8] = include_bytes!("../tests-fixtures/add_one.onnx");
-
     #[test]
     fn runs_a_trivial_onnx_model_on_cpu() {
         let mut session = session_from_bytes(ADD_ONE).expect("load fixture");
         let y = run_add_one(&mut session, vec![1.0, 2.0, 3.0]).expect("run");
         assert_eq!(y, vec![2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn selftest_returns_x_plus_one() {
+        assert_eq!(selftest().expect("selftest"), vec![2.0, 3.0, 4.0]);
     }
 }

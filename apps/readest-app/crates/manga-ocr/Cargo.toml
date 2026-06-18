@@ -4,7 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ort = { version = "2.0.0-rc.10", default-features = false, features = ["std", "ndarray", "download-binaries", "tls-rustls"] }
+ort = { version = "2.0.0-rc.10", default-features = false, features = ["std", "ndarray"] }
 ndarray = { version = "0.17", features = ["std"] }
 image = "0.25"
 serde = { version = "1", features = ["derive"] }
+
+# Desktop (incl. local `cargo test`): fetch + link a prebuilt ONNX Runtime.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+ort = { version = "2.0.0-rc.10", default-features = false, features = ["download-binaries", "tls-rustls"] }
+
+# Android: no compile-time ORT. `load-dynamic` dlopen()s libonnxruntime.so
+# (shipped in jniLibs) at runtime. With load-dynamic, ort uses hand-written
+# "stub" bindings whose newer-API fields are gated behind `api-NN`; pin it to
+# match the shipped ONNX Runtime (1.20.0 == API 20) so the stub struct is
+# complete AND ort requests GetApi(20), which a 1.20 runtime supports.
+[target.'cfg(target_os = "android")'.dependencies]
+ort = { version = "2.0.0-rc.10", default-features = false, features = ["load-dynamic", "api-20"] }

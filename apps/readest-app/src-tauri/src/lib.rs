@@ -24,6 +24,7 @@ use tauri_plugin_fs::FsExt;
 use tauri::{Listener, Url};
 mod ai;
 mod clip_url;
+mod ocr;
 mod comic_parser;
 mod dir_scanner;
 #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
@@ -301,6 +302,8 @@ pub fn run() {
             ai::searcher::hybrid_search,
             ai::searcher::text_search,
             ai::indexer::index_book_chunks,
+            ocr::ocr_runtime_selftest,
+            ocr::ocr_page_regions,
             nightly_update::verify_update_signature,
             #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]
             nightly_update::install_nightly_update,
