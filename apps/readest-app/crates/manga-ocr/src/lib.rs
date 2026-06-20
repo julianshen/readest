@@ -3,5 +3,6 @@
 pub mod models;
 pub mod page;
 pub mod preprocess;
+pub mod recognize;
 pub mod runtime;
 pub mod tokenizer;
