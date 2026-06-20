@@ -16,6 +16,21 @@
 - Run all commands from `apps/readest-app/`. Branch already created: `feat/manga-ocr-phase1b`.
 - Tests: `cargo test -p manga-ocr --features onnx` (Rust), `pnpm test -- <path>` (TS). Verification gates: `pnpm lint`, `pnpm fmt:check`, `pnpm clippy:check`, `pnpm test:rust`.
 
+## Prep + spike findings (done 2026-06-20)
+
+**Models mirrored** to GitHub release `models-ja-v1` on `julianshen/readest` (download base `https://github.com/julianshen/readest/releases/download/models-ja-v1/`). Download URL + SHA verify confirmed working. **Real SHA-256 (use these in Task B1 `ja_manifest`):**
+- `comic-text-detector.onnx` (94,669,756 B) — `1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f`
+- `encoder_model.onnx` (22,356,885 B) — `f87668ae0f62d6f032dac6b213e8c0fea84cd15895ac8cab624cc9a2f49d4a27`
+- `decoder_model.onnx` (118,053,454 B) — `6b1fb216d542c4b2a4fa5b9d7ae3522081eb85fb959d2cecd28055af956a8a5e`
+- `vocab.txt` (24,072 B) — `344fbb6b8bf18c57839e924e2c9365434697e0227fac00b88bb4899b78aa594d`
+
+**Task A1 — ONNX I/O (resolved, supersedes the inspector-bin spike):**
+- `encoder_model.onnx`: IN `pixel_values` f32 `[N,C,H,W]` → OUT `last_hidden_state` f32 `[N,197,192]`. (ViT, 224² ⇒ 196 patches +1 CLS = 197; hidden 192.)
+- `decoder_model.onnx`: IN `input_ids` **i64** `[N,seq]`, `encoder_hidden_states` f32 `[N,enc,192]` → OUT `logits` f32 `[N,seq,6144]`. Greedy = argmax over the 6144-wide last step; vocab size 6144. No KV-cache input → recompute each step.
+- `comic-text-detector.onnx`: IN `images` f32 `[1,3,1024,1024]` → OUT `blk` f32 `[1,64512,7]` (YOLO-style: 64512 anchors × `[cx,cy,w,h,conf,cls0,cls1]`), `seg` f32 `[1,1,1024,1024]`, `det` f32 `[1,2,1024,1024]` (masks).
+
+**Task A2 — detector post-processing recipe:** use the `blk` YOLO output for text-block boxes (the seg/det masks are for lettering/removal, not needed for our box list). Recipe = decode `blk` (`cx,cy,w,h`→xyxy), filter by `conf`, class-agnostic NMS, then map 1024² coords back through the letterbox to original-image px. Mirror `dmMaze/comic-text-detector/inference.py::postprocess_yolo` for thresholds (conf≈0.4, nms≈0.35) — confirm/tune against a fixture in Task B6. So Tasks A1/A2 are DONE; start at B1.
+
 ## File Structure
 
 | File | Responsibility |
