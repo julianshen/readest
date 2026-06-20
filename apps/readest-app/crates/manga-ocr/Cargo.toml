@@ -13,8 +13,10 @@ edition = "2021"
 onnx = ["dep:ort", "dep:ndarray"]
 
 [dependencies]
+hex = "0.4"
 image = "0.25"
 serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
 ndarray = { version = "0.17", features = ["std"], optional = true }
 
 # Desktop (incl. local `cargo test -p manga-ocr --features onnx`): fetch + link

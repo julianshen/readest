@@ -4290,10 +4290,12 @@ dependencies = [
 name = "manga-ocr"
 version = "0.1.0"
 dependencies = [
+ "hex",
  "image",
  "ndarray",
  "ort",
  "serde",
+ "sha2",
 ]
 
 [[package]]
