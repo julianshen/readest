@@ -10,5 +10,8 @@ export interface OcrModelProgress {
 export const ensureOcrModels = (lang: string): Promise<void> =>
   invoke('ensure_ocr_models', { lang });
 
+export const ocrModelsPresent = (lang: string): Promise<boolean> =>
+  invoke<boolean>('ocr_models_present', { lang });
+
 export const onOcrModelProgress = (cb: (p: OcrModelProgress) => void): Promise<UnlistenFn> =>
   listen<OcrModelProgress>('ocr-model-download', (e) => cb(e.payload));

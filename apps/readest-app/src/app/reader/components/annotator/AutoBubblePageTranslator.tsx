@@ -9,7 +9,11 @@ import { getLocale } from '@/utils/misc';
 import { captureRegionToBlob } from '@/utils/pageCapture';
 import type { OverlayGeometry } from '@/utils/bubbleOverlay';
 import { useAutoBubbleTranslate } from '@/app/reader/hooks/useAutoBubbleTranslate';
-import { ensureOcrModels, onOcrModelProgress } from '@/services/ocr/modelDownload';
+import {
+  ensureOcrModels,
+  onOcrModelProgress,
+  ocrModelsPresent,
+} from '@/services/ocr/modelDownload';
 import AutoBubbleOverlay from './AutoBubbleOverlay';
 import BubbleTranslationPopup from './BubbleTranslationPopup';
 
@@ -36,6 +40,7 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
   const { translate } = useTranslator();
   const { markers, regions, run, clear } = useAutoBubbleTranslate();
   const [popup, setPopup] = useState<PopupState | null>(null);
+  const [translating, setTranslating] = useState(false);
   const modelsReady = useRef(false);
 
   // Drop markers/popup when the page turns: they're positioned against the
@@ -51,39 +56,44 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
     setPopup(null);
 
     if (!modelsReady.current) {
-      const { ask } = await import('@tauri-apps/plugin-dialog');
-      const ok = await ask(_('Download Japanese OCR models (~235 MB)?'));
-      if (!ok) return;
-
-      let lastPct = -1;
-      const dispatchProgress = (pct: number) => {
-        eventDispatcher.dispatch('toast', {
-          message: `${_('Downloading OCR models…')} ${pct}%`,
-          type: 'info',
-          timeout: 4000,
-        });
-      };
-      dispatchProgress(0);
-      const un = await onOcrModelProgress(({ received, total }) => {
-        const pct = total > 0 ? Math.round((received / total) * 100) : 0;
-        if (pct >= lastPct + 5) {
-          lastPct = pct;
-          dispatchProgress(pct);
-        }
-      });
-      try {
-        await ensureOcrModels('ja');
+      const present = await ocrModelsPresent(OCR_SOURCE_LANG).catch(() => false);
+      if (present) {
         modelsReady.current = true;
-      } catch {
-        eventDispatcher.dispatch('toast', {
-          message: _('Failed to download OCR models. Please try again.'),
-          type: 'error',
-          timeout: 5000,
+      } else {
+        const { ask } = await import('@tauri-apps/plugin-dialog');
+        const ok = await ask(_('Download Japanese OCR models (~235 MB)?'));
+        if (!ok) return;
+
+        let lastPct = -1;
+        const dispatchProgress = (pct: number) => {
+          eventDispatcher.dispatch('toast', {
+            message: `${_('Downloading OCR models…')} ${pct}%`,
+            type: 'info',
+            timeout: 4000,
+          });
+        };
+        dispatchProgress(0);
+        const un = await onOcrModelProgress(({ received, total }) => {
+          const pct = total > 0 ? Math.round((received / total) * 100) : 0;
+          if (pct >= lastPct + 5) {
+            lastPct = pct;
+            dispatchProgress(pct);
+          }
         });
+        try {
+          await ensureOcrModels('ja');
+          modelsReady.current = true;
+        } catch {
+          eventDispatcher.dispatch('toast', {
+            message: _('Failed to download OCR models. Please try again.'),
+            type: 'error',
+            timeout: 5000,
+          });
+          un();
+          return;
+        }
         un();
-        return;
       }
-      un();
     }
 
     const view = getView(bookKey);
@@ -137,6 +147,7 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
     };
 
     const target = getLocale();
+    setTranslating(true);
     try {
       await run({
         cacheKeyParts: { bookKey, sectionIndex: primary?.index ?? 0, target },
@@ -152,6 +163,8 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
         message: _('Translation failed. Please try again.'),
         type: 'error',
       });
+    } finally {
+      setTranslating(false);
     }
   };
 
@@ -189,6 +202,11 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
 
   return (
     <>
+      {translating && (
+        <div className='pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/20'>
+          <span className='loading loading-spinner loading-lg' />
+        </div>
+      )}
       {markers.length > 0 && <AutoBubbleOverlay markers={markers} onActivate={onActivate} />}
       {popup && (
         <BubbleTranslationPopup

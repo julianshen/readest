@@ -1,6 +1,7 @@
 import React from 'react';
 import { MdTranslate, MdAutoAwesome } from 'react-icons/md';
 
+import { useEnv } from '@/context/EnvContext';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -14,6 +15,7 @@ import { eventDispatcher } from '@/utils/event';
 // behind a dark-launch flag, whole-page auto bubble translation (on-device OCR).
 const MangaBubbleToggler: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   const _ = useTranslation();
+  const { appService } = useEnv();
   const { settings } = useSettingsStore();
   const { getBookData } = useBookDataStore();
   const { setHoveredBookKey } = useReaderStore();
@@ -23,7 +25,7 @@ const MangaBubbleToggler: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   if (!isComic) return null;
 
   const showRegion = isAIAssistantConfigured(settings.aiSettings);
-  const showAuto = MANGA_AUTO_TRANSLATE_ENABLED;
+  const showAuto = MANGA_AUTO_TRANSLATE_ENABLED && appService?.osPlatform === 'android';
   if (!showRegion && !showAuto) return null;
 
   const dispatch = (event: string) => {
