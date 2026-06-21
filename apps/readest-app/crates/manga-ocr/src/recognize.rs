@@ -82,31 +82,36 @@ impl OcrEngine for MangaOcrEngine {
         // 3. Greedy decode.
         // bos = 2 ([CLS] / decoder_start_token_id), eos = 3 ([SEP]), max_len = 300.
         let generated = greedy_decode(
-            |ids: &[i64]| {
+            |ids: &[i64]| -> Result<Vec<f32>, String> {
                 let seq_len = ids.len();
                 // input_ids: i64 [1, seq]
-                let input_ids: Array2<i64> =
-                    Array2::from_shape_vec((1, seq_len), ids.to_vec()).unwrap();
-                let ids_tensor = TensorRef::from_array_view(input_ids.view()).unwrap();
-                let enc_tensor = TensorRef::from_array_view(hidden.view()).unwrap();
+                let input_ids: Array2<i64> = Array2::from_shape_vec((1, seq_len), ids.to_vec())
+                    .map_err(|e| format!("reshape input_ids: {e}"))?;
+                let ids_tensor = TensorRef::from_array_view(input_ids.view())
+                    .map_err(|e| format!("ort decoder input_ids tensor: {e}"))?;
+                let enc_tensor = TensorRef::from_array_view(hidden.view())
+                    .map_err(|e| format!("ort decoder encoder_hidden_states tensor: {e}"))?;
                 let dec_outputs = self
                     .decoder
                     .run(ort::inputs![
                         "input_ids" => ids_tensor,
                         "encoder_hidden_states" => enc_tensor
                     ])
-                    .unwrap();
-                let (logits_shape, logits_data) =
-                    dec_outputs["logits"].try_extract_tensor::<f32>().unwrap();
+                    .map_err(|e| format!("ort decoder run: {e}"))?;
+                let (logits_shape, logits_data) = dec_outputs
+                    .get("logits")
+                    .ok_or_else(|| "decoder output missing 'logits'".to_string())?
+                    .try_extract_tensor::<f32>()
+                    .map_err(|e| format!("ort decoder extract logits: {e}"))?;
                 // logits shape: [1, seq, 6144]; extract last-position slice.
                 let vocab = logits_shape[2] as usize;
                 let last_offset = (seq_len - 1) * vocab;
-                logits_data[last_offset..last_offset + vocab].to_vec()
+                Ok(logits_data[last_offset..last_offset + vocab].to_vec())
             },
             2,   // bos
             3,   // eos
             300, // max_len
-        );
+        )?;
 
         // 4. Detokenize.
         let ids_u32: Vec<u32> = generated.iter().map(|&id| id as u32).collect();
@@ -116,21 +121,21 @@ impl OcrEngine for MangaOcrEngine {
 
 /// Greedy autoregressive decode.
 ///
-/// `step(current_ids)` returns the next-token logits (length = vocab size) for
-/// the position after `current_ids`. Starts from `[bos]`; appends argmax each
-/// iteration; stops when the chosen token == `eos` OR the generated length
-/// reaches `max_len`. Returns the generated ids WITHOUT the leading bos and
-/// WITHOUT a trailing eos.
-pub fn greedy_decode<F: FnMut(&[i64]) -> Vec<f32>>(
+/// `step(current_ids)` returns `Ok(next-token logits)` (length = vocab size) for
+/// the position after `current_ids`, or `Err(msg)` on failure. Starts from
+/// `[bos]`; appends argmax each iteration; stops when the chosen token == `eos`
+/// OR the generated length reaches `max_len`. Returns the generated ids WITHOUT
+/// the leading bos and WITHOUT a trailing eos.
+pub fn greedy_decode<F: FnMut(&[i64]) -> Result<Vec<f32>, String>>(
     mut step: F,
     bos: i64,
     eos: i64,
     max_len: usize,
-) -> Vec<i64> {
+) -> Result<Vec<i64>, String> {
     let mut ids = vec![bos];
     let mut generated: Vec<i64> = Vec::new();
     loop {
-        let logits = step(&ids);
+        let logits = step(&ids)?;
         let next = argmax(&logits) as i64;
         if next == eos {
             break;
@@ -141,7 +146,7 @@ pub fn greedy_decode<F: FnMut(&[i64]) -> Vec<f32>>(
         }
         ids.push(next);
     }
-    generated
+    Ok(generated)
 }
 
 #[cfg(test)]
@@ -179,19 +184,20 @@ mod tests {
             |_ids| {
                 let tok = targets[call];
                 call += 1;
-                one_hot(tok, 8)
+                Ok(one_hot(tok, 8))
             },
             1,  // bos
             2,  // eos
             10, // max_len
-        );
+        )
+        .unwrap();
         assert_eq!(result, vec![5, 7]);
     }
 
     #[test]
     fn greedy_decode_max_len_cap() {
         // closure always selects token 4 (never eos=2); result must be capped at max_len=5
-        let result = greedy_decode(|_ids| one_hot(4, 8), 1, 2, 5);
+        let result = greedy_decode(|_ids| Ok(one_hot(4, 8)), 1, 2, 5).unwrap();
         assert_eq!(result.len(), 5);
         assert!(result.iter().all(|&t| t == 4));
     }

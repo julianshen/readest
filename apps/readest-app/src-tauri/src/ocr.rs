@@ -101,7 +101,7 @@ pub async fn ocr_page_regions(
             .join("ocr-models")
             .join(&source_lang);
         tauri::async_runtime::spawn_blocking(move || {
-            let mut guard = OCR_PIPELINE.lock().map_err(|e| e.to_string())?;
+            let mut guard = OCR_PIPELINE.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
             if guard.is_none() {
                 *guard = Some(
                     manga_ocr::pipeline::OcrPipeline::load(&cache_dir).map_err(|e| {

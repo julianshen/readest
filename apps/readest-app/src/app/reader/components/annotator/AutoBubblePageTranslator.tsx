@@ -55,12 +55,22 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
       const ok = await ask(_('Download Japanese OCR models (~235 MB)?'));
       if (!ok) return;
 
-      eventDispatcher.dispatch('toast', {
-        message: _('Downloading OCR models…'),
-        type: 'info',
-        timeout: 0,
+      let lastPct = -1;
+      const dispatchProgress = (pct: number) => {
+        eventDispatcher.dispatch('toast', {
+          message: `${_('Downloading OCR models…')} ${pct}%`,
+          type: 'info',
+          timeout: 4000,
+        });
+      };
+      dispatchProgress(0);
+      const un = await onOcrModelProgress(({ received, total }) => {
+        const pct = total > 0 ? Math.round((received / total) * 100) : 0;
+        if (pct >= lastPct + 5) {
+          lastPct = pct;
+          dispatchProgress(pct);
+        }
       });
-      const un = await onOcrModelProgress(() => {});
       try {
         await ensureOcrModels('ja');
         modelsReady.current = true;
