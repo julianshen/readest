@@ -4,7 +4,9 @@
 //! that run the (CPU-bound) work off the UI thread.
 
 use futures_util::StreamExt;
+use sha2::{Digest, Sha256};
 use std::fs;
+use std::io::Write;
 use tauri::{Emitter, Manager};
 
 use manga_ocr::page::DetectedRegion;
@@ -36,6 +38,12 @@ pub async fn ocr_runtime_selftest() -> Result<Vec<f32>, String> {
 /// platform (it just fetches files); running the models is Android-only.
 #[tauri::command]
 pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<(), String> {
+    // Only Japanese models exist; reject anything else so we don't download JP
+    // models into a wrong-named folder.
+    if lang != "ja" {
+        return Err(format!("unsupported OCR language: {lang}"));
+    }
+
     let cache_dir = app
         .path()
         .app_data_dir()
@@ -57,24 +65,31 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
         let resp = reqwest::get(f.url).await.map_err(|e| e.to_string())?;
         let total = resp.content_length().unwrap_or(0);
         let mut stream = resp.bytes_stream();
-        let mut buf = Vec::new();
+
+        // Stream chunks straight to the `.part` file while feeding the hasher
+        // incrementally, so a 118 MB file never sits fully in RAM.
+        let part = cache_dir.join(format!("{}.part", f.name));
+        let mut file = fs::File::create(&part).map_err(|e| e.to_string())?;
+        let mut hasher = Sha256::new();
         let mut received = 0u64;
         while let Some(chunk) = stream.next().await {
             let chunk = chunk.map_err(|e| e.to_string())?;
-            buf.extend_from_slice(&chunk);
+            file.write_all(&chunk).map_err(|e| e.to_string())?;
+            hasher.update(&chunk);
             received += chunk.len() as u64;
             let _ = app.emit(
                 "ocr-model-download",
                 serde_json::json!({ "file": f.name, "received": received, "total": total }),
             );
         }
+        file.flush().map_err(|e| e.to_string())?;
 
-        if !manga_ocr::models::verify_sha256(&buf, f.sha256) {
+        let digest = hex::encode(hasher.finalize());
+        if !digest.eq_ignore_ascii_case(f.sha256) {
+            let _ = fs::remove_file(&part);
             return Err(format!("checksum mismatch for {}", f.name));
         }
 
-        let part = cache_dir.join(format!("{}.part", f.name));
-        fs::write(&part, &buf).map_err(|e| e.to_string())?;
         fs::rename(&part, &target).map_err(|e| e.to_string())?;
     }
 

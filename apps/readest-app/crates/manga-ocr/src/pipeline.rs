@@ -55,6 +55,11 @@ impl OcrPipeline {
             if b.w == 0 || b.h == 0 {
                 continue;
             }
+            // Discard boxes whose top-left is outside the image: clamping such a
+            // box would yield a meaningless 1×1 edge crop.
+            if b.x >= img_w || b.y >= img_h {
+                continue;
+            }
             // Clamp crop rect to image bounds.
             let x = b.x.min(img_w.saturating_sub(1));
             let y = b.y.min(img_h.saturating_sub(1));

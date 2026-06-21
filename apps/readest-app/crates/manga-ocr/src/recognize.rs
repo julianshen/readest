@@ -2,8 +2,12 @@ use image::GrayImage;
 #[cfg(feature = "onnx")]
 use std::path::Path;
 
-/// Index of the max logit (ties → lowest index).
+/// Index of the max logit (ties → lowest index). Returns 0 on empty input so
+/// callers (which expect a valid index) can't trigger an out-of-bounds panic.
 pub fn argmax(logits: &[f32]) -> usize {
+    if logits.is_empty() {
+        return 0;
+    }
     logits
         .iter()
         .enumerate()
@@ -51,7 +55,7 @@ impl MangaOcrEngine {
 #[cfg(feature = "onnx")]
 impl OcrEngine for MangaOcrEngine {
     fn recognize(&mut self, crop: &GrayImage) -> Result<String, String> {
-        use ndarray::{Array2, Array3, Array4};
+        use ndarray::{Array4, ArrayView2, ArrayView3};
         use ort::value::TensorRef;
 
         // 1. Preprocess: crop → [1,3,224,224] f32.
@@ -67,15 +71,22 @@ impl OcrEngine for MangaOcrEngine {
         let (enc_shape, enc_data) = enc_outputs["last_hidden_state"]
             .try_extract_tensor::<f32>()
             .map_err(|e| format!("ort encoder extract: {e}"))?;
-        // Shape: [1, 197, 192] — own it so we can re-view each decode step.
-        let enc_shape = enc_shape.to_vec();
-        let hidden: Array3<f32> = Array3::from_shape_vec(
+        // Shape: [1, 197, 192]. Guard rank before indexing; view the runtime's
+        // buffer directly (it outlives the decode loop) to skip an owned copy.
+        if enc_shape.len() < 3 {
+            return Err(format!(
+                "encoder output rank {} < 3 (shape {:?})",
+                enc_shape.len(),
+                enc_shape
+            ));
+        }
+        let hidden: ArrayView3<f32> = ArrayView3::from_shape(
             (
                 enc_shape[0] as usize,
                 enc_shape[1] as usize,
                 enc_shape[2] as usize,
             ),
-            enc_data.to_vec(),
+            enc_data,
         )
         .map_err(|e| format!("reshape hidden state: {e}"))?;
 
@@ -84,12 +95,12 @@ impl OcrEngine for MangaOcrEngine {
         let generated = greedy_decode(
             |ids: &[i64]| -> Result<Vec<f32>, String> {
                 let seq_len = ids.len();
-                // input_ids: i64 [1, seq]
-                let input_ids: Array2<i64> = Array2::from_shape_vec((1, seq_len), ids.to_vec())
+                // input_ids: i64 [1, seq] — view the slice directly, no copy.
+                let input_ids: ArrayView2<i64> = ArrayView2::from_shape((1, seq_len), ids)
                     .map_err(|e| format!("reshape input_ids: {e}"))?;
-                let ids_tensor = TensorRef::from_array_view(input_ids.view())
+                let ids_tensor = TensorRef::from_array_view(input_ids)
                     .map_err(|e| format!("ort decoder input_ids tensor: {e}"))?;
-                let enc_tensor = TensorRef::from_array_view(hidden.view())
+                let enc_tensor = TensorRef::from_array_view(hidden)
                     .map_err(|e| format!("ort decoder encoder_hidden_states tensor: {e}"))?;
                 let dec_outputs = self
                     .decoder
@@ -104,6 +115,13 @@ impl OcrEngine for MangaOcrEngine {
                     .try_extract_tensor::<f32>()
                     .map_err(|e| format!("ort decoder extract logits: {e}"))?;
                 // logits shape: [1, seq, 6144]; extract last-position slice.
+                if logits_shape.len() < 3 {
+                    return Err(format!(
+                        "decoder logits rank {} < 3 (shape {:?})",
+                        logits_shape.len(),
+                        logits_shape
+                    ));
+                }
                 let vocab = logits_shape[2] as usize;
                 let last_offset = (seq_len - 1) * vocab;
                 Ok(logits_data[last_offset..last_offset + vocab].to_vec())
@@ -169,6 +187,12 @@ mod tests {
     fn argmax_ties_pick_lowest_index() {
         assert_eq!(argmax(&[0.5, 0.5, 0.3]), 0);
         assert_eq!(argmax(&[0.3, 0.5, 0.5]), 1);
+    }
+
+    #[test]
+    fn argmax_empty_returns_zero() {
+        // Must not panic on an empty slice; callers expect a valid index.
+        assert_eq!(argmax(&[]), 0);
     }
 
     #[test]

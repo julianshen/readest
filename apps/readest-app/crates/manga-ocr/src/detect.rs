@@ -22,6 +22,12 @@ pub fn blocks_from_raw(
     let sx = orig_w as f32 / SIZE;
     let sy = orig_h as f32 / SIZE;
 
+    // Each row must have at least 5 columns ([cx, cy, w, h, conf]); a malformed
+    // output would otherwise panic on `row[4]`. Bail out with no boxes.
+    if blk.ncols() < 5 {
+        return Vec::new();
+    }
+
     // --- threshold ---
     // Collect (conf, x1, y1, x2, y2) in original px for rows above threshold.
     let mut candidates: Vec<(f32, f32, f32, f32, f32)> = blk
@@ -193,6 +199,14 @@ mod tests {
             "box D mismatch: {:?}",
             result[1]
         );
+    }
+
+    #[test]
+    fn too_few_columns_returns_empty() {
+        // A [N, 4] block lacks the conf column (index 4); must not panic.
+        let data = arr2(&[[512.0, 512.0, 200.0, 100.0], [100.0, 100.0, 50.0, 50.0]]);
+        let result = blocks_from_raw(data.view(), 1024, 1024, 0.4, 0.35);
+        assert!(result.is_empty(), "expected no boxes, got {:?}", result);
     }
 
     #[test]
