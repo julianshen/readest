@@ -1849,5 +1849,6 @@
   "Auto-translate page": "Автоматично перекласти сторінку",
   "Download Japanese OCR models (~235 MB)?": "Завантажити японські моделі OCR (~235 МБ)?",
   "Downloading OCR models…": "Завантаження моделей OCR…",
+  "Translating page…": "Переклад сторінки…",
   "Failed to download OCR models. Please try again.": "Не вдалося завантажити моделі OCR. Спробуйте ще раз."
 }

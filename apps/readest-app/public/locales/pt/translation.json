@@ -1816,5 +1816,6 @@
   "Auto-translate page": "Traduzir página automaticamente",
   "Download Japanese OCR models (~235 MB)?": "Transferir modelos de OCR de japonês (~235 MB)?",
   "Downloading OCR models…": "A transferir modelos de OCR…",
+  "Translating page…": "A traduzir página…",
   "Failed to download OCR models. Please try again.": "Falha ao transferir os modelos de OCR. Tente novamente."
 }

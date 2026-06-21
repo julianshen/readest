@@ -1783,5 +1783,6 @@
   "Auto-translate page": "Översätt sidan automatiskt",
   "Download Japanese OCR models (~235 MB)?": "Ladda ner japanska OCR-modeller (~235 MB)?",
   "Downloading OCR models…": "Laddar ner OCR-modeller…",
+  "Translating page…": "Översätter sida…",
   "Failed to download OCR models. Please try again.": "Det gick inte att ladda ner OCR-modellerna. Försök igen."
 }

@@ -1783,5 +1783,6 @@
   "Auto-translate page": "Sahifani avtomatik tarjima qilish",
   "Download Japanese OCR models (~235 MB)?": "Yapon OCR modellari yuklab olinsinmi (~235 MB)?",
   "Downloading OCR models…": "OCR modellari yuklab olinmoqda…",
+  "Translating page…": "Sahifa tarjima qilinmoqda…",
   "Failed to download OCR models. Please try again.": "OCR modellarini yuklab boʻlmadi. Qayta urinib koʻring."
 }

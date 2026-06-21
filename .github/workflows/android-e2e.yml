@@ -91,6 +91,7 @@ jobs:
           git checkout .
           # Debug build: signed with the debug keystore, no release secrets
           # needed (gradle only loads keystore.properties when it exists).
+          pnpm android:onnx
           pnpm tauri android build --debug --target x86_64
           APK=$(find src-tauri/gen/android/app/build/outputs/apk -name '*-debug.apk' | head -n 1)
           echo "APK=$PWD/$APK" >> "$GITHUB_ENV"

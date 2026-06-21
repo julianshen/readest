@@ -101,6 +101,9 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
 /// frontend to skip the confirm + download flow when models are already cached.
 #[tauri::command]
 pub async fn ocr_models_present(app: tauri::AppHandle, lang: String) -> Result<bool, String> {
+    if lang != "ja" {
+        return Ok(false);
+    }
     let dir = app
         .path()
         .app_data_dir()

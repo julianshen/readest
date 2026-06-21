@@ -192,8 +192,10 @@ jobs:
           apk_path=src-tauri/gen/android/app/build/outputs/apk/universal/release
           universal_apk=Readest_${version}_universal.apk
           arm64_apk=Readest_${version}_arm64.apk
+          pnpm android:onnx
           pnpm tauri android build
           cp ${apk_path}/app-universal-release.apk $universal_apk
+          pnpm android:onnx
           pnpm tauri android build -t aarch64
           cp ${apk_path}/app-universal-release.apk $arm64_apk
           pnpm tauri signer sign $universal_apk

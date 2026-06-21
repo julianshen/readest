@@ -203,8 +203,9 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
   return (
     <>
       {translating && (
-        <div className='pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/20'>
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-base-100/30'>
           <span className='loading loading-spinner loading-lg' />
+          <span className='sr-only'>{_('Translating page…')}</span>
         </div>
       )}
       {markers.length > 0 && <AutoBubbleOverlay markers={markers} onActivate={onActivate} />}

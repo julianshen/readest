@@ -25,11 +25,8 @@ fi
 for abi in "${ABIS[@]}"; do
   dest="$JNILIBS/$abi/libonnxruntime.so"
   mkdir -p "$JNILIBS/$abi"
-  if [ -f "$dest" ]; then
-    echo "✓ $abi already present"
-    continue
-  fi
   echo "Extracting $abi/libonnxruntime.so..."
+  # Always extract from the cached AAR (fast; ensures ORT_VER bumps take effect).
   # unzip to a temp path then move (the AAR stores it under jni/<abi>/)
   tmp="$(mktemp -d)"
   unzip -q -o "$CACHE" "jni/$abi/libonnxruntime.so" -d "$tmp"
