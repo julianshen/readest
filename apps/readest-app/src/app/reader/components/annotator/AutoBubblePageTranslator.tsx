@@ -9,6 +9,7 @@ import { getLocale } from '@/utils/misc';
 import { captureRegionToBlob } from '@/utils/pageCapture';
 import type { OverlayGeometry } from '@/utils/bubbleOverlay';
 import { useAutoBubbleTranslate } from '@/app/reader/hooks/useAutoBubbleTranslate';
+import { ensureOcrModels, onOcrModelProgress } from '@/services/ocr/modelDownload';
 import AutoBubbleOverlay from './AutoBubbleOverlay';
 import BubbleTranslationPopup from './BubbleTranslationPopup';
 
@@ -35,6 +36,7 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
   const { translate } = useTranslator();
   const { markers, regions, run, clear } = useAutoBubbleTranslate();
   const [popup, setPopup] = useState<PopupState | null>(null);
+  const modelsReady = useRef(false);
 
   // Drop markers/popup when the page turns: they're positioned against the
   // previous page's geometry, so they'd otherwise float over the new page.
@@ -47,6 +49,33 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
 
   const onAutoTranslate = async () => {
     setPopup(null);
+
+    if (!modelsReady.current) {
+      const { ask } = await import('@tauri-apps/plugin-dialog');
+      const ok = await ask(_('Download Japanese OCR models (~235 MB)?'));
+      if (!ok) return;
+
+      eventDispatcher.dispatch('toast', {
+        message: _('Downloading OCR models…'),
+        type: 'info',
+        timeout: 0,
+      });
+      const un = await onOcrModelProgress(() => {});
+      try {
+        await ensureOcrModels('ja');
+        modelsReady.current = true;
+      } catch {
+        eventDispatcher.dispatch('toast', {
+          message: _('Failed to download OCR models. Please try again.'),
+          type: 'error',
+          timeout: 5000,
+        });
+        un();
+        return;
+      }
+      un();
+    }
+
     const view = getView(bookKey);
     const contents = view?.renderer?.getContents?.() ?? [];
     // getContents() returns all loaded pages sorted by index, so contents[0]
