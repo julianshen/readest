@@ -1780,5 +1780,8 @@
   "Translate Region": "অঞ্চল অনুবাদ করুন",
   "The target language matches the book language. Pick a different target language.": "লক্ষ্য ভাষা বইয়ের ভাষার সঙ্গে একই। একটি ভিন্ন লক্ষ্য ভাষা নির্বাচন করুন।",
   "Show translation": "অনুবাদ দেখান",
-  "Auto-translate page": "পৃষ্ঠা স্বয়ংক্রিয়ভাবে অনুবাদ করুন"
+  "Auto-translate page": "পৃষ্ঠা স্বয়ংক্রিয়ভাবে অনুবাদ করুন",
+  "Download Japanese OCR models (~235 MB)?": "জাপানি OCR মডেল ডাউনলোড করবেন (~235 MB)?",
+  "Downloading OCR models…": "OCR মডেল ডাউনলোড হচ্ছে…",
+  "Failed to download OCR models. Please try again.": "OCR মডেল ডাউনলোড করা যায়নি। আবার চেষ্টা করুন।"
 }

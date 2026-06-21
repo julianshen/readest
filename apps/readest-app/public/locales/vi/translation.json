@@ -1747,5 +1747,8 @@
   "Translate Region": "Dịch vùng",
   "The target language matches the book language. Pick a different target language.": "Ngôn ngữ đích giống với ngôn ngữ của sách. Hãy chọn một ngôn ngữ đích khác.",
   "Show translation": "Hiện bản dịch",
-  "Auto-translate page": "Tự động dịch trang"
+  "Auto-translate page": "Tự động dịch trang",
+  "Download Japanese OCR models (~235 MB)?": "Tải mô hình OCR tiếng Nhật (~235 MB)?",
+  "Downloading OCR models…": "Đang tải mô hình OCR…",
+  "Failed to download OCR models. Please try again.": "Không tải được mô hình OCR. Vui lòng thử lại."
 }

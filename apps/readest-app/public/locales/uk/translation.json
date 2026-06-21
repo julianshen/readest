@@ -1846,5 +1846,8 @@
   "Translate Region": "Перекласти область",
   "The target language matches the book language. Pick a different target language.": "Мова перекладу збігається з мовою книги. Виберіть іншу мову перекладу.",
   "Show translation": "Показати переклад",
-  "Auto-translate page": "Автоматично перекласти сторінку"
+  "Auto-translate page": "Автоматично перекласти сторінку",
+  "Download Japanese OCR models (~235 MB)?": "Завантажити японські моделі OCR (~235 МБ)?",
+  "Downloading OCR models…": "Завантаження моделей OCR…",
+  "Failed to download OCR models. Please try again.": "Не вдалося завантажити моделі OCR. Спробуйте ще раз."
 }

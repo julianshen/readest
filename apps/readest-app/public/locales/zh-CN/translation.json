@@ -1747,5 +1747,8 @@
   "Translate Region": "翻译区域",
   "The target language matches the book language. Pick a different target language.": "目标语言与本书语言相同。请选择其他目标语言。",
   "Show translation": "显示译文",
-  "Auto-translate page": "自动翻译页面"
+  "Auto-translate page": "自动翻译页面",
+  "Download Japanese OCR models (~235 MB)?": "下载日语 OCR 模型（约 235 MB）？",
+  "Downloading OCR models…": "正在下载 OCR 模型…",
+  "Failed to download OCR models. Please try again.": "OCR 模型下载失败。请重试。"
 }

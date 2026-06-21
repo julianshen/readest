@@ -1846,5 +1846,8 @@
   "Translate Region": "Prevedi območje",
   "The target language matches the book language. Pick a different target language.": "Ciljni jezik je enak jeziku knjige. Izberite drug ciljni jezik.",
   "Show translation": "Pokaži prevod",
-  "Auto-translate page": "Samodejno prevedi stran"
+  "Auto-translate page": "Samodejno prevedi stran",
+  "Download Japanese OCR models (~235 MB)?": "Prenesem japonske modele OCR (~235 MB)?",
+  "Downloading OCR models…": "Prenašanje modelov OCR…",
+  "Failed to download OCR models. Please try again.": "Prenos modelov OCR ni uspel. Poskusite znova."
 }

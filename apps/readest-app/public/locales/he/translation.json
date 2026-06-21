@@ -1813,5 +1813,8 @@
   "Translate Region": "תרגום אזור",
   "The target language matches the book language. Pick a different target language.": "שפת היעד זהה לשפת הספר. בחרו שפת יעד אחרת.",
   "Show translation": "הצג תרגום",
-  "Auto-translate page": "תרגום אוטומטי של הדף"
+  "Auto-translate page": "תרגום אוטומטי של הדף",
+  "Download Japanese OCR models (~235 MB)?": "להוריד מודלי OCR ליפנית (~235 MB)?",
+  "Downloading OCR models…": "מוריד מודלי OCR…",
+  "Failed to download OCR models. Please try again.": "הורדת מודלי ה-OCR נכשלה. נסה שוב."
 }
