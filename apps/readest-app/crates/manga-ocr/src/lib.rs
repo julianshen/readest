@@ -3,6 +3,7 @@
 pub mod detect;
 pub mod models;
 pub mod page;
+pub mod pipeline;
 pub mod preprocess;
 pub mod recognize;
 pub mod runtime;
