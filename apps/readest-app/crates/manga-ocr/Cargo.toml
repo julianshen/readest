@@ -10,12 +10,14 @@ edition = "2021"
 # (which would fail to download a binary there, and also raises the MSRV to
 # 1.88 vs the repo's declared 1.77.2). Android enables this feature (see
 # src-tauri/Cargo.toml); desktop dev/tests opt in with `--features onnx`.
-onnx = ["dep:ort", "dep:ndarray"]
+onnx = ["dep:ort"]
 
 [dependencies]
+hex = "0.4"
 image = "0.25"
+ndarray = { version = "0.17", features = ["std"] }
 serde = { version = "1", features = ["derive"] }
-ndarray = { version = "0.17", features = ["std"], optional = true }
+sha2 = "0.10"
 
 # Desktop (incl. local `cargo test -p manga-ocr --features onnx`): fetch + link
 # a prebuilt ONNX Runtime.

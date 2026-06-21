@@ -1912,5 +1912,8 @@
   "Translate Region": "ترجمة منطقة",
   "The target language matches the book language. Pick a different target language.": "لغة الترجمة مطابقة للغة الكتاب. اختر لغة هدف مختلفة.",
   "Show translation": "إظهار الترجمة",
-  "Auto-translate page": "ترجمة الصفحة تلقائيًا"
+  "Auto-translate page": "ترجمة الصفحة تلقائيًا",
+  "Download Japanese OCR models (~235 MB)?": "تنزيل نماذج OCR اليابانية (~235 ميجابايت)؟",
+  "Downloading OCR models…": "جارٍ تنزيل نماذج OCR…",
+  "Failed to download OCR models. Please try again.": "فشل تنزيل نماذج OCR. حاول مرة أخرى."
 }

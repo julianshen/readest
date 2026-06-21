@@ -303,6 +303,7 @@ pub fn run() {
             ai::searcher::text_search,
             ai::indexer::index_book_chunks,
             ocr::ocr_runtime_selftest,
+            ocr::ensure_ocr_models,
             ocr::ocr_page_regions,
             nightly_update::verify_update_signature,
             #[cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))]

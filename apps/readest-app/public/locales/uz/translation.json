@@ -1780,5 +1780,8 @@
   "Translate Region": "Hududni tarjima qilish",
   "The target language matches the book language. Pick a different target language.": "Maqsad til kitob tili bilan bir xil. Boshqa maqsad tilni tanlang.",
   "Show translation": "Tarjimani ko'rsatish",
-  "Auto-translate page": "Sahifani avtomatik tarjima qilish"
+  "Auto-translate page": "Sahifani avtomatik tarjima qilish",
+  "Download Japanese OCR models (~235 MB)?": "Yapon OCR modellari yuklab olinsinmi (~235 MB)?",
+  "Downloading OCR models…": "OCR modellari yuklab olinmoqda…",
+  "Failed to download OCR models. Please try again.": "OCR modellarini yuklab boʻlmadi. Qayta urinib koʻring."
 }

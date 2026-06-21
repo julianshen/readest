@@ -1780,5 +1780,8 @@
   "Translate Region": "क्षेत्र अनुवाद करें",
   "The target language matches the book language. Pick a different target language.": "लक्ष्य भाषा पुस्तक की भाषा के समान है। कोई दूसरी लक्ष्य भाषा चुनें।",
   "Show translation": "अनुवाद दिखाएँ",
-  "Auto-translate page": "पृष्ठ का स्वतः अनुवाद करें"
+  "Auto-translate page": "पृष्ठ का स्वतः अनुवाद करें",
+  "Download Japanese OCR models (~235 MB)?": "जापानी OCR मॉडल डाउनलोड करें (~235 MB)?",
+  "Downloading OCR models…": "OCR मॉडल डाउनलोड हो रहे हैं…",
+  "Failed to download OCR models. Please try again.": "OCR मॉडल डाउनलोड करने में विफल। कृपया पुनः प्रयास करें।"
 }

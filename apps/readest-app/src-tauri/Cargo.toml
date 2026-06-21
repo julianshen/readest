@@ -102,6 +102,15 @@ image = { version = "0.25", default-features = false, features = ["jpeg", "png",
 # WebView). Pure-Rust crate, ships to every Tauri target.
 mobi = "0.8"
 
+# On-device OCR model download (`ensure_ocr_models`). We stream each model file
+# to disk while feeding a SHA-256 hasher incrementally so a 118 MB decoder
+# never sits fully in RAM (OOM risk on Android). `hex` renders the digest for a
+# case-insensitive compare against the expected checksum. Both are pure-Rust and
+# already in our transitive graph (sha2 via the manga-ocr crate), added
+# explicitly here so this crate's use is direct and stable.
+sha2 = "0.10"
+hex = "0.4"
+
 [target."cfg(target_os = \"macos\")".dependencies]
 rand = "0.8"
 cocoa = "0.25"

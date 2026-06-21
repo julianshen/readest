@@ -1780,5 +1780,8 @@
   "Translate Region": "Översätt område",
   "The target language matches the book language. Pick a different target language.": "Målspråket är samma som bokens språk. Välj ett annat målspråk.",
   "Show translation": "Visa översättning",
-  "Auto-translate page": "Översätt sidan automatiskt"
+  "Auto-translate page": "Översätt sidan automatiskt",
+  "Download Japanese OCR models (~235 MB)?": "Ladda ner japanska OCR-modeller (~235 MB)?",
+  "Downloading OCR models…": "Laddar ner OCR-modeller…",
+  "Failed to download OCR models. Please try again.": "Det gick inte att ladda ner OCR-modellerna. Försök igen."
 }

@@ -1780,5 +1780,8 @@
   "Translate Region": "Bölgeyi çevir",
   "The target language matches the book language. Pick a different target language.": "Hedef dil kitabın diliyle aynı. Farklı bir hedef dil seçin.",
   "Show translation": "Çeviriyi göster",
-  "Auto-translate page": "Sayfayı otomatik çevir"
+  "Auto-translate page": "Sayfayı otomatik çevir",
+  "Download Japanese OCR models (~235 MB)?": "Japonca OCR modelleri indirilsin mi (~235 MB)?",
+  "Downloading OCR models…": "OCR modelleri indiriliyor…",
+  "Failed to download OCR models. Please try again.": "OCR modelleri indirilemedi. Lütfen tekrar deneyin."
 }

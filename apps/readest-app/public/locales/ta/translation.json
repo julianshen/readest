@@ -1780,5 +1780,8 @@
   "Translate Region": "பகுதியை மொழிபெயர்",
   "The target language matches the book language. Pick a different target language.": "இலக்கு மொழி புத்தகத்தின் மொழியைப் போலவே உள்ளது. வேறு இலக்கு மொழியைத் தேர்ந்தெடுக்கவும்.",
   "Show translation": "மொழிபெயர்ப்பைக் காட்டு",
-  "Auto-translate page": "பக்கத்தை தானாக மொழிபெயர்"
+  "Auto-translate page": "பக்கத்தை தானாக மொழிபெயர்",
+  "Download Japanese OCR models (~235 MB)?": "ஜப்பானிய OCR மாதிரிகளைப் பதிவிறக்கவா? (~235 MB)",
+  "Downloading OCR models…": "OCR மாதிரிகள் பதிவிறக்கப்படுகின்றன…",
+  "Failed to download OCR models. Please try again.": "OCR மாதிரிகளைப் பதிவிறக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்."
 }

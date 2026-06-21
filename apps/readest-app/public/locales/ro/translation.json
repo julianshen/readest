@@ -1813,5 +1813,8 @@
   "Translate Region": "Tradu regiunea",
   "The target language matches the book language. Pick a different target language.": "Limba țintă este aceeași cu limba cărții. Alege o altă limbă țintă.",
   "Show translation": "Arată traducerea",
-  "Auto-translate page": "Tradu automat pagina"
+  "Auto-translate page": "Tradu automat pagina",
+  "Download Japanese OCR models (~235 MB)?": "Descărcați modelele OCR japoneze (~235 MB)?",
+  "Downloading OCR models…": "Se descarcă modelele OCR…",
+  "Failed to download OCR models. Please try again.": "Descărcarea modelelor OCR a eșuat. Încercați din nou."
 }

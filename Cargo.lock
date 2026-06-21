@@ -18,6 +18,7 @@ dependencies = [
  "discord-rich-presence",
  "futures",
  "futures-util",
+ "hex",
  "image",
  "libc",
  "log",
@@ -41,6 +42,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sevenz-rust2",
+ "sha2",
  "tauri",
  "tauri-build 2.6.2",
  "tauri-plugin-cli",
@@ -4290,10 +4292,12 @@ dependencies = [
 name = "manga-ocr"
 version = "0.1.0"
 dependencies = [
+ "hex",
  "image",
  "ndarray",
  "ort",
  "serde",
+ "sha2",
 ]
 
 [[package]]

@@ -1747,5 +1747,8 @@
   "Translate Region": "Terjemahkan Wilayah",
   "The target language matches the book language. Pick a different target language.": "Bahasa tujuan sama dengan bahasa buku. Pilih bahasa tujuan yang berbeda.",
   "Show translation": "Tampilkan terjemahan",
-  "Auto-translate page": "Terjemahkan halaman otomatis"
+  "Auto-translate page": "Terjemahkan halaman otomatis",
+  "Download Japanese OCR models (~235 MB)?": "Unduh model OCR Jepang (~235 MB)?",
+  "Downloading OCR models…": "Mengunduh model OCR…",
+  "Failed to download OCR models. Please try again.": "Gagal mengunduh model OCR. Silakan coba lagi."
 }

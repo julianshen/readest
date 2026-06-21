@@ -1780,5 +1780,8 @@
   "Translate Region": "Bereich übersetzen",
   "The target language matches the book language. Pick a different target language.": "Die Zielsprache stimmt mit der Sprache des Buches überein. Wähle eine andere Zielsprache.",
   "Show translation": "Übersetzung anzeigen",
-  "Auto-translate page": "Seite automatisch übersetzen"
+  "Auto-translate page": "Seite automatisch übersetzen",
+  "Download Japanese OCR models (~235 MB)?": "Japanische OCR-Modelle herunterladen (~235 MB)?",
+  "Downloading OCR models…": "OCR-Modelle werden heruntergeladen…",
+  "Failed to download OCR models. Please try again.": "OCR-Modelle konnten nicht heruntergeladen werden. Bitte versuchen Sie es erneut."
 }

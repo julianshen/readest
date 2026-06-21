@@ -1780,5 +1780,8 @@
   "Translate Region": "Gebied vertalen",
   "The target language matches the book language. Pick a different target language.": "De doeltaal is gelijk aan de taal van het boek. Kies een andere doeltaal.",
   "Show translation": "Vertaling tonen",
-  "Auto-translate page": "Pagina automatisch vertalen"
+  "Auto-translate page": "Pagina automatisch vertalen",
+  "Download Japanese OCR models (~235 MB)?": "Japanse OCR-modellen downloaden (~235 MB)?",
+  "Downloading OCR models…": "OCR-modellen downloaden…",
+  "Failed to download OCR models. Please try again.": "Downloaden van OCR-modellen mislukt. Probeer het opnieuw."
 }
