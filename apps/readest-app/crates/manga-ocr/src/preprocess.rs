@@ -1,13 +1,6 @@
 use image::{imageops::FilterType, GrayImage, RgbImage};
 use ndarray::Array4;
 
-/// Letterbox transform params, to un-project detector boxes back to original px.
-pub struct Letterbox {
-    pub scale: f32,
-    pub pad_x: u32,
-    pub pad_y: u32,
-}
-
 /// manga-ocr ViT input: resize to 224x224 (bilinear/Triangle), replicate gray->3ch,
 /// normalize (v/255 - 0.5)/0.5. Returns [1,3,224,224].
 pub fn manga_ocr_pixels(img: &GrayImage) -> Array4<f32> {
@@ -26,43 +19,22 @@ pub fn manga_ocr_pixels(img: &GrayImage) -> Array4<f32> {
     tensor
 }
 
-/// detector input: letterbox to 1024x1024 preserving aspect ratio (pad value 114),
-/// RGB, normalize v/255 (range 0..1). Returns ([1,3,1024,1024], Letterbox).
-pub fn detector_pixels(img: &RgbImage) -> (Array4<f32>, Letterbox) {
+/// Detector input: STRETCH to exactly 1024×1024 (CatmullRom), RGB, normalize v/255.
+/// Returns [1,3,1024,1024]. The caller supplies original (w,h) to the decoder for
+/// scaling boxes back to original pixel coordinates.
+pub fn detector_pixels(img: &RgbImage) -> Array4<f32> {
     const TARGET: u32 = 1024;
-    const PAD_VAL: f32 = 114.0 / 255.0;
-
-    let (w, h) = (img.width(), img.height());
-    let scale = (TARGET as f32 / w as f32).min(TARGET as f32 / h as f32);
-    let new_w = (w as f32 * scale).round() as u32;
-    let new_h = (h as f32 * scale).round() as u32;
-
-    let resized = image::imageops::resize(img, new_w, new_h, FilterType::Triangle);
-
-    let pad_x = (TARGET - new_w) / 2;
-    let pad_y = (TARGET - new_h) / 2;
-
-    let mut tensor = Array4::<f32>::from_elem([1, 3, TARGET as usize, TARGET as usize], PAD_VAL);
-
-    for y in 0..new_h as usize {
-        for x in 0..new_w as usize {
+    let resized = image::imageops::resize(img, TARGET, TARGET, FilterType::CatmullRom);
+    let mut tensor = Array4::<f32>::zeros([1, 3, TARGET as usize, TARGET as usize]);
+    for y in 0..TARGET as usize {
+        for x in 0..TARGET as usize {
             let px = resized.get_pixel(x as u32, y as u32).0;
-            let ty = y + pad_y as usize;
-            let tx = x + pad_x as usize;
-            tensor[[0, 0, ty, tx]] = px[0] as f32 / 255.0;
-            tensor[[0, 1, ty, tx]] = px[1] as f32 / 255.0;
-            tensor[[0, 2, ty, tx]] = px[2] as f32 / 255.0;
+            tensor[[0, 0, y, x]] = px[0] as f32 / 255.0;
+            tensor[[0, 1, y, x]] = px[1] as f32 / 255.0;
+            tensor[[0, 2, y, x]] = px[2] as f32 / 255.0;
         }
     }
-
-    (
-        tensor,
-        Letterbox {
-            scale,
-            pad_x,
-            pad_y,
-        },
-    )
+    tensor
 }
 
 #[cfg(test)]
@@ -107,27 +79,31 @@ mod tests {
     }
 
     #[test]
-    fn detector_pixels_shape_scale_and_padding() {
-        // 512x256 image: scale = min(1024/512, 1024/256) = min(2.0, 4.0) = 2.0
-        // new_w=1024, new_h=512, pad_x=0, pad_y=(1024-512)/2=256
+    fn detector_pixels_shape_and_values() {
+        // Any image is stretched to exactly 1024×1024.
         let img = RgbImage::new(512, 256);
-        let (t, lb) = detector_pixels(&img);
+        let t = detector_pixels(&img);
 
         assert_eq!(t.shape(), &[1, 3, 1024, 1024]);
-        assert!(
-            (lb.scale - 2.0_f32).abs() < 1e-6,
-            "expected scale=2.0, got {}",
-            lb.scale
-        );
-        assert_eq!(lb.pad_x, 0, "expected pad_x=0");
-        assert!(lb.pad_y > 0, "expected pad_y > 0, got {}", lb.pad_y);
 
-        // Spot-check: first row (y=0) is a padded region → value = 114/255
-        let expected = 114.0_f32 / 255.0;
+        // All pixels in the source image are black (0,0,0), so every tensor
+        // value should be 0.0 (= 0/255).
+        let expected = 0.0_f32;
         let actual = t[[0, 0, 0, 0]];
         assert!(
             (actual - expected).abs() < 1e-6,
-            "padded region: expected {expected}, got {actual}"
+            "expected {expected}, got {actual}"
+        );
+
+        // Verify a known non-zero pixel: create a 1×1 image with R=128.
+        let img2 = RgbImage::from_pixel(1, 1, image::Rgb([128u8, 0, 0]));
+        let t2 = detector_pixels(&img2);
+        assert_eq!(t2.shape(), &[1, 3, 1024, 1024]);
+        let r = t2[[0, 0, 0, 0]];
+        assert!(
+            (r - 128.0 / 255.0).abs() < 1e-4,
+            "expected ≈{}, got {r}",
+            128.0_f32 / 255.0
         );
     }
 }
