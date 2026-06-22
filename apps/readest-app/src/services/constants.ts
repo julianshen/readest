@@ -65,7 +65,7 @@ export const IMAGE_ACCEPT_FORMATS = SUPPORTED_IMAGE_EXTS.map((ext) => `.${ext}`)
 // -> batch translate -> tap-to-reveal overlay). The OCR backend is still a stub
 // (returns fixed placeholder regions), so this ships OFF; flip to true to
 // exercise the full UI loop on a Tauri build.
-export const MANGA_AUTO_TRANSLATE_ENABLED = false;
+export const MANGA_AUTO_TRANSLATE_ENABLED = true;
 
 export const DEFAULT_KOSYNC_SETTINGS = {
   serverUrl: 'https://sync.koreader.rocks/', // https://kosync.ak-team.com:3042/

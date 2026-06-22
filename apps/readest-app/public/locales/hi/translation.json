@@ -1783,5 +1783,6 @@
   "Auto-translate page": "पृष्ठ का स्वतः अनुवाद करें",
   "Download Japanese OCR models (~235 MB)?": "जापानी OCR मॉडल डाउनलोड करें (~235 MB)?",
   "Downloading OCR models…": "OCR मॉडल डाउनलोड हो रहे हैं…",
+  "Translating page…": "पृष्ठ अनुवाद हो रहा है…",
   "Failed to download OCR models. Please try again.": "OCR मॉडल डाउनलोड करने में विफल। कृपया पुनः प्रयास करें।"
 }

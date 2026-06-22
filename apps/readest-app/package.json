@@ -87,7 +87,8 @@
     "check:all": "pnpm check:translations && pnpm check:lookbehind-regex",
     "build-check": "pnpm build && pnpm build-web && pnpm check:all",
     "worktree:new": "pnpm exec tsx scripts/worktree-new.ts",
-    "worktree:rm": "pnpm exec tsx scripts/worktree-rm.ts"
+    "worktree:rm": "pnpm exec tsx scripts/worktree-rm.ts",
+    "android:onnx": "bash scripts/fetch-onnxruntime-jnilibs.sh"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",

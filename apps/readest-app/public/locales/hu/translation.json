@@ -1783,5 +1783,6 @@
   "Auto-translate page": "Oldal automatikus fordítása",
   "Download Japanese OCR models (~235 MB)?": "Letölti a japán OCR-modelleket (~235 MB)?",
   "Downloading OCR models…": "OCR-modellek letöltése…",
+  "Translating page…": "Oldal fordítása…",
   "Failed to download OCR models. Please try again.": "Az OCR-modellek letöltése nem sikerült. Próbálja újra."
 }

@@ -1849,5 +1849,6 @@
   "Auto-translate page": "Samodejno prevedi stran",
   "Download Japanese OCR models (~235 MB)?": "Prenesem japonske modele OCR (~235 MB)?",
   "Downloading OCR models…": "Prenašanje modelov OCR…",
+  "Translating page…": "Prevajanje strani…",
   "Failed to download OCR models. Please try again.": "Prenos modelov OCR ni uspel. Poskusite znova."
 }

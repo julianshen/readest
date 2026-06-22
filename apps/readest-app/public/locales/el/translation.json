@@ -1783,5 +1783,6 @@
   "Auto-translate page": "Αυτόματη μετάφραση σελίδας",
   "Download Japanese OCR models (~235 MB)?": "Λήψη ιαπωνικών μοντέλων OCR (~235 MB);",
   "Downloading OCR models…": "Λήψη μοντέλων OCR…",
+  "Translating page…": "Μετάφραση σελίδας…",
   "Failed to download OCR models. Please try again.": "Η λήψη των μοντέλων OCR απέτυχε. Δοκιμάστε ξανά."
 }

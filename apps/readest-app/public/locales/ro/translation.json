@@ -1816,5 +1816,6 @@
   "Auto-translate page": "Tradu automat pagina",
   "Download Japanese OCR models (~235 MB)?": "Descărcați modelele OCR japoneze (~235 MB)?",
   "Downloading OCR models…": "Se descarcă modelele OCR…",
+  "Translating page…": "Se traduce pagina…",
   "Failed to download OCR models. Please try again.": "Descărcarea modelelor OCR a eșuat. Încercați din nou."
 }

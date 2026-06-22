@@ -91,6 +91,7 @@ const BookCellInner: React.FC<BookCellProps> = ({
   onCloseBook,
   onGoToLibrary,
 }) => {
+  const { appService } = useEnv();
   // Per-field selectors — see store/readerProgressStore.ts header for the
   // "destructure-subscribes-the-whole-store" rationale.
   const getConfig = useBookDataStore((s) => s.getConfig);
@@ -271,7 +272,9 @@ const BookCellInner: React.FC<BookCellProps> = ({
       <PageNavigationButtons bookKey={bookKey} isDropdownOpen={isDropdownOpen} />
       <Annotator bookKey={bookKey} contentInsets={contentInsets} />
       <MangaBubbleTranslator bookKey={bookKey} />
-      {MANGA_AUTO_TRANSLATE_ENABLED && <AutoBubblePageTranslator bookKey={bookKey} />}
+      {MANGA_AUTO_TRANSLATE_ENABLED && appService?.osPlatform === 'android' && (
+        <AutoBubblePageTranslator bookKey={bookKey} />
+      )}
       <SearchResultsNav bookKey={bookKey} gridInsets={gridInsets} />
       <BooknotesNav bookKey={bookKey} gridInsets={gridInsets} toc={bookDoc.toc || []} />
       <FootnotePopup bookKey={bookKey} bookDoc={bookDoc} />

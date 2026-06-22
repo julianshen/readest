@@ -96,6 +96,27 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
     Ok(())
 }
 
+/// Cheap existence check: returns `true` when all model files for `lang` are
+/// present and non-empty, without reading or SHA-verifying them. Used by the
+/// frontend to skip the confirm + download flow when models are already cached.
+#[tauri::command]
+pub async fn ocr_models_present(app: tauri::AppHandle, lang: String) -> Result<bool, String> {
+    if lang != "ja" {
+        return Ok(false);
+    }
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("ocr-models")
+        .join(&lang);
+    Ok(manga_ocr::models::ja_manifest().iter().all(|f| {
+        std::fs::metadata(dir.join(f.name))
+            .map(|m| m.len() > 0)
+            .unwrap_or(false)
+    }))
+}
+
 /// Detect + OCR a comic page into translatable regions (image-pixel boxes +
 /// original text). On Android this runs the real ONNX pipeline against the
 /// models downloaded by [`ensure_ocr_models`]; on other platforms on-device OCR

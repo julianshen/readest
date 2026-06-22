@@ -1750,5 +1750,6 @@
   "Auto-translate page": "Terjemahkan halaman otomatis",
   "Download Japanese OCR models (~235 MB)?": "Unduh model OCR Jepang (~235 MB)?",
   "Downloading OCR models…": "Mengunduh model OCR…",
+  "Translating page…": "Menerjemahkan halaman…",
   "Failed to download OCR models. Please try again.": "Gagal mengunduh model OCR. Silakan coba lagi."
 }
