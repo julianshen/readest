@@ -8,7 +8,8 @@ export interface PageImage {
 type Sel = { kind: 'img'; el: HTMLImageElement } | { kind: 'svg'; el: Element; href: string };
 
 /** Pure: locate the page-image element (<img>, else <svg><image>). */
-export const selectPageImageEl = (doc: Document): Sel | null => {
+export const selectPageImageEl = (doc: Document | undefined | null): Sel | null => {
+  if (!doc) return null;
   const img = doc.querySelector('img') as HTMLImageElement | null;
   if (img) return { kind: 'img', el: img };
   const im = doc.querySelector('image'); // SVG <image>
@@ -32,7 +33,9 @@ const loadImage = (src: string): Promise<HTMLImageElement> =>
   });
 
 /** Resolve the page image to a drawable source + geometry. May load the SVG href. */
-export const findPageImage = async (doc: Document): Promise<PageImage | null> => {
+export const findPageImage = async (
+  doc: Document | undefined | null,
+): Promise<PageImage | null> => {
   const sel = selectPageImageEl(doc);
   if (!sel) return null;
   if (sel.kind === 'img') {
@@ -44,11 +47,15 @@ export const findPageImage = async (doc: Document): Promise<PageImage | null> =>
       naturalHeight: img.naturalHeight,
     };
   }
-  const loaded = await loadImage(sel.href);
-  return {
-    source: loaded,
-    rect: sel.el.getBoundingClientRect(),
-    naturalWidth: loaded.naturalWidth,
-    naturalHeight: loaded.naturalHeight,
-  };
+  try {
+    const loaded = await loadImage(sel.href);
+    return {
+      source: loaded,
+      rect: sel.el.getBoundingClientRect(),
+      naturalWidth: loaded.naturalWidth,
+      naturalHeight: loaded.naturalHeight,
+    };
+  } catch {
+    return null; // SVG href failed to load (revoked blob, corrupt asset) — caller falls back
+  }
 };
