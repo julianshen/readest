@@ -7,7 +7,7 @@ import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { isAIAssistantConfigured } from '@/services/ai/providers';
-import { IMAGE_BOOK_FORMATS } from '@/types/book';
+import { isImagePageBook } from '@/utils/book';
 import { MANGA_AUTO_TRANSLATE_ENABLED } from '@/services/constants';
 import { eventDispatcher } from '@/utils/event';
 
@@ -21,8 +21,9 @@ const MangaBubbleToggler: React.FC<{ bookKey: string }> = ({ bookKey }) => {
   const { setHoveredBookKey } = useReaderStore();
   const bookData = getBookData(bookKey);
 
-  const isComic = !!bookData?.book && IMAGE_BOOK_FORMATS.has(bookData.book.format);
-  if (!isComic) return null;
+  const isImagePage =
+    !!bookData?.book && isImagePageBook(bookData.book.format, !!bookData.isFixedLayout);
+  if (!isImagePage) return null;
 
   const showRegion = isAIAssistantConfigured(settings.aiSettings);
   const showAuto = MANGA_AUTO_TRANSLATE_ENABLED && appService?.osPlatform === 'android';
