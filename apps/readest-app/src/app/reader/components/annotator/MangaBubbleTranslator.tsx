@@ -11,6 +11,7 @@ import {
   regionCacheKey,
   type CropRect,
 } from '@/utils/pageCapture';
+import { findPageImage } from '@/utils/pageImage';
 import {
   translateRegion,
   BubbleErrorCodes,
@@ -67,25 +68,24 @@ const MangaBubbleTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       contents.find((c) => c.index === view?.renderer?.primaryIndex) ??
       contents[0];
     const doc = primary?.doc as Document | undefined;
-    const img = doc?.querySelector('img') as HTMLImageElement | null;
+    const pageImg = await findPageImage(doc as Document);
     const iframe = doc?.defaultView?.frameElement as HTMLIFrameElement | null;
-    if (!img || !iframe) return;
+    if (!pageImg || !iframe) return;
 
     const frameRect = iframe.getBoundingClientRect();
     const m = getComputedStyle(iframe).transform.match(/matrix\((.+)\)/);
     const parts = m?.[1]?.split(/\s*,\s*/).map(parseFloat) ?? [];
     const frameScaleX = Number.isFinite(parts[0]) ? parts[0]! : 1;
     const frameScaleY = Number.isFinite(parts[3]) ? parts[3]! : 1;
-    const imgRect = img.getBoundingClientRect(); // iframe-local
 
     const crop = computeNaturalCropRect({
       screenRect,
       frameRect,
       frameScaleX,
       frameScaleY,
-      imgRect,
-      naturalWidth: img.naturalWidth,
-      naturalHeight: img.naturalHeight,
+      imgRect: pageImg.rect,
+      naturalWidth: pageImg.naturalWidth,
+      naturalHeight: pageImg.naturalHeight,
       maxEdge: MAX_EDGE,
     });
     if (!crop) return;
@@ -113,7 +113,7 @@ const MangaBubbleTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) => {
       position,
     });
     try {
-      const blob = await captureRegionToBlob(img, crop);
+      const blob = await captureRegionToBlob(pageImg.source, crop);
       if (!blob) throw new Error(BubbleErrorCodes.FAILED);
       const result = await translateRegion({
         imageBlob: blob,

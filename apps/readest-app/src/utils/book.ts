@@ -3,7 +3,9 @@ import {
   Book,
   BOOK_CONFIG_SCHEMA_VERSION,
   BookConfig,
+  BookFormat,
   BookProgress,
+  IMAGE_BOOK_FORMATS,
   WritingMode,
 } from '@/types/book';
 import { SUPPORTED_LANGS } from '@/services/constants';
@@ -407,3 +409,7 @@ export const getMetadataHashInfo = (metadata: BookMetadata): MetadataHashInfo | 
 export const getMetadataHash = (metadata: BookMetadata) => {
   return getMetadataHashInfo(metadata)?.metaHash;
 };
+
+/** True for image-page books: CBZ, or any fixed-layout (pre-paginated) book except PDF. */
+export const isImagePageBook = (format: BookFormat, isFixedLayout: boolean): boolean =>
+  IMAGE_BOOK_FORMATS.has(format) || (isFixedLayout && format !== 'PDF');

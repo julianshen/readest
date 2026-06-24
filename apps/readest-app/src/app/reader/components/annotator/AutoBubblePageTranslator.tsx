@@ -7,6 +7,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { eventDispatcher } from '@/utils/event';
 import { getLocale } from '@/utils/misc';
 import { captureRegionToBlob } from '@/utils/pageCapture';
+import { findPageImage } from '@/utils/pageImage';
 import type { OverlayGeometry } from '@/utils/bubbleOverlay';
 import { useAutoBubbleTranslate } from '@/app/reader/hooks/useAutoBubbleTranslate';
 import {
@@ -102,9 +103,9 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
     // isn't necessarily on-screen — prefer the renderer's primary page.
     const primary = contents.find((c) => c.index === view?.renderer?.primaryIndex) ?? contents[0];
     const doc = primary?.doc as Document | undefined;
-    const img = doc?.querySelector('img') as HTMLImageElement | null;
+    const pageImg = await findPageImage(doc as Document);
     const iframe = doc?.defaultView?.frameElement as HTMLIFrameElement | null;
-    if (!img || !iframe) return;
+    if (!pageImg || !iframe) return;
 
     // DOM geometry glue — parallels MangaBubbleTranslator.onSelect.
     const frameRect = iframe.getBoundingClientRect();
@@ -112,21 +113,20 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
     const parts = m?.[1]?.split(/\s*,\s*/).map(parseFloat) ?? [];
     const frameScaleX = Number.isFinite(parts[0]) ? parts[0]! : 1;
     const frameScaleY = Number.isFinite(parts[3]) ? parts[3]! : 1;
-    const imgRect = img.getBoundingClientRect(); // iframe-local
 
     // Capture the whole page, downscaled to MAX_EDGE on the long side. The OCR
     // backend returns bboxes in the pixel space of these bytes, so the overlay
-    // geometry's natural size must be the *captured* size, not img.naturalWidth.
-    const longEdge = Math.max(img.naturalWidth, img.naturalHeight);
+    // geometry's natural size must be the *captured* size, not naturalWidth.
+    const longEdge = Math.max(pageImg.naturalWidth, pageImg.naturalHeight);
     if (longEdge <= 0) return;
     const k = longEdge > MAX_EDGE ? MAX_EDGE / longEdge : 1;
-    const outW = Math.max(1, Math.round(img.naturalWidth * k));
-    const outH = Math.max(1, Math.round(img.naturalHeight * k));
-    const blob = await captureRegionToBlob(img, {
+    const outW = Math.max(1, Math.round(pageImg.naturalWidth * k));
+    const outH = Math.max(1, Math.round(pageImg.naturalHeight * k));
+    const blob = await captureRegionToBlob(pageImg.source, {
       sx: 0,
       sy: 0,
-      sw: img.naturalWidth,
-      sh: img.naturalHeight,
+      sw: pageImg.naturalWidth,
+      sh: pageImg.naturalHeight,
       outW,
       outH,
     });
@@ -138,10 +138,10 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
       frameTop: frameRect.top,
       frameScaleX,
       frameScaleY,
-      imgLeft: imgRect.left,
-      imgTop: imgRect.top,
-      imgWidth: imgRect.width,
-      imgHeight: imgRect.height,
+      imgLeft: pageImg.rect.left,
+      imgTop: pageImg.rect.top,
+      imgWidth: pageImg.rect.width,
+      imgHeight: pageImg.rect.height,
       naturalWidth: outW,
       naturalHeight: outH,
     };
