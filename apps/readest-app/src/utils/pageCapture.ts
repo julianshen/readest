@@ -81,7 +81,7 @@ export const regionCacheKey = (sectionIndex: number, rect: CropRect, targetLang:
 
 // Thin DOM glue (not unit-tested): crop the page image to a JPEG blob.
 export const captureRegionToBlob = async (
-  img: HTMLImageElement,
+  source: CanvasImageSource,
   crop: CropResult,
 ): Promise<Blob | null> => {
   const canvas = document.createElement('canvas');
@@ -89,6 +89,6 @@ export const captureRegionToBlob = async (
   canvas.height = crop.outH;
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
-  ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, crop.outW, crop.outH);
+  ctx.drawImage(source, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, crop.outW, crop.outH);
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85));
 };
