@@ -10,22 +10,26 @@ pub struct OcrPipeline {
 
 #[cfg(feature = "onnx")]
 impl OcrPipeline {
-    /// Load the shared detector + the recognition engine for `lang`
-    /// (`ja` → manga-ocr seq2seq; `ko`/`zh` → PP-OCRv5 CTC).
-    pub fn load(model_dir: &std::path::Path, lang: &str) -> Result<Self, String> {
-        let detector = crate::detect::Detector::load(&model_dir.join("comic-text-detector.onnx"))?;
+    /// Load the shared detector (from `detector_path`) + the per-language engine
+    /// files (from `lang_dir`). `ja` → manga-ocr seq2seq; `ko`/`zh` → PP-OCRv5 CTC.
+    pub fn load(
+        detector_path: &std::path::Path,
+        lang_dir: &std::path::Path,
+        lang: &str,
+    ) -> Result<Self, String> {
+        let detector = crate::detect::Detector::load(detector_path)?;
         let engine: Box<dyn crate::recognize::OcrEngine + Send> = match lang {
             "ja" => Box::new(crate::recognize::MangaOcrEngine::load(
-                &model_dir.join("encoder_model.onnx"),
-                &model_dir.join("decoder_model.onnx"),
-                &model_dir.join("vocab.txt"),
+                &lang_dir.join("encoder_model.onnx"),
+                &lang_dir.join("decoder_model.onnx"),
+                &lang_dir.join("vocab.txt"),
             )?),
             "ko" | "zh" => {
                 let spec = crate::models::ctc_spec(lang)
                     .ok_or_else(|| format!("no ctc spec for {lang}"))?;
                 Box::new(crate::recognize::CtcRecognizer::load(
-                    &model_dir.join(spec.rec_onnx),
-                    &model_dir.join(spec.dict),
+                    &lang_dir.join(spec.rec_onnx),
+                    &lang_dir.join(spec.dict),
                     spec.input_h,
                 )?)
             }
@@ -81,16 +85,21 @@ mod tests {
     #[test]
     #[ignore]
     fn pipeline_detects_and_recognizes_sample_page() {
-        let dir = std::path::PathBuf::from(
-            std::env::var("MANGA_OCR_MODEL_DIR").expect("set MANGA_OCR_MODEL_DIR"),
+        // Exercise the split cache layout: detector in shared/, engine in <lang>/.
+        let root = std::path::PathBuf::from(
+            std::env::var("MANGA_OCR_MODEL_ROOT").expect("set MANGA_OCR_MODEL_ROOT"),
         );
-        let mut p = OcrPipeline::load(&dir, "ja").unwrap();
+        let detector = root
+            .join(crate::models::OCR_SHARED_DIR)
+            .join(crate::models::DETECTOR_FILE);
+        let lang_dir = root.join("ja");
+        let mut p = OcrPipeline::load(&detector, &lang_dir, "ja").unwrap();
         p.conf_thresh = 0.12;
         let bytes =
             std::fs::read("tests-fixtures/manga_page_sample.png").expect("fixture not found");
         let regions = p.run(&bytes).unwrap();
         assert!(!regions.is_empty(), "expected at least one region");
         assert!(regions.iter().any(|r| r.original.contains("こんにち")));
-        assert!(OcrPipeline::load(&dir, "xx").is_err());
+        assert!(OcrPipeline::load(&detector, &lang_dir, "xx").is_err());
     }
 }
