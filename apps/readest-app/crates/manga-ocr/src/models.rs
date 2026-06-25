@@ -5,6 +5,10 @@ pub struct ModelFile {
     pub name: &'static str,
     pub url: &'static str,
     pub sha256: &'static str,
+    /// Expected size in bytes. `ocr_models_present` compares this against the
+    /// on-disk size so a same-filename model swap (changed content, e.g. fp32 →
+    /// int8) is detected as not-present and re-downloaded — without hashing.
+    pub size: u64,
 }
 
 /// Filename of the shared, language-agnostic text-block detector.
@@ -26,9 +30,11 @@ pub fn verify_sha256(bytes: &[u8], hex: &str) -> bool {
     hex::encode(digest).eq_ignore_ascii_case(hex)
 }
 
-const JA_DETECTOR_URL: &str =
-    "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.onnx";
-const JA_DETECTOR_SHA: &str = "1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f";
+// Dynamic-int8 quantized detector (53.4 MB vs 94.7 MB fp32); detection accuracy
+// preserved (verified). The cache filename stays `comic-text-detector.onnx`.
+const JA_DETECTOR_URL: &str = "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.int8.onnx";
+const JA_DETECTOR_SHA: &str = "d6b4b1136f028a65eade6316c9c7707fab2c59fa08d20b46a75e68b814773aa2";
+const JA_DETECTOR_SIZE: u64 = 53_352_863;
 
 /// The 4 Japanese model files to download on first use.
 pub fn ja_manifest() -> Vec<ModelFile> {
@@ -37,6 +43,7 @@ pub fn ja_manifest() -> Vec<ModelFile> {
             name: DETECTOR_FILE,
             url: JA_DETECTOR_URL,
             sha256: JA_DETECTOR_SHA,
+            size: JA_DETECTOR_SIZE,
         },
         ModelFile {
             name: "encoder_model.onnx",
@@ -45,6 +52,7 @@ pub fn ja_manifest() -> Vec<ModelFile> {
                 "encoder_model.onnx"
             ),
             sha256: "f87668ae0f62d6f032dac6b213e8c0fea84cd15895ac8cab624cc9a2f49d4a27",
+            size: 22_356_885,
         },
         ModelFile {
             name: "decoder_model.onnx",
@@ -53,6 +61,7 @@ pub fn ja_manifest() -> Vec<ModelFile> {
                 "decoder_model.onnx"
             ),
             sha256: "6b1fb216d542c4b2a4fa5b9d7ae3522081eb85fb959d2cecd28055af956a8a5e",
+            size: 118_053_454,
         },
         ModelFile {
             name: "vocab.txt",
@@ -61,6 +70,7 @@ pub fn ja_manifest() -> Vec<ModelFile> {
                 "vocab.txt"
             ),
             sha256: "344fbb6b8bf18c57839e924e2c9365434697e0227fac00b88bb4899b78aa594d",
+            size: 24_072,
         },
     ]
 }
@@ -93,16 +103,19 @@ pub fn ko_manifest() -> Vec<ModelFile> {
             name: DETECTOR_FILE,
             url: JA_DETECTOR_URL,
             sha256: JA_DETECTOR_SHA,
+            size: JA_DETECTOR_SIZE,
         },
         ModelFile {
             name: "rec.onnx",
             url: "https://github.com/julianshen/readest/releases/download/models-ko-v1/rec.onnx",
             sha256: "322f140154c820fcb83c3d24cfe42c9ec70dd1a1834163306a7338136e4f1eaa",
+            size: 13_401_252,
         },
         ModelFile {
             name: "dict.txt",
             url: "https://github.com/julianshen/readest/releases/download/models-ko-v1/dict.txt",
             sha256: "a88071c68c01707489baa79ebe0405b7beb5cca229f4fc94cc3ef992328802d7",
+            size: 47_451,
         },
     ]
 }
@@ -114,16 +127,19 @@ pub fn zh_manifest() -> Vec<ModelFile> {
             name: DETECTOR_FILE,
             url: JA_DETECTOR_URL,
             sha256: JA_DETECTOR_SHA,
+            size: JA_DETECTOR_SIZE,
         },
         ModelFile {
             name: "rec.onnx",
             url: "https://github.com/julianshen/readest/releases/download/models-zh-v1/rec.onnx",
             sha256: "da72dc72ca4dc220df0dfde68c1dedc31c58d3e76a25871122e5056227d50092",
+            size: 16_534_782,
         },
         ModelFile {
             name: "dict.txt",
             url: "https://github.com/julianshen/readest/releases/download/models-zh-v1/dict.txt",
             sha256: "d1979e9f794c464c0d2e0b70a7fe14dd978e9dc644c0e71f14158cdf8342af1b",
+            size: 74_012,
         },
     ]
 }
@@ -210,5 +226,21 @@ mod tests {
             );
         }
         assert_eq!(OCR_SHARED_DIR, "shared");
+    }
+
+    #[test]
+    fn every_manifest_entry_has_a_plausible_size() {
+        // `ocr_models_present` compares on-disk size against `ModelFile::size`,
+        // so a zero/missing expected size would make the check vacuous.
+        for m in [ja_manifest(), ko_manifest(), zh_manifest()] {
+            for e in &m {
+                assert!(e.size > 0, "{} must have a non-zero expected size", e.name);
+            }
+        }
+        // The detector size const is the int8 detector (53.4 MB), shared by all langs.
+        assert_eq!(JA_DETECTOR_SIZE, 53_352_863);
+        assert_eq!(ja_manifest()[0].size, JA_DETECTOR_SIZE);
+        assert_eq!(ko_manifest()[0].size, JA_DETECTOR_SIZE);
+        assert_eq!(zh_manifest()[0].size, JA_DETECTOR_SIZE);
     }
 }

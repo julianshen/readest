@@ -125,9 +125,11 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
     Ok(())
 }
 
-/// Cheap existence check: returns `true` when all model files for `lang` are
-/// present and non-empty, without reading or SHA-verifying them. Used by the
-/// frontend to skip the confirm + download flow when models are already cached.
+/// Cheap presence check: returns `true` when every model file for `lang` is on
+/// disk at its expected size (`ModelFile::size`), without reading or hashing it.
+/// The size check (not just existence) means a same-filename model swap — e.g. a
+/// stale 94 MB fp32 detector vs the 53 MB int8 — is treated as not-present so the
+/// frontend runs the download/migration flow instead of keeping the stale file.
 #[tauri::command]
 pub async fn ocr_models_present(app: tauri::AppHandle, lang: String) -> Result<bool, String> {
     let Some(manifest) = manga_ocr::models::manifest_for(&lang) else {
@@ -147,7 +149,7 @@ pub async fn ocr_models_present(app: tauri::AppHandle, lang: String) -> Result<b
             &lang_dir
         };
         std::fs::metadata(dir.join(f.name))
-            .map(|m| m.len() > 0)
+            .map(|m| m.len() == f.size)
             .unwrap_or(false)
     }))
 }
