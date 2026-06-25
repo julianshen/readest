@@ -2,6 +2,7 @@
 //! Tauri desktop toolchain. The Tauri lib wraps these in #[tauri::command]s.
 pub mod ctc;
 pub mod detect;
+pub mod lines;
 pub mod models;
 pub mod page;
 pub mod pipeline;
