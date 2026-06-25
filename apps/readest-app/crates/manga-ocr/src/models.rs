@@ -7,6 +7,19 @@ pub struct ModelFile {
     pub sha256: &'static str,
 }
 
+/// Filename of the shared, language-agnostic text-block detector.
+pub const DETECTOR_FILE: &str = "comic-text-detector.onnx";
+/// Subdirectory (under `ocr-models/`) holding files shared across all languages.
+pub const OCR_SHARED_DIR: &str = "shared";
+
+impl ModelFile {
+    /// True for files shared across all languages (the detector), which live in
+    /// the shared cache dir instead of a per-language dir.
+    pub fn is_shared(&self) -> bool {
+        self.name == DETECTOR_FILE
+    }
+}
+
 /// Returns true iff sha256(bytes) hex-equals `hex` (case-insensitive).
 pub fn verify_sha256(bytes: &[u8], hex: &str) -> bool {
     let digest = Sha256::digest(bytes);
@@ -21,7 +34,7 @@ const JA_DETECTOR_SHA: &str = "1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b8
 pub fn ja_manifest() -> Vec<ModelFile> {
     vec![
         ModelFile {
-            name: "comic-text-detector.onnx",
+            name: DETECTOR_FILE,
             url: JA_DETECTOR_URL,
             sha256: JA_DETECTOR_SHA,
         },
@@ -77,7 +90,7 @@ pub fn ctc_spec(lang: &str) -> Option<CtcSpec> {
 pub fn ko_manifest() -> Vec<ModelFile> {
     vec![
         ModelFile {
-            name: "comic-text-detector.onnx",
+            name: DETECTOR_FILE,
             url: JA_DETECTOR_URL,
             sha256: JA_DETECTOR_SHA,
         },
@@ -98,7 +111,7 @@ pub fn ko_manifest() -> Vec<ModelFile> {
 pub fn zh_manifest() -> Vec<ModelFile> {
     vec![
         ModelFile {
-            name: "comic-text-detector.onnx",
+            name: DETECTOR_FILE,
             url: JA_DETECTOR_URL,
             sha256: JA_DETECTOR_SHA,
         },
@@ -184,5 +197,18 @@ mod tests {
         assert!(manifest_for("ko").is_some());
         assert!(manifest_for("zh").is_some());
         assert!(manifest_for("xx").is_none());
+    }
+
+    #[test]
+    fn detector_is_the_only_shared_file() {
+        for m in [ja_manifest(), ko_manifest(), zh_manifest()] {
+            let shared: Vec<&str> = m.iter().filter(|f| f.is_shared()).map(|f| f.name).collect();
+            assert_eq!(
+                shared,
+                vec![DETECTOR_FILE],
+                "exactly the detector is shared"
+            );
+        }
+        assert_eq!(OCR_SHARED_DIR, "shared");
     }
 }
