@@ -9,7 +9,9 @@ pub fn ctc_greedy_decode(logits: &[f32], t: usize, c: usize, dict: &[String]) ->
     let mut prev = usize::MAX;
     for ti in 0..t {
         let start = ti * c;
-        let Some(slice) = logits.get(start..start + c) else { break };
+        let Some(slice) = logits.get(start..start + c) else {
+            break;
+        };
         let idx = crate::recognize::argmax(slice);
         if idx != prev && idx != 0 {
             if let Some(ch) = dict.get(idx) {
@@ -26,15 +28,24 @@ mod tests {
     use super::*;
 
     fn dict() -> Vec<String> {
-        ["<blank>", "a", "b", "c"].iter().map(|s| s.to_string()).collect()
+        ["<blank>", "a", "b", "c"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect()
     }
-    fn row(idx: usize, c: usize) -> Vec<f32> { let mut v = vec![0.0; c]; v[idx] = 1.0; v }
+    fn row(idx: usize, c: usize) -> Vec<f32> {
+        let mut v = vec![0.0; c];
+        v[idx] = 1.0;
+        v
+    }
 
     #[test]
     fn collapses_repeats_and_drops_blank() {
         let c = 4;
         let mut logits = Vec::new();
-        for idx in [1usize, 1, 0, 1, 2, 2] { logits.extend(row(idx, c)); }
+        for idx in [1usize, 1, 0, 1, 2, 2] {
+            logits.extend(row(idx, c));
+        }
         assert_eq!(ctc_greedy_decode(&logits, 6, c, &dict()), "aab");
     }
 
