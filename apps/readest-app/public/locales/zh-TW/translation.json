@@ -1748,8 +1748,9 @@
   "The target language matches the book language. Pick a different target language.": "目標語言與本書語言相同。請選擇其他目標語言。",
   "Show translation": "顯示譯文",
   "Auto-translate page": "自動翻譯頁面",
-  "Download Japanese OCR models (~235 MB)?": "下載日文 OCR 模型（約 235 MB）？",
   "Downloading OCR models…": "正在下載 OCR 模型…",
   "Translating page…": "正在翻譯頁面…",
-  "Failed to download OCR models. Please try again.": "OCR 模型下載失敗。請再試一次。"
+  "Failed to download OCR models. Please try again.": "OCR 模型下載失敗。請再試一次。",
+  "Download {{lang}} OCR models?": "下載 {{lang}} OCR 模型？",
+  "Change OCR language": "變更 OCR 語言"
 }

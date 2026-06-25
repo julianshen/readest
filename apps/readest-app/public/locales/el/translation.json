@@ -1781,8 +1781,9 @@
   "The target language matches the book language. Pick a different target language.": "Η γλώσσα προορισμού είναι ίδια με τη γλώσσα του βιβλίου. Επιλέξτε διαφορετική γλώσσα προορισμού.",
   "Show translation": "Εμφάνιση μετάφρασης",
   "Auto-translate page": "Αυτόματη μετάφραση σελίδας",
-  "Download Japanese OCR models (~235 MB)?": "Λήψη ιαπωνικών μοντέλων OCR (~235 MB);",
   "Downloading OCR models…": "Λήψη μοντέλων OCR…",
   "Translating page…": "Μετάφραση σελίδας…",
-  "Failed to download OCR models. Please try again.": "Η λήψη των μοντέλων OCR απέτυχε. Δοκιμάστε ξανά."
+  "Failed to download OCR models. Please try again.": "Η λήψη των μοντέλων OCR απέτυχε. Δοκιμάστε ξανά.",
+  "Download {{lang}} OCR models?": "Λήψη μοντέλων OCR {{lang}};",
+  "Change OCR language": "Αλλαγή γλώσσας OCR"
 }

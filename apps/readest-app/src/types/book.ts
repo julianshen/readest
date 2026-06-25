@@ -371,6 +371,11 @@ export interface ViewSettingsConfig {
   isGlobal: boolean;
 }
 
+export interface OcrConfig {
+  // Remembered per-book OCR source language override for auto bubble translate.
+  ocrSourceLang?: import('@/services/ocr/types').OcrSourceLang;
+}
+
 export interface ViewSettings
   extends BookLayout,
     BookStyle,
@@ -379,6 +384,7 @@ export interface ViewSettings
     ViewConfig,
     TTSConfig,
     TranslatorConfig,
+    OcrConfig,
     ScreenConfig,
     ProofreadRulesConfig,
     AnnotatorConfig,

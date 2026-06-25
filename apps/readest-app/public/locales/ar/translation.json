@@ -1913,8 +1913,9 @@
   "The target language matches the book language. Pick a different target language.": "لغة الترجمة مطابقة للغة الكتاب. اختر لغة هدف مختلفة.",
   "Show translation": "إظهار الترجمة",
   "Auto-translate page": "ترجمة الصفحة تلقائيًا",
-  "Download Japanese OCR models (~235 MB)?": "تنزيل نماذج OCR اليابانية (~235 ميجابايت)؟",
   "Downloading OCR models…": "جارٍ تنزيل نماذج OCR…",
   "Translating page…": "جارٍ ترجمة الصفحة…",
-  "Failed to download OCR models. Please try again.": "فشل تنزيل نماذج OCR. حاول مرة أخرى."
+  "Failed to download OCR models. Please try again.": "فشل تنزيل نماذج OCR. حاول مرة أخرى.",
+  "Download {{lang}} OCR models?": "تنزيل نماذج التعرّف الضوئي لـ {{lang}}؟",
+  "Change OCR language": "تغيير لغة التعرّف الضوئي"
 }

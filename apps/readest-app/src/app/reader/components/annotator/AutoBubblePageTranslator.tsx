@@ -8,6 +8,7 @@ import { eventDispatcher } from '@/utils/event';
 import { getLocale } from '@/utils/misc';
 import { captureRegionToBlob } from '@/utils/pageCapture';
 import { findPageImage } from '@/utils/pageImage';
+import type { OcrSourceLang } from '@/services/ocr/types';
 import type { OverlayGeometry } from '@/utils/bubbleOverlay';
 import { useAutoBubbleTranslate } from '@/app/reader/hooks/useAutoBubbleTranslate';
 import {
@@ -20,9 +21,11 @@ import BubbleTranslationPopup from './BubbleTranslationPopup';
 
 const MAX_EDGE = 1536;
 const POPUP_WIDTH = 280;
-// Phase 1 hardcodes Japanese as the OCR source language (manga). A per-book
-// source-language picker is a Phase-1b follow-up.
-const OCR_SOURCE_LANG = 'ja' as const;
+const OCR_LANG_LABELS: Record<OcrSourceLang, string> = {
+  ja: 'Japanese',
+  ko: 'Korean',
+  zh: 'Chinese',
+};
 
 interface PopupState {
   transcription: string;
@@ -42,7 +45,7 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
   const { markers, regions, run, clear } = useAutoBubbleTranslate();
   const [popup, setPopup] = useState<PopupState | null>(null);
   const [translating, setTranslating] = useState(false);
-  const modelsReady = useRef(false);
+  const modelsReady = useRef<OcrSourceLang | null>(null);
 
   // Drop markers/popup when the page turns: they're positioned against the
   // previous page's geometry, so they'd otherwise float over the new page.
@@ -53,16 +56,17 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
     setPopup(null);
   }, [location, clear]);
 
-  const onAutoTranslate = async () => {
+  const onAutoTranslate = async (sourceLang: OcrSourceLang) => {
     setPopup(null);
 
-    if (!modelsReady.current) {
-      const present = await ocrModelsPresent(OCR_SOURCE_LANG).catch(() => false);
+    if (modelsReady.current !== sourceLang) {
+      const present = await ocrModelsPresent(sourceLang).catch(() => false);
       if (present) {
-        modelsReady.current = true;
+        modelsReady.current = sourceLang;
       } else {
         const { ask } = await import('@tauri-apps/plugin-dialog');
-        const ok = await ask(_('Download Japanese OCR models (~235 MB)?'));
+        const langLabel = _(OCR_LANG_LABELS[sourceLang]);
+        const ok = await ask(_('Download {{lang}} OCR models?', { lang: langLabel }));
         if (!ok) return;
 
         let lastPct = -1;
@@ -82,8 +86,8 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
           }
         });
         try {
-          await ensureOcrModels('ja');
-          modelsReady.current = true;
+          await ensureOcrModels(sourceLang);
+          modelsReady.current = sourceLang;
         } catch {
           eventDispatcher.dispatch('toast', {
             message: _('Failed to download OCR models. Please try again.'),
@@ -153,8 +157,8 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
         cacheKeyParts: { bookKey, sectionIndex: primary?.index ?? 0, target },
         imageBytes,
         geometry,
-        sourceLang: OCR_SOURCE_LANG,
-        langs: { source: OCR_SOURCE_LANG, target },
+        sourceLang,
+        langs: { source: sourceLang, target },
         translate: (input, o) => translate(input, o),
       });
     } catch {
@@ -170,15 +174,15 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
 
   // Keep the runner fresh (translate/getView change across renders) so the
   // once-registered listener never calls a stale closure.
-  const runAutoRef = useRef<() => void>(() => {});
-  runAutoRef.current = () => {
-    void onAutoTranslate();
+  const runAutoRef = useRef<(lang: OcrSourceLang) => void>(() => {});
+  runAutoRef.current = (lang: OcrSourceLang) => {
+    void onAutoTranslate(lang);
   };
 
   useEffect(() => {
     const handler = (e: CustomEvent) => {
       if (e.detail?.bookKey !== bookKey) return;
-      runAutoRef.current();
+      runAutoRef.current((e.detail?.sourceLang as OcrSourceLang) ?? 'ja');
     };
     eventDispatcher.on('manga-auto-translate', handler);
     return () => eventDispatcher.off('manga-auto-translate', handler);

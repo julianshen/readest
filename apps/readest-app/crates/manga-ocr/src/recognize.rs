@@ -137,6 +137,89 @@ impl OcrEngine for MangaOcrEngine {
     }
 }
 
+/// PaddleOCR PP-OCRv5 CTC recognizer (one ONNX session). Shared by ko/zh.
+#[cfg(feature = "onnx")]
+pub struct CtcRecognizer {
+    session: ort::session::Session,
+    dict: Vec<String>, // index 0 = CTC blank placeholder
+    input_h: u32,
+    input_name: String,
+    output_name: String,
+}
+
+#[cfg(feature = "onnx")]
+impl CtcRecognizer {
+    /// Load the rec model + character dict. `input_h` comes from the model's config.
+    pub fn load(rec_path: &Path, dict_path: &Path, input_h: u32) -> Result<Self, String> {
+        let session = ort::session::Session::builder()
+            .map_err(|e| format!("ort builder (rec): {e}"))?
+            .commit_from_file(rec_path)
+            .map_err(|e| format!("ort load rec: {e}"))?;
+        // PaddleOCR convention: class 0 is blank; the dict file holds classes 1..N.
+        let mut dict = vec!["<blank>".to_string()];
+        let raw = std::fs::read_to_string(dict_path).map_err(|e| format!("read dict: {e}"))?;
+        dict.extend(raw.lines().map(|l| l.to_string()));
+        let input_name = session
+            .inputs()
+            .first()
+            .map(|i| i.name().to_string())
+            .ok_or("rec model has no inputs")?;
+        let output_name = session
+            .outputs()
+            .first()
+            .map(|o| o.name().to_string())
+            .ok_or("rec model has no outputs")?;
+        Ok(Self {
+            session,
+            dict,
+            input_h,
+            input_name,
+            output_name,
+        })
+    }
+
+    /// Recognize a single text line (the model is a line recognizer).
+    fn recognize_line(&mut self, line: &GrayImage) -> Result<String, String> {
+        use ort::value::TensorRef;
+        let pixels = crate::preprocess::ctc_rec_pixels(line, self.input_h);
+        let tensor =
+            TensorRef::from_array_view(pixels.view()).map_err(|e| format!("ort rec input: {e}"))?;
+        let outputs = self
+            .session
+            .run(ort::inputs![self.input_name.as_str() => tensor])
+            .map_err(|e| format!("ort rec run: {e}"))?;
+        let (shape, data) = outputs[self.output_name.as_str()]
+            .try_extract_tensor::<f32>()
+            .map_err(|e| format!("ort rec extract: {e}"))?;
+        if shape.len() < 3 {
+            return Err(format!(
+                "rec output rank {} < 3 (shape {:?})",
+                shape.len(),
+                shape
+            ));
+        }
+        let (t, c) = (shape[1] as usize, shape[2] as usize);
+        Ok(crate::ctc::ctc_greedy_decode(data, t, c, &self.dict))
+    }
+}
+
+#[cfg(feature = "onnx")]
+impl OcrEngine for CtcRecognizer {
+    fn recognize(&mut self, crop: &GrayImage) -> Result<String, String> {
+        // PaddleOCR rec is a single-LINE recognizer; a multi-line bubble crop
+        // decodes to garbage. Split into horizontal lines, recognize each, join.
+        let lines = crate::lines::split_text_lines(crop);
+        let mut parts = Vec::with_capacity(lines.len());
+        for line in &lines {
+            let text = self.recognize_line(line)?;
+            if !text.is_empty() {
+                parts.push(text);
+            }
+        }
+        Ok(parts.join(" "))
+    }
+}
+
 /// Greedy autoregressive decode.
 ///
 /// `step(current_ids)` returns `Ok(next-token logits)` (length = vocab size) for

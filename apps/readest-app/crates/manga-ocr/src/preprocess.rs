@@ -19,6 +19,26 @@ pub fn manga_ocr_pixels(img: &GrayImage) -> Array4<f32> {
     tensor
 }
 
+/// PaddleOCR CTC recognizer input: resize to height `input_h` keeping aspect
+/// ratio (dynamic width), replicate gray→3ch (so BGR/RGB ordering is moot for a
+/// grayscale crop), normalize (v/255 - 0.5)/0.5. Returns [1,3,input_h,W].
+pub fn ctc_rec_pixels(img: &GrayImage, input_h: u32) -> Array4<f32> {
+    let (w, h) = img.dimensions();
+    let out_w = (((input_h as f32) * (w as f32) / (h.max(1) as f32)).round() as u32).max(1);
+    let resized = image::imageops::resize(img, out_w, input_h, FilterType::Triangle);
+    let mut tensor = Array4::<f32>::zeros([1, 3, input_h as usize, out_w as usize]);
+    for y in 0..input_h as usize {
+        for x in 0..out_w as usize {
+            let v = resized.get_pixel(x as u32, y as u32).0[0] as f32 / 255.0;
+            let norm = (v - 0.5) / 0.5;
+            tensor[[0, 0, y, x]] = norm;
+            tensor[[0, 1, y, x]] = norm;
+            tensor[[0, 2, y, x]] = norm;
+        }
+    }
+    tensor
+}
+
 /// Detector input: STRETCH to exactly 1024×1024 (CatmullRom), RGB, normalize v/255.
 /// Returns [1,3,1024,1024]. The caller supplies original (w,h) to the decoder for
 /// scaling boxes back to original pixel coordinates.
@@ -76,6 +96,23 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn ctc_rec_pixels_shape_dynamic_width_and_norm() {
+        let img = GrayImage::from_pixel(40, 20, image::Luma([0u8]));
+        let t = ctc_rec_pixels(&img, 48);
+        assert_eq!(t.shape(), &[1, 3, 48, 96]);
+        assert!((t[[0, 0, 0, 0]] - (-1.0)).abs() < 1e-4);
+        assert!((t[[0, 1, 10, 10]] - t[[0, 2, 10, 10]]).abs() < 1e-6);
+    }
+
+    #[test]
+    fn ctc_rec_pixels_min_width_one() {
+        let img = GrayImage::from_pixel(1, 1000, image::Luma([255u8]));
+        let t = ctc_rec_pixels(&img, 48);
+        assert_eq!(t.shape()[3], 1);
+        assert!((t[[0, 0, 0, 0]] - 1.0).abs() < 1e-4);
     }
 
     #[test]

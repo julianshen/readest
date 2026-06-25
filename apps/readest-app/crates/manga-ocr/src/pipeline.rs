@@ -1,45 +1,46 @@
 //! Real OcrPipeline: detect text blocks then OCR each crop.
 
 #[cfg(feature = "onnx")]
-use crate::recognize::OcrEngine;
-
-#[cfg(feature = "onnx")]
 pub struct OcrPipeline {
     detector: crate::detect::Detector,
-    ja_engine: crate::recognize::MangaOcrEngine,
+    engine: Box<dyn crate::recognize::OcrEngine + Send>,
     pub conf_thresh: f32,
     pub nms_thresh: f32,
 }
 
 #[cfg(feature = "onnx")]
 impl OcrPipeline {
-    /// Load all models from a directory containing `comic-text-detector.onnx`,
-    /// `encoder_model.onnx`, `decoder_model.onnx`, and `vocab.txt`.
-    pub fn load(model_dir: &std::path::Path) -> Result<Self, String> {
+    /// Load the shared detector + the recognition engine for `lang`
+    /// (`ja` → manga-ocr seq2seq; `ko`/`zh` → PP-OCRv5 CTC).
+    pub fn load(model_dir: &std::path::Path, lang: &str) -> Result<Self, String> {
         let detector = crate::detect::Detector::load(&model_dir.join("comic-text-detector.onnx"))?;
-        let ja_engine = crate::recognize::MangaOcrEngine::load(
-            &model_dir.join("encoder_model.onnx"),
-            &model_dir.join("decoder_model.onnx"),
-            &model_dir.join("vocab.txt"),
-        )?;
+        let engine: Box<dyn crate::recognize::OcrEngine + Send> = match lang {
+            "ja" => Box::new(crate::recognize::MangaOcrEngine::load(
+                &model_dir.join("encoder_model.onnx"),
+                &model_dir.join("decoder_model.onnx"),
+                &model_dir.join("vocab.txt"),
+            )?),
+            "ko" | "zh" => {
+                let spec = crate::models::ctc_spec(lang)
+                    .ok_or_else(|| format!("no ctc spec for {lang}"))?;
+                Box::new(crate::recognize::CtcRecognizer::load(
+                    &model_dir.join(spec.rec_onnx),
+                    &model_dir.join(spec.dict),
+                    spec.input_h,
+                )?)
+            }
+            other => return Err(format!("unsupported source language: {other}")),
+        };
         Ok(Self {
             detector,
-            ja_engine,
+            engine,
             conf_thresh: 0.3,
             nms_thresh: 0.35,
         })
     }
 
-    /// Detect text blocks, OCR each, return regions (image-pixel boxes + text).
-    pub fn run(
-        &mut self,
-        image_bytes: &[u8],
-        source_lang: &str,
-    ) -> Result<Vec<crate::page::DetectedRegion>, String> {
-        if source_lang != "ja" {
-            return Err(format!("unsupported source language: {source_lang}"));
-        }
-
+    /// Detect text blocks, OCR each via the bound engine, return regions.
+    pub fn run(&mut self, image_bytes: &[u8]) -> Result<Vec<crate::page::DetectedRegion>, String> {
         let dyn_img =
             image::load_from_memory(image_bytes).map_err(|e| format!("decode image: {e}"))?;
         let rgb = dyn_img.to_rgb8();
@@ -49,18 +50,11 @@ impl OcrPipeline {
         let boxes = self
             .detector
             .detect(&rgb, self.conf_thresh, self.nms_thresh)?;
-
         let mut regions = Vec::with_capacity(boxes.len());
         for (i, b) in boxes.into_iter().enumerate() {
-            if b.w == 0 || b.h == 0 {
+            if b.w == 0 || b.h == 0 || b.x >= img_w || b.y >= img_h {
                 continue;
             }
-            // Discard boxes whose top-left is outside the image: clamping such a
-            // box would yield a meaningless 1×1 edge crop.
-            if b.x >= img_w || b.y >= img_h {
-                continue;
-            }
-            // Clamp crop rect to image bounds.
             let x = b.x.min(img_w.saturating_sub(1));
             let y = b.y.min(img_h.saturating_sub(1));
             let w = b.w.min(img_w - x);
@@ -69,7 +63,7 @@ impl OcrPipeline {
                 continue;
             }
             let crop = image::imageops::crop_imm(&luma, x, y, w, h).to_image();
-            let text = self.ja_engine.recognize(&crop)?;
+            let text = self.engine.recognize(&crop)?;
             regions.push(crate::page::DetectedRegion {
                 id: i as u32,
                 bbox: b,
@@ -90,21 +84,13 @@ mod tests {
         let dir = std::path::PathBuf::from(
             std::env::var("MANGA_OCR_MODEL_DIR").expect("set MANGA_OCR_MODEL_DIR"),
         );
-        let mut p = OcrPipeline::load(&dir).unwrap();
-        p.conf_thresh = 0.12; // synthetic fixture scores ~0.19
+        let mut p = OcrPipeline::load(&dir, "ja").unwrap();
+        p.conf_thresh = 0.12;
         let bytes =
             std::fs::read("tests-fixtures/manga_page_sample.png").expect("fixture not found");
-        let regions = p.run(&bytes, "ja").unwrap();
-        assert!(
-            !regions.is_empty(),
-            "expected at least one region, got none"
-        );
-        assert!(
-            regions.iter().any(|r| r.original.contains("こんにち")),
-            "expected 「こんにちは」; got: {:?}",
-            regions.iter().map(|r| &r.original).collect::<Vec<_>>()
-        );
-        // unsupported lang errors:
-        assert!(p.run(&bytes, "xx").is_err());
+        let regions = p.run(&bytes).unwrap();
+        assert!(!regions.is_empty(), "expected at least one region");
+        assert!(regions.iter().any(|r| r.original.contains("こんにち")));
+        assert!(OcrPipeline::load(&dir, "xx").is_err());
     }
 }

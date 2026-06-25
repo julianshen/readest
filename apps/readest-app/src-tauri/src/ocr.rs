@@ -17,7 +17,7 @@ use manga_ocr::runtime::selftest;
 /// `onnx` feature (so `OcrPipeline` exists). `ort`'s `Session` is `Send`, so the
 /// pipeline can live behind a `Mutex` shared across `spawn_blocking` calls.
 #[cfg(target_os = "android")]
-static OCR_PIPELINE: std::sync::Mutex<Option<manga_ocr::pipeline::OcrPipeline>> =
+static OCR_PIPELINE: std::sync::Mutex<Option<(String, manga_ocr::pipeline::OcrPipeline)>> =
     std::sync::Mutex::new(None);
 
 /// Smoke-tests the ONNX runtime end to end from the JS layer. Returns
@@ -38,11 +38,8 @@ pub async fn ocr_runtime_selftest() -> Result<Vec<f32>, String> {
 /// platform (it just fetches files); running the models is Android-only.
 #[tauri::command]
 pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<(), String> {
-    // Only Japanese models exist; reject anything else so we don't download JP
-    // models into a wrong-named folder.
-    if lang != "ja" {
-        return Err(format!("unsupported OCR language: {lang}"));
-    }
+    let manifest = manga_ocr::models::manifest_for(&lang)
+        .ok_or_else(|| format!("unsupported OCR language: {lang}"))?;
 
     let cache_dir = app
         .path()
@@ -52,7 +49,7 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
         .join(&lang);
     fs::create_dir_all(&cache_dir).map_err(|e| e.to_string())?;
 
-    for f in manga_ocr::models::ja_manifest() {
+    for f in manifest {
         let target = cache_dir.join(f.name);
         if target.exists() {
             if let Ok(existing) = fs::read(&target) {
@@ -101,16 +98,16 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
 /// frontend to skip the confirm + download flow when models are already cached.
 #[tauri::command]
 pub async fn ocr_models_present(app: tauri::AppHandle, lang: String) -> Result<bool, String> {
-    if lang != "ja" {
+    let Some(manifest) = manga_ocr::models::manifest_for(&lang) else {
         return Ok(false);
-    }
+    };
     let dir = app
         .path()
         .app_data_dir()
         .map_err(|e| e.to_string())?
         .join("ocr-models")
         .join(&lang);
-    Ok(manga_ocr::models::ja_manifest().iter().all(|f| {
+    Ok(manifest.iter().all(|f| {
         std::fs::metadata(dir.join(f.name))
             .map(|m| m.len() > 0)
             .unwrap_or(false)
@@ -140,14 +137,18 @@ pub async fn ocr_page_regions(
             let mut guard = OCR_PIPELINE
                 .lock()
                 .unwrap_or_else(|poisoned| poisoned.into_inner());
-            if guard.is_none() {
-                *guard = Some(
-                    manga_ocr::pipeline::OcrPipeline::load(&cache_dir).map_err(|e| {
-                        format!("load OCR models (call ensure_ocr_models first?): {e}")
-                    })?,
-                );
+            // (Re)load when empty or when the requested language differs from the
+            // currently-loaded engine.
+            if guard
+                .as_ref()
+                .map(|(l, _)| l != &source_lang)
+                .unwrap_or(true)
+            {
+                let pipeline = manga_ocr::pipeline::OcrPipeline::load(&cache_dir, &source_lang)
+                    .map_err(|e| format!("load OCR models (call ensure_ocr_models first?): {e}"))?;
+                *guard = Some((source_lang.clone(), pipeline));
             }
-            guard.as_mut().unwrap().run(&image_bytes, &source_lang)
+            guard.as_mut().unwrap().1.run(&image_bytes)
         })
         .await
         .map_err(|e| format!("join: {e}"))?
