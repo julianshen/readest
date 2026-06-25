@@ -1781,8 +1781,9 @@
   "The target language matches the book language. Pick a different target language.": "Hedef dil kitabın diliyle aynı. Farklı bir hedef dil seçin.",
   "Show translation": "Çeviriyi göster",
   "Auto-translate page": "Sayfayı otomatik çevir",
-  "Download Japanese OCR models (~235 MB)?": "Japonca OCR modelleri indirilsin mi (~235 MB)?",
   "Downloading OCR models…": "OCR modelleri indiriliyor…",
   "Translating page…": "Sayfa çevriliyor…",
-  "Failed to download OCR models. Please try again.": "OCR modelleri indirilemedi. Lütfen tekrar deneyin."
+  "Failed to download OCR models. Please try again.": "OCR modelleri indirilemedi. Lütfen tekrar deneyin.",
+  "Download {{lang}} OCR models?": "{{lang}} OCR modelleri indirilsin mi?",
+  "Change OCR language": "OCR dilini değiştir"
 }

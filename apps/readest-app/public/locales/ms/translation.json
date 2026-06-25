@@ -1748,8 +1748,9 @@
   "The target language matches the book language. Pick a different target language.": "Bahasa sasaran sama dengan bahasa buku. Pilih bahasa sasaran yang berbeza.",
   "Show translation": "Tunjuk terjemahan",
   "Auto-translate page": "Terjemah halaman secara automatik",
-  "Download Japanese OCR models (~235 MB)?": "Muat turun model OCR Jepun (~235 MB)?",
   "Downloading OCR models…": "Memuat turun model OCR…",
   "Translating page…": "Menterjemah halaman…",
-  "Failed to download OCR models. Please try again.": "Gagal memuat turun model OCR. Sila cuba lagi."
+  "Failed to download OCR models. Please try again.": "Gagal memuat turun model OCR. Sila cuba lagi.",
+  "Download {{lang}} OCR models?": "Muat turun model OCR {{lang}}?",
+  "Change OCR language": "Tukar bahasa OCR"
 }

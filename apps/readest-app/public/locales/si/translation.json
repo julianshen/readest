@@ -1781,8 +1781,9 @@
   "The target language matches the book language. Pick a different target language.": "ඉලක්ක භාෂාව පොතේ භාෂාවට සමාන වේ. වෙනත් ඉලක්ක භාෂාවක් තෝරන්න.",
   "Show translation": "පරිවර්තනය පෙන්වන්න",
   "Auto-translate page": "පිටුව ස්වයංක්‍රීයව පරිවර්තනය කරන්න",
-  "Download Japanese OCR models (~235 MB)?": "ජපන් OCR ආකෘති බාගන්නද? (~235 MB)",
   "Downloading OCR models…": "OCR ආකෘති බාගත වෙමින්…",
   "Translating page…": "පිටුව පරිවර්තනය වෙමින්…",
-  "Failed to download OCR models. Please try again.": "OCR ආකෘති බාගත කිරීමට අසමත් විය. නැවත උත්සාහ කරන්න."
+  "Failed to download OCR models. Please try again.": "OCR ආකෘති බාගත කිරීමට අසමත් විය. නැවත උත්සාහ කරන්න.",
+  "Download {{lang}} OCR models?": "{{lang}} OCR ආකෘති බාගත කරන්නද?",
+  "Change OCR language": "OCR භාෂාව වෙනස් කරන්න"
 }

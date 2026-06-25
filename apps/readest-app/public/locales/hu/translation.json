@@ -1781,8 +1781,9 @@
   "The target language matches the book language. Pick a different target language.": "A célnyelv megegyezik a könyv nyelvével. Válassz másik célnyelvet.",
   "Show translation": "Fordítás megjelenítése",
   "Auto-translate page": "Oldal automatikus fordítása",
-  "Download Japanese OCR models (~235 MB)?": "Letölti a japán OCR-modelleket (~235 MB)?",
   "Downloading OCR models…": "OCR-modellek letöltése…",
   "Translating page…": "Oldal fordítása…",
-  "Failed to download OCR models. Please try again.": "Az OCR-modellek letöltése nem sikerült. Próbálja újra."
+  "Failed to download OCR models. Please try again.": "Az OCR-modellek letöltése nem sikerült. Próbálja újra.",
+  "Download {{lang}} OCR models?": "Letölti a(z) {{lang}} OCR-modelleket?",
+  "Change OCR language": "OCR-nyelv módosítása"
 }

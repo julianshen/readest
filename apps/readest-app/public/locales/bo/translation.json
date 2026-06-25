@@ -1748,8 +1748,9 @@
   "The target language matches the book language. Pick a different target language.": "དམིགས་འབེན་སྐད་ཡིག་དེ་དཔེ་ཆའི་སྐད་ཡིག་དང་གཅིག་པ་རེད། དམིགས་འབེན་སྐད་ཡིག་གཞན་ཞིག་འདེམས་རོགས།",
   "Show translation": "སྒྱུར་བ་སྟོན།",
   "Auto-translate page": "ཤོག་ངོས་རང་འགུལ་སྒྱུར་བ།",
-  "Download Japanese OCR models (~235 MB)?": "ཉི་ཧོང་སྐད་ཀྱི OCR དཔེ་དབྱིབས་ཕབ་ལེན་བྱེད་དམ། (~235 MB)",
   "Downloading OCR models…": "OCR དཔེ་དབྱིབས་ཕབ་ལེན་བྱེད་བཞིན་པ…",
   "Translating page…": "ཤོག་ངོས་བསྒྱུར་བཞིན་པ…",
-  "Failed to download OCR models. Please try again.": "OCR དཔེ་དབྱིབས་ཕབ་ལེན་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།"
+  "Failed to download OCR models. Please try again.": "OCR དཔེ་དབྱིབས་ཕབ་ལེན་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།",
+  "Download {{lang}} OCR models?": "{{lang}} OCR དཔེ་གཟུགས་ཕབ་ལེན་བྱེད་དགོས་སམ།",
+  "Change OCR language": "OCR སྐད་ཡིག་བརྗེ་བ།"
 }

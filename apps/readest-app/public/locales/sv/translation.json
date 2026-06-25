@@ -1781,8 +1781,9 @@
   "The target language matches the book language. Pick a different target language.": "Målspråket är samma som bokens språk. Välj ett annat målspråk.",
   "Show translation": "Visa översättning",
   "Auto-translate page": "Översätt sidan automatiskt",
-  "Download Japanese OCR models (~235 MB)?": "Ladda ner japanska OCR-modeller (~235 MB)?",
   "Downloading OCR models…": "Laddar ner OCR-modeller…",
   "Translating page…": "Översätter sida…",
-  "Failed to download OCR models. Please try again.": "Det gick inte att ladda ner OCR-modellerna. Försök igen."
+  "Failed to download OCR models. Please try again.": "Det gick inte att ladda ner OCR-modellerna. Försök igen.",
+  "Download {{lang}} OCR models?": "Ladda ner OCR-modeller för {{lang}}?",
+  "Change OCR language": "Ändra OCR-språk"
 }

@@ -1847,8 +1847,9 @@
   "The target language matches the book language. Pick a different target language.": "Ciljni jezik je enak jeziku knjige. Izberite drug ciljni jezik.",
   "Show translation": "Pokaži prevod",
   "Auto-translate page": "Samodejno prevedi stran",
-  "Download Japanese OCR models (~235 MB)?": "Prenesem japonske modele OCR (~235 MB)?",
   "Downloading OCR models…": "Prenašanje modelov OCR…",
   "Translating page…": "Prevajanje strani…",
-  "Failed to download OCR models. Please try again.": "Prenos modelov OCR ni uspel. Poskusite znova."
+  "Failed to download OCR models. Please try again.": "Prenos modelov OCR ni uspel. Poskusite znova.",
+  "Download {{lang}} OCR models?": "Prenesem modele OCR za {{lang}}?",
+  "Change OCR language": "Spremeni jezik OCR"
 }

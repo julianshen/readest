@@ -1814,8 +1814,9 @@
   "The target language matches the book language. Pick a different target language.": "O idioma de destino é igual ao do livro. Escolha um idioma de destino diferente.",
   "Show translation": "Mostrar tradução",
   "Auto-translate page": "Traduzir página automaticamente",
-  "Download Japanese OCR models (~235 MB)?": "Baixar modelos de OCR de japonês (~235 MB)?",
   "Downloading OCR models…": "Baixando modelos de OCR…",
   "Translating page…": "Traduzindo página…",
-  "Failed to download OCR models. Please try again.": "Falha ao baixar os modelos de OCR. Tente novamente."
+  "Failed to download OCR models. Please try again.": "Falha ao baixar os modelos de OCR. Tente novamente.",
+  "Download {{lang}} OCR models?": "Baixar os modelos de OCR de {{lang}}?",
+  "Change OCR language": "Alterar idioma do OCR"
 }

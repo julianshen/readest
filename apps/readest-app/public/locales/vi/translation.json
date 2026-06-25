@@ -1748,8 +1748,9 @@
   "The target language matches the book language. Pick a different target language.": "Ngôn ngữ đích giống với ngôn ngữ của sách. Hãy chọn một ngôn ngữ đích khác.",
   "Show translation": "Hiện bản dịch",
   "Auto-translate page": "Tự động dịch trang",
-  "Download Japanese OCR models (~235 MB)?": "Tải mô hình OCR tiếng Nhật (~235 MB)?",
   "Downloading OCR models…": "Đang tải mô hình OCR…",
   "Translating page…": "Đang dịch trang…",
-  "Failed to download OCR models. Please try again.": "Không tải được mô hình OCR. Vui lòng thử lại."
+  "Failed to download OCR models. Please try again.": "Không tải được mô hình OCR. Vui lòng thử lại.",
+  "Download {{lang}} OCR models?": "Tải xuống mô hình OCR {{lang}}?",
+  "Change OCR language": "Đổi ngôn ngữ OCR"
 }
