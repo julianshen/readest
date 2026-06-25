@@ -23,10 +23,11 @@
 |---|---|
 | `crates/manga-ocr/src/ctc.rs` (create) | `ctc_greedy_decode(logits, t, c, dict)` — pure CTC greedy decode. |
 | `crates/manga-ocr/src/preprocess.rs` (modify) | add `ctc_rec_pixels(img, input_h)` — resize-to-height, dynamic width, normalize. |
+| `crates/manga-ocr/src/lines.rs` (create) | `split_text_lines(crop)` — split a bubble crop into horizontal text lines (the CTC rec is single-line). |
 | `crates/manga-ocr/src/models.rs` (modify) | `ko_manifest()`, `zh_manifest()`, `CtcSpec`, `ctc_spec(lang)`, `manifest_for(lang)`. |
 | `crates/manga-ocr/src/recognize.rs` (modify) | `CtcRecognizer` engine (onnx-gated) implementing `OcrEngine`. |
 | `crates/manga-ocr/src/pipeline.rs` (modify) | `load(dir, lang)` binds engine per lang via `Box<dyn OcrEngine + Send>`; `run` drops the lang guard. |
-| `crates/manga-ocr/src/lib.rs` (modify) | `pub mod ctc;`. |
+| `crates/manga-ocr/src/lib.rs` (modify) | `pub mod ctc;` + `pub mod lines;`. |
 | `src-tauri/src/ocr.rs` (modify) | `manifest_for` dispatch; lang-keyed pipeline cache (reload on lang change). |
 | `src/services/ocr/sourceLang.ts` (create) | `detectOcrSourceLang`, `resolveOcrSourceLang`. |
 | `src/types/book.ts` (modify) | `OcrConfig { ocrSourceLang? }` mixed into `ViewSettings`. |
@@ -39,6 +40,13 @@
 ### Task 1: Model prep + recipe validation (spike — produces hosted artifacts)
 
 This is one-time prep, not shipped code. It de-risks accuracy and produces the URLs + SHA-256 + `input_h` + IO tensor names that Tasks 2–5 hardcode. Mirrors how the JA models were validated before integration.
+
+> **✅ COMPLETED (2026-06-25).** No `paddle2onnx` needed — used turnkey ONNX for both:
+> - **ZH** `PaddlePaddle/PP-OCRv5_mobile_rec_onnx` (mobile, 16.5 MB, dict 18,383 from `inference.yml`, Simplified+Traditional+JP). **KO** `monkt/paddleocr-onnx` `languages/korean` (= official `korean_PP-OCRv5_mobile_rec` re-export, 13.4 MB, dict 11,945). Both Apache-2.0.
+> - Hosted: `models-ko-v1` + `models-zh-v1` on `julianshen/readest` (asset names `rec.onnx`, `dict.txt`; URLs return 200). SHA-256 pinned in Task 4 below.
+> - **Confirmed params (both models):** `input_h = 48` (read from the ONNX graph — monkt's config.json "32" is stale), input name `x`, output name `fetch_name_0`, `num_classes = dict + 2` (the +2 is harmless; `vocab = ['<blank>'] + dict` decodes correctly).
+> - **Recipe validated** in Python on synthetic Noto-CJK lines: KO 안녕하세요/반갑습니다 ✓, ZH-Simplified 你好世界/早上好 ✓, ZH-Traditional 歡迎光臨 ✓ (all exact round-trips). **Multi-line bubble → garbage** (반갑습니다⏎오늘 날씨가 → 발갈다), which is why **Task 3b (line segmentation)** was added.
+> The remaining Tasks 2–11 (code) are unaffected by re-running the steps below; they exist for provenance.
 
 **Files:** none committed except this plan's "Recorded artifacts" note at the end of the task.
 
@@ -262,6 +270,128 @@ pub fn ctc_rec_pixels(img: &GrayImage, input_h: u32) -> Array4<f32> {
 - [ ] **Step 4: Run → pass.** `cargo test -p manga-ocr ctc_rec_pixels` — Expected: PASS.
 - [ ] **Step 5: Commit** `feat(ocr): ctc_rec_pixels preprocessing (dynamic-width line image)`.
 
+### Task 3b: Horizontal line segmentation
+
+**Files:** Create `crates/manga-ocr/src/lines.rs`; Modify `crates/manga-ocr/src/lib.rs`.
+
+The CTC recognizer is a single-line model; Task 1 verified a multi-line bubble crop decodes to garbage. This splits a bubble crop into horizontal text lines. Pure, no `onnx`.
+
+- [ ] **Step 1: Write the failing test** — `lines.rs`:
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{GrayImage, Luma};
+
+    fn img_with_bands(w: u32, h: u32, bands: &[(u32, u32)]) -> GrayImage {
+        let mut img = GrayImage::from_pixel(w, h, Luma([255]));
+        for &(s, e) in bands {
+            for y in s..e {
+                for x in 0..w {
+                    img.put_pixel(x, y, Luma([0]));
+                }
+            }
+        }
+        img
+    }
+
+    #[test]
+    fn splits_two_bands_separated_by_gap() {
+        let img = img_with_bands(20, 20, &[(2, 6), (12, 16)]);
+        let lines = split_text_lines(&img);
+        assert_eq!(lines.len(), 2);
+        assert!(lines[0].height() < img.height());
+    }
+
+    #[test]
+    fn single_band_returns_whole_crop() {
+        let img = img_with_bands(20, 20, &[(4, 10)]);
+        let lines = split_text_lines(&img);
+        assert_eq!(lines.len(), 1);
+        assert_eq!(lines[0].dimensions(), img.dimensions());
+    }
+
+    #[test]
+    fn blank_crop_returns_itself() {
+        let img = GrayImage::from_pixel(10, 10, Luma([255]));
+        let lines = split_text_lines(&img);
+        assert_eq!(lines.len(), 1);
+        assert_eq!(lines[0].dimensions(), (10, 10));
+    }
+}
+```
+
+- [ ] **Step 2: Run → fail.** `cargo test -p manga-ocr lines` — Expected: FAIL (`split_text_lines` not found).
+
+- [ ] **Step 3: Implement** — prepend to `lines.rs`:
+
+```rust
+//! Split a comic text-block crop into horizontal text lines. The PaddleOCR CTC
+//! recognizer reads one line at a time, so a multi-line bubble must be sliced
+//! first (verified necessary in the plan's Task 1).
+
+use image::GrayImage;
+
+/// Row-ink projection: group rows whose dark-pixel count exceeds 10% of the
+/// densest row into bands (padded 2px), returning each as a sub-image. Returns
+/// the crop unchanged when it finds 0 or 1 line (single-line bubble = no-op).
+/// Assumes dark text on a light background (the comic-bubble norm).
+pub fn split_text_lines(crop: &GrayImage) -> Vec<GrayImage> {
+    let (w, h) = crop.dimensions();
+    if w == 0 || h == 0 {
+        return vec![crop.clone()];
+    }
+    let mut ink = vec![0u32; h as usize];
+    for y in 0..h {
+        let mut c = 0u32;
+        for x in 0..w {
+            if crop.get_pixel(x, y).0[0] < 128 {
+                c += 1;
+            }
+        }
+        ink[y as usize] = c;
+    }
+    let maxink = *ink.iter().max().unwrap_or(&0);
+    if maxink == 0 {
+        return vec![crop.clone()];
+    }
+    let thresh = ((maxink as f32) * 0.10).ceil() as u32;
+    let mut bands: Vec<(u32, u32)> = Vec::new();
+    let mut start: Option<u32> = None;
+    for y in 0..h {
+        let inky = ink[y as usize] >= thresh;
+        match (inky, start) {
+            (true, None) => start = Some(y),
+            (false, Some(s)) => {
+                bands.push((s, y));
+                start = None;
+            }
+            _ => {}
+        }
+    }
+    if let Some(s) = start {
+        bands.push((s, h));
+    }
+    if bands.len() <= 1 {
+        return vec![crop.clone()];
+    }
+    bands
+        .into_iter()
+        .map(|(s, e)| {
+            let y0 = s.saturating_sub(2);
+            let y1 = (e + 2).min(h);
+            image::imageops::crop_imm(crop, 0, y0, w, y1 - y0).to_image()
+        })
+        .collect()
+}
+```
+
+Add to `lib.rs`: `pub mod lines;`.
+
+- [ ] **Step 4: Run → pass.** `cargo test -p manga-ocr lines` — Expected: PASS (3 tests).
+- [ ] **Step 5: Commit** `feat(ocr): horizontal line segmentation for the CTC recognizer`.
+
 ### Task 4: Model manifests + CTC spec + dispatch
 
 **Files:** Modify `crates/manga-ocr/src/models.rs`. Use the **SHA-256 + `input_h` recorded in Task 1**.
@@ -310,8 +440,8 @@ pub struct CtcSpec {
 /// CTC spec for ko/zh (PaddleOCR PP-OCRv5). None for non-CTC languages (ja).
 pub fn ctc_spec(lang: &str) -> Option<CtcSpec> {
     match lang {
-        // input_h = 48 for the official PP-OCRv5 export (Task 1 confirms; use 32
-        // if the Korean model is the community monkt export).
+        // input_h = 48 confirmed in Task 1 by reading the ONNX graph input dim for
+        // BOTH models (the monkt config.json's "32" is stale; the graph says 48).
         "ko" | "zh" => Some(CtcSpec { rec_onnx: "rec.onnx", dict: "dict.txt", input_h: 48 }),
         _ => None,
     }
@@ -328,12 +458,12 @@ pub fn ko_manifest() -> Vec<ModelFile> {
         ModelFile {
             name: "rec.onnx",
             url: "https://github.com/julianshen/readest/releases/download/models-ko-v1/rec.onnx",
-            sha256: "<SHA_KO_REC_FROM_TASK1>",
+            sha256: "322f140154c820fcb83c3d24cfe42c9ec70dd1a1834163306a7338136e4f1eaa",
         },
         ModelFile {
             name: "dict.txt",
             url: "https://github.com/julianshen/readest/releases/download/models-ko-v1/dict.txt",
-            sha256: "<SHA_KO_DICT_FROM_TASK1>",
+            sha256: "a88071c68c01707489baa79ebe0405b7beb5cca229f4fc94cc3ef992328802d7",
         },
     ]
 }
@@ -345,12 +475,12 @@ pub fn zh_manifest() -> Vec<ModelFile> {
         ModelFile {
             name: "rec.onnx",
             url: "https://github.com/julianshen/readest/releases/download/models-zh-v1/rec.onnx",
-            sha256: "<SHA_ZH_REC_FROM_TASK1>",
+            sha256: "da72dc72ca4dc220df0dfde68c1dedc31c58d3e76a25871122e5056227d50092",
         },
         ModelFile {
             name: "dict.txt",
             url: "https://github.com/julianshen/readest/releases/download/models-zh-v1/dict.txt",
-            sha256: "<SHA_ZH_DICT_FROM_TASK1>",
+            sha256: "d1979e9f794c464c0d2e0b70a7fe14dd978e9dc644c0e71f14158cdf8342af1b",
         },
     ]
 }
@@ -415,10 +545,11 @@ impl CtcRecognizer {
 }
 
 #[cfg(feature = "onnx")]
-impl OcrEngine for CtcRecognizer {
-    fn recognize(&mut self, crop: &GrayImage) -> Result<String, String> {
+impl CtcRecognizer {
+    /// Recognize a single text line (the model is a line recognizer).
+    fn recognize_line(&mut self, line: &GrayImage) -> Result<String, String> {
         use ort::value::TensorRef;
-        let pixels = crate::preprocess::ctc_rec_pixels(crop, self.input_h);
+        let pixels = crate::preprocess::ctc_rec_pixels(line, self.input_h);
         let tensor = TensorRef::from_array_view(pixels.view())
             .map_err(|e| format!("ort rec input: {e}"))?;
         let outputs = self
@@ -435,9 +566,27 @@ impl OcrEngine for CtcRecognizer {
         Ok(crate::ctc::ctc_greedy_decode(data, t, c, &self.dict))
     }
 }
+
+#[cfg(feature = "onnx")]
+impl OcrEngine for CtcRecognizer {
+    fn recognize(&mut self, crop: &GrayImage) -> Result<String, String> {
+        // PaddleOCR rec is a single-LINE recognizer; a multi-line bubble crop
+        // decodes to garbage (verified in Task 1). Split into horizontal lines,
+        // recognize each, and join with a space.
+        let lines = crate::lines::split_text_lines(crop);
+        let mut parts = Vec::with_capacity(lines.len());
+        for line in &lines {
+            let text = self.recognize_line(line)?;
+            if !text.is_empty() {
+                parts.push(text);
+            }
+        }
+        Ok(parts.join(" "))
+    }
+}
 ```
 
-> Build note: if the `ort::inputs![expr => ...]` macro rejects a non-literal key, build the input list manually with `ort::inputs![(self.input_name.clone(), tensor.into())]` form, or the `vec![(Cow::from(self.input_name.as_str()), tensor.into())]` slice the macro expands to. The IO names were printed in Task 1.
+> Build note: the IO names confirmed in Task 1 are input `x`, output `fetch_name_0` (read from `session.inputs/outputs` at load, so robust). If the `ort::inputs![expr => ...]` macro rejects a non-literal key, build the input list manually with the `vec![(Cow::from(self.input_name.as_str()), tensor.into())]` slice the macro expands to.
 
 - [ ] **Step 2: Build the crate with the feature to type-check** (no runtime models needed):
 `cargo build -p manga-ocr --features onnx` — Expected: compiles clean.
@@ -922,6 +1071,6 @@ Important: `modelsReady` must not stick across languages. Change it from a boole
 - On-device gate passed for Korean and Chinese (auto-detect + override + plausible translations).
 
 ## Self-review
-- **Spec coverage:** `CtcRecognizer` (T5), shared KO+ZH via one engine + `ctc_spec` (T4/T5), per-language manifests + `models-{ko,zh}-v1` + shared detector (T1/T4), pipeline dispatch (T6), `ensure/present` multi-lang + lang-keyed cache (T7), `resolveOcrSourceLang` auto-detect+override (T8), per-book persistence (T9), picker UI + threading + language-aware prompt (T10), Android-only gate unchanged (T10), error handling — undetected→menu (T10), unsupported→Err (T6/T7), CTC blank/BGR/normalize/input_h gotchas (T1/T2/T3/T5), testing (T2/T3/T4/T8/T11), model prep (T1). All mapped.
+- **Spec coverage:** `CtcRecognizer` (T5), shared KO+ZH via one engine + `ctc_spec` (T4/T5), per-language manifests + `models-{ko,zh}-v1` + shared detector (T1/T4), line segmentation for the single-line CTC rec (T3b, added after the Task-1 multi-line finding), pipeline dispatch (T6), `ensure/present` multi-lang + lang-keyed cache (T7), `resolveOcrSourceLang` auto-detect+override (T8), per-book persistence (T9), picker UI + threading + language-aware prompt (T10), Android-only gate unchanged (T10), error handling — undetected→menu (T10), unsupported→Err (T6/T7), CTC blank/BGR/normalize/input_h gotchas (T1/T2/T3/T5), testing (T2/T3/T3b/T4/T8/T11), model prep (T1 ✅). All mapped.
 - **Type consistency:** `OcrSourceLang` (existing) used in T8/T9/T10; `CtcSpec`/`ctc_spec`/`manifest_for` identical across T4→T5→T7; `OcrPipeline::load(dir, lang)` + `run(bytes)` consistent T6→T7; `ctc_greedy_decode(logits, t, c, dict)` consistent T2→T5; `ctc_rec_pixels(img, input_h)` consistent T3→T5.
 - **Known spike (not a placeholder):** Task 1 produces the real SHA-256/`input_h`/IO names that Tasks 4–5 consume, and validates the CTC recipe (incl. multi-line) before integration — the same de-risk-first approach used for the Japanese models. The `<SHA_*_FROM_TASK1>` tokens are explicit hand-offs from T1, filled before T4 builds.
