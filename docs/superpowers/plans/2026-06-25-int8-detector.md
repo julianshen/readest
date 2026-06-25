@@ -55,13 +55,13 @@ Expected: PASS (4 tests: `verify_sha256_known_vectors`, `ja_manifest_has_four_va
 
 - [ ] **Step 3: Sanity-check the URL + SHA are live** (not part of the build, but confirm the pinned values match the hosted asset):
 
-Run: `curl -sL "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.int8.onnx" | sha256sum`
+Run: `curl -fsL "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.int8.onnx" | sha256sum`
 Expected: `d6b4b1136f028a65eade6316c9c7707fab2c59fa08d20b46a75e68b814773aa2`
 
-- [ ] **Step 4: Format + commit.** `cargo fmt -p manga-ocr`, then:
+- [ ] **Step 4: Format + commit.** `cd apps/readest-app && cargo fmt -p manga-ocr`, then (from repo root):
 
 ```bash
-git add crates/manga-ocr/src/models.rs
+git add apps/readest-app/crates/manga-ocr/src/models.rs
 git commit -m "perf(ocr): use int8-quantized detector (94.7MB -> 53.4MB)"
 ```
 
