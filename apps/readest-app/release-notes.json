@@ -1,5 +1,12 @@
 {
   "releases": {
+    "0.13.0": {
+      "date": "2026-06-25",
+      "notes": [
+        "Comics: Manga auto-translate now reads Korean and Chinese on-device, alongside Japanese — Readest auto-detects the book's language (Korean manhwa, Chinese manhua in both Simplified and Traditional) with a quick menu to override, and the new language models download on first use (Android)",
+        "Comics: Bubble translation now works on fixed-layout manga in EPUB and MOBI/AZW, not just CBZ — both the drag-a-region translate and the whole-page auto-translate"
+      ]
+    },
     "0.12.0": {
       "date": "2026-06-22",
       "notes": [
