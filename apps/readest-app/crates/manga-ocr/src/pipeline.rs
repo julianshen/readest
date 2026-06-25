@@ -85,17 +85,21 @@ mod tests {
     #[test]
     #[ignore]
     fn pipeline_detects_and_recognizes_sample_page() {
-        let dir = std::path::PathBuf::from(
-            std::env::var("MANGA_OCR_MODEL_DIR").expect("set MANGA_OCR_MODEL_DIR"),
+        // Exercise the split cache layout: detector in shared/, engine in <lang>/.
+        let root = std::path::PathBuf::from(
+            std::env::var("MANGA_OCR_MODEL_ROOT").expect("set MANGA_OCR_MODEL_ROOT"),
         );
-        let detector = dir.join("comic-text-detector.onnx");
-        let mut p = OcrPipeline::load(&detector, &dir, "ja").unwrap();
+        let detector = root
+            .join(crate::models::OCR_SHARED_DIR)
+            .join(crate::models::DETECTOR_FILE);
+        let lang_dir = root.join("ja");
+        let mut p = OcrPipeline::load(&detector, &lang_dir, "ja").unwrap();
         p.conf_thresh = 0.12;
         let bytes =
             std::fs::read("tests-fixtures/manga_page_sample.png").expect("fixture not found");
         let regions = p.run(&bytes).unwrap();
         assert!(!regions.is_empty(), "expected at least one region");
         assert!(regions.iter().any(|r| r.original.contains("こんにち")));
-        assert!(OcrPipeline::load(&detector, &dir, "xx").is_err());
+        assert!(OcrPipeline::load(&detector, &lang_dir, "xx").is_err());
     }
 }

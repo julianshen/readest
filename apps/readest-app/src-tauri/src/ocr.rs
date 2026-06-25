@@ -64,11 +64,15 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
 
         // Migration: if a shared file isn't in shared/ yet but a valid copy sits in
         // the lang dir (pre-shared-cache layout), move it instead of re-downloading.
+        // On a successful move the file is present + already verified, so skip the
+        // re-read/re-hash below (avoids reading + hashing the 94 MB detector twice).
         if f.is_shared() && !target.exists() {
             let legacy = lang_dir.join(f.name);
             if let Ok(bytes) = fs::read(&legacy) {
-                if manga_ocr::models::verify_sha256(&bytes, f.sha256) {
-                    let _ = fs::rename(&legacy, &target);
+                if manga_ocr::models::verify_sha256(&bytes, f.sha256)
+                    && fs::rename(&legacy, &target).is_ok()
+                {
+                    continue;
                 }
             }
         }
