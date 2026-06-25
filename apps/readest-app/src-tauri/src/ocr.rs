@@ -55,11 +55,30 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
     fs::create_dir_all(&shared_dir).map_err(|e| e.to_string())?;
 
     for f in manifest {
-        let cache_dir = if f.is_shared() { &shared_dir } else { &lang_dir };
+        let cache_dir = if f.is_shared() {
+            &shared_dir
+        } else {
+            &lang_dir
+        };
         let target = cache_dir.join(f.name);
+
+        // Migration: if a shared file isn't in shared/ yet but a valid copy sits in
+        // the lang dir (pre-shared-cache layout), move it instead of re-downloading.
+        if f.is_shared() && !target.exists() {
+            let legacy = lang_dir.join(f.name);
+            if let Ok(bytes) = fs::read(&legacy) {
+                if manga_ocr::models::verify_sha256(&bytes, f.sha256) {
+                    let _ = fs::rename(&legacy, &target);
+                }
+            }
+        }
+
         if target.exists() {
             if let Ok(existing) = fs::read(&target) {
                 if manga_ocr::models::verify_sha256(&existing, f.sha256) {
+                    if f.is_shared() {
+                        let _ = fs::remove_file(lang_dir.join(f.name)); // drop legacy orphan
+                    }
                     continue;
                 }
             }
@@ -94,6 +113,9 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
         }
 
         fs::rename(&part, &target).map_err(|e| e.to_string())?;
+        if f.is_shared() {
+            let _ = fs::remove_file(lang_dir.join(f.name)); // drop legacy orphan
+        }
     }
 
     Ok(())
@@ -115,7 +137,11 @@ pub async fn ocr_models_present(app: tauri::AppHandle, lang: String) -> Result<b
     let lang_dir = ocr_root.join(&lang);
     let shared_dir = ocr_root.join(manga_ocr::models::OCR_SHARED_DIR);
     Ok(manifest.iter().all(|f| {
-        let dir = if f.is_shared() { &shared_dir } else { &lang_dir };
+        let dir = if f.is_shared() {
+            &shared_dir
+        } else {
+            &lang_dir
+        };
         std::fs::metadata(dir.join(f.name))
             .map(|m| m.len() > 0)
             .unwrap_or(false)
@@ -155,12 +181,11 @@ pub async fn ocr_page_regions(
                 .map(|(l, _)| l != &source_lang)
                 .unwrap_or(true)
             {
-                let pipeline = manga_ocr::pipeline::OcrPipeline::load(
-                    &detector_path,
-                    &lang_dir,
-                    &source_lang,
-                )
-                .map_err(|e| format!("load OCR models (call ensure_ocr_models first?): {e}"))?;
+                let pipeline =
+                    manga_ocr::pipeline::OcrPipeline::load(&detector_path, &lang_dir, &source_lang)
+                        .map_err(|e| {
+                            format!("load OCR models (call ensure_ocr_models first?): {e}")
+                        })?;
                 *guard = Some((source_lang.clone(), pipeline));
             }
             guard.as_mut().unwrap().1.run(&image_bytes)
