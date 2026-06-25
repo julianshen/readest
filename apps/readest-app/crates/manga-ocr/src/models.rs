@@ -13,16 +13,17 @@ pub fn verify_sha256(bytes: &[u8], hex: &str) -> bool {
     hex::encode(digest).eq_ignore_ascii_case(hex)
 }
 
+const JA_DETECTOR_URL: &str =
+    "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.onnx";
+const JA_DETECTOR_SHA: &str = "1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f";
+
 /// The 4 Japanese model files to download on first use.
 pub fn ja_manifest() -> Vec<ModelFile> {
     vec![
         ModelFile {
             name: "comic-text-detector.onnx",
-            url: concat!(
-                "https://github.com/julianshen/readest/releases/download/models-ja-v1/",
-                "comic-text-detector.onnx"
-            ),
-            sha256: "1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f",
+            url: JA_DETECTOR_URL,
+            sha256: JA_DETECTOR_SHA,
         },
         ModelFile {
             name: "encoder_model.onnx",
@@ -49,6 +50,79 @@ pub fn ja_manifest() -> Vec<ModelFile> {
             sha256: "344fbb6b8bf18c57839e924e2c9365434697e0227fac00b88bb4899b78aa594d",
         },
     ]
+}
+
+/// Per-language CTC recognizer spec: filenames in the cache dir + input height.
+pub struct CtcSpec {
+    pub rec_onnx: &'static str,
+    pub dict: &'static str,
+    pub input_h: u32,
+}
+
+/// CTC spec for ko/zh (PaddleOCR PP-OCRv5). None for non-CTC languages (ja).
+pub fn ctc_spec(lang: &str) -> Option<CtcSpec> {
+    match lang {
+        // input_h = 48 confirmed by reading the ONNX graph input dim for BOTH
+        // models (the monkt config.json's "32" is stale; the graph says 48).
+        "ko" | "zh" => Some(CtcSpec {
+            rec_onnx: "rec.onnx",
+            dict: "dict.txt",
+            input_h: 48,
+        }),
+        _ => None,
+    }
+}
+
+/// Korean model files (detector shared from models-ja-v1 + PP-OCRv5 KO rec).
+pub fn ko_manifest() -> Vec<ModelFile> {
+    vec![
+        ModelFile {
+            name: "comic-text-detector.onnx",
+            url: JA_DETECTOR_URL,
+            sha256: JA_DETECTOR_SHA,
+        },
+        ModelFile {
+            name: "rec.onnx",
+            url: "https://github.com/julianshen/readest/releases/download/models-ko-v1/rec.onnx",
+            sha256: "322f140154c820fcb83c3d24cfe42c9ec70dd1a1834163306a7338136e4f1eaa",
+        },
+        ModelFile {
+            name: "dict.txt",
+            url: "https://github.com/julianshen/readest/releases/download/models-ko-v1/dict.txt",
+            sha256: "a88071c68c01707489baa79ebe0405b7beb5cca229f4fc94cc3ef992328802d7",
+        },
+    ]
+}
+
+/// Chinese model files (detector shared + PP-OCRv5 mobile rec: Simplified+Traditional+JP).
+pub fn zh_manifest() -> Vec<ModelFile> {
+    vec![
+        ModelFile {
+            name: "comic-text-detector.onnx",
+            url: JA_DETECTOR_URL,
+            sha256: JA_DETECTOR_SHA,
+        },
+        ModelFile {
+            name: "rec.onnx",
+            url: "https://github.com/julianshen/readest/releases/download/models-zh-v1/rec.onnx",
+            sha256: "da72dc72ca4dc220df0dfde68c1dedc31c58d3e76a25871122e5056227d50092",
+        },
+        ModelFile {
+            name: "dict.txt",
+            url: "https://github.com/julianshen/readest/releases/download/models-zh-v1/dict.txt",
+            sha256: "d1979e9f794c464c0d2e0b70a7fe14dd978e9dc644c0e71f14158cdf8342af1b",
+        },
+    ]
+}
+
+/// Download manifest for a supported language; None if unsupported.
+pub fn manifest_for(lang: &str) -> Option<Vec<ModelFile>> {
+    match lang {
+        "ja" => Some(ja_manifest()),
+        "ko" => Some(ko_manifest()),
+        "zh" => Some(zh_manifest()),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -86,5 +160,29 @@ mod tests {
             );
             assert!(!entry.sha256.is_empty());
         }
+    }
+
+    #[test]
+    fn ko_zh_manifests_valid_and_share_detector() {
+        for manifest in [ko_manifest(), zh_manifest()] {
+            assert_eq!(manifest.len(), 3); // detector + rec.onnx + dict.txt
+            for e in &manifest {
+                assert_eq!(e.sha256.len(), 64, "{} sha len", e.name);
+                assert!(e.url.starts_with("https://"), "{} url", e.name);
+            }
+        }
+        assert_eq!(ko_manifest()[0].sha256, ja_manifest()[0].sha256);
+        assert_eq!(zh_manifest()[0].sha256, ja_manifest()[0].sha256);
+    }
+
+    #[test]
+    fn ctc_spec_and_manifest_for_dispatch() {
+        assert!(ctc_spec("ko").is_some());
+        assert!(ctc_spec("zh").is_some());
+        assert!(ctc_spec("ja").is_none());
+        assert!(manifest_for("ja").is_some());
+        assert!(manifest_for("ko").is_some());
+        assert!(manifest_for("zh").is_some());
+        assert!(manifest_for("xx").is_none());
     }
 }
