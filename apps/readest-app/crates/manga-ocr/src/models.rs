@@ -26,9 +26,10 @@ pub fn verify_sha256(bytes: &[u8], hex: &str) -> bool {
     hex::encode(digest).eq_ignore_ascii_case(hex)
 }
 
-const JA_DETECTOR_URL: &str =
-    "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.onnx";
-const JA_DETECTOR_SHA: &str = "1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f";
+// Dynamic-int8 quantized detector (53.4 MB vs 94.7 MB fp32); detection accuracy
+// preserved (verified). The cache filename stays `comic-text-detector.onnx`.
+const JA_DETECTOR_URL: &str = "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.int8.onnx";
+const JA_DETECTOR_SHA: &str = "d6b4b1136f028a65eade6316c9c7707fab2c59fa08d20b46a75e68b814773aa2";
 
 /// The 4 Japanese model files to download on first use.
 pub fn ja_manifest() -> Vec<ModelFile> {
