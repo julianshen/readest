@@ -96,18 +96,28 @@ const MangaBubbleToggler: React.FC<{ bookKey: string }> = ({ bookKey }) => {
             </button>
           </div>
           {menuOpen && (
-            <ul className='dropdown-content menu bg-base-200 rounded-box z-50 w-40 p-1 shadow'>
-              {OCR_LANGS.map(({ code, label }) => (
-                <li key={code}>
-                  <button
-                    className={resolved === code ? 'font-bold' : ''}
-                    onClick={() => pickLang(code)}
-                  >
-                    {_(label)}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <>
+              {/* Backdrop: closes the menu on an outside click/tap. */}
+              <button
+                type='button'
+                aria-hidden='true'
+                tabIndex={-1}
+                className='fixed inset-0 z-40 cursor-default'
+                onClick={() => setMenuOpen(false)}
+              />
+              <ul className='dropdown-content menu bg-base-200 rounded-box z-50 w-40 p-1 shadow'>
+                {OCR_LANGS.map(({ code, label }) => (
+                  <li key={code}>
+                    <button
+                      className={resolved === code ? 'font-bold' : ''}
+                      onClick={() => pickLang(code)}
+                    >
+                      {_(label)}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       )}
