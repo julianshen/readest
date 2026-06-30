@@ -98,10 +98,7 @@ pub struct Detector {
 impl Detector {
     /// Load the detector ONNX model from disk.
     pub fn load(path: &std::path::Path) -> Result<Self, String> {
-        let session = ort::session::Session::builder()
-            .map_err(|e| format!("ort builder: {e}"))?
-            .commit_from_file(path)
-            .map_err(|e| format!("ort load model: {e}"))?;
+        let session = crate::session::build_session(path)?;
         Ok(Self { session })
     }
 
