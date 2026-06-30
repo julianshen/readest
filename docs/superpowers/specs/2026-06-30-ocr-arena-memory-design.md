@@ -82,7 +82,7 @@ Data flow is unchanged. `build_session` returns `Result<ort::session::Session, S
 
 - **Regression:** `cargo test -p manga-ocr` and `cargo test -p manga-ocr --features onnx` must stay green. The pure-logic tests (NMS decode, CTC decode, argmax, greedy decode, manifests, preprocess) are unaffected; the change only touches session construction.
 - **E2E exercise:** the existing `#[ignore]` test `pipeline::tests::pipeline_detects_and_recognizes_sample_page` now routes session construction through `build_session`; run locally when models are available (optional, not part of CI).
-- **No new "arena disabled" unit test:** the arena setting is not observable from Rust without instrumenting the ORT C API. The on-device memory measurement (below) is the real verification.
+- **Helper round-trip test:** a unit test (`build_session_loads_and_runs_with_arena_disabled` in `session.rs`) builds a session via `build_session` against the embedded `add_one.onnx` fixture and asserts it loads + runs correctly (`y = x + 1`). This proves the arena-disabled session is functional and outputs are unaffected. It does *not* assert the arena flag itself — that setting isn't observable from Rust without instrumenting the ORT C API — so the **on-device memory measurement (below) remains the real verification of the memory win**.
 - `cargo fmt --check` and `cargo clippy` (CI `rust_lint`) must pass.
 
 ## Verification / Measurement Plan
