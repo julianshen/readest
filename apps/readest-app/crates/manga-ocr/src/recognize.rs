@@ -35,14 +35,8 @@ impl MangaOcrEngine {
         decoder_path: &Path,
         vocab_path: &Path,
     ) -> Result<Self, String> {
-        let encoder = ort::session::Session::builder()
-            .map_err(|e| format!("ort builder (encoder): {e}"))?
-            .commit_from_file(encoder_path)
-            .map_err(|e| format!("ort load encoder: {e}"))?;
-        let decoder = ort::session::Session::builder()
-            .map_err(|e| format!("ort builder (decoder): {e}"))?
-            .commit_from_file(decoder_path)
-            .map_err(|e| format!("ort load decoder: {e}"))?;
+        let encoder = crate::session::build_session(encoder_path)?;
+        let decoder = crate::session::build_session(decoder_path)?;
         let detok = crate::tokenizer::Detokenizer::from_vocab_file(vocab_path)?;
         Ok(Self {
             encoder,
@@ -151,10 +145,7 @@ pub struct CtcRecognizer {
 impl CtcRecognizer {
     /// Load the rec model + character dict. `input_h` comes from the model's config.
     pub fn load(rec_path: &Path, dict_path: &Path, input_h: u32) -> Result<Self, String> {
-        let session = ort::session::Session::builder()
-            .map_err(|e| format!("ort builder (rec): {e}"))?
-            .commit_from_file(rec_path)
-            .map_err(|e| format!("ort load rec: {e}"))?;
+        let session = crate::session::build_session(rec_path)?;
         // PaddleOCR convention: class 0 is blank; the dict file holds classes 1..N.
         let mut dict = vec!["<blank>".to_string()];
         let raw = std::fs::read_to_string(dict_path).map_err(|e| format!("read dict: {e}"))?;

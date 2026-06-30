@@ -9,4 +9,5 @@ pub mod pipeline;
 pub mod preprocess;
 pub mod recognize;
 pub mod runtime;
+pub mod session;
 pub mod tokenizer;
