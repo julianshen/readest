@@ -30,11 +30,13 @@ pub fn verify_sha256(bytes: &[u8], hex: &str) -> bool {
     hex::encode(digest).eq_ignore_ascii_case(hex)
 }
 
-// Dynamic-int8 quantized detector (53.4 MB vs 94.7 MB fp32); detection accuracy
-// preserved (verified). The cache filename stays `comic-text-detector.onnx`.
-const JA_DETECTOR_URL: &str = "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.int8.onnx";
-const JA_DETECTOR_SHA: &str = "d6b4b1136f028a65eade6316c9c7707fab2c59fa08d20b46a75e68b814773aa2";
-const JA_DETECTOR_SIZE: u64 = 53_352_863;
+// Int8 detector pruned to its only-used output (`blk`); the unused seg/det heads
+// — whose full-resolution upconv activations dominate the inference peak — are
+// removed via onnx.utils.extract_model. 8.2 MB (from 53.4 MB int8); `blk`
+// detection is bit-identical. The cache filename stays `comic-text-detector.onnx`.
+const JA_DETECTOR_URL: &str = "https://github.com/julianshen/readest/releases/download/models-ja-v1/comic-text-detector.blk-int8.onnx";
+const JA_DETECTOR_SHA: &str = "44be9c59b4923985aa1730afc6c50974b6a2c32a66959c83ff584424958bff00";
+const JA_DETECTOR_SIZE: u64 = 8_178_289;
 
 /// The 4 Japanese model files to download on first use.
 pub fn ja_manifest() -> Vec<ModelFile> {
@@ -237,8 +239,8 @@ mod tests {
                 assert!(e.size > 0, "{} must have a non-zero expected size", e.name);
             }
         }
-        // The detector size const is the int8 detector (53.4 MB), shared by all langs.
-        assert_eq!(JA_DETECTOR_SIZE, 53_352_863);
+        // The detector size const is the blk-only-pruned int8 detector (8.2 MB), shared by all langs.
+        assert_eq!(JA_DETECTOR_SIZE, 8_178_289);
         assert_eq!(ja_manifest()[0].size, JA_DETECTOR_SIZE);
         assert_eq!(ko_manifest()[0].size, JA_DETECTOR_SIZE);
         assert_eq!(zh_manifest()[0].size, JA_DETECTOR_SIZE);
