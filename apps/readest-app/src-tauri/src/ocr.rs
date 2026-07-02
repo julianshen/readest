@@ -62,26 +62,15 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
         };
         let target = cache_dir.join(f.name);
 
-        // Migration: if a shared file isn't in shared/ yet but a valid copy sits in
-        // the lang dir (pre-shared-cache layout), move it instead of re-downloading.
-        // On a successful move the file is present + already verified, so skip the
-        // re-read/re-hash below (avoids reading + hashing the 94 MB detector twice).
-        if f.is_shared() && !target.exists() {
-            let legacy = lang_dir.join(f.name);
-            if let Ok(bytes) = fs::read(&legacy) {
-                if manga_ocr::models::verify_sha256(&bytes, f.sha256)
-                    && fs::rename(&legacy, &target).is_ok()
-                {
-                    continue;
-                }
-            }
-        }
-
         if target.exists() {
             if let Ok(existing) = fs::read(&target) {
                 if manga_ocr::models::verify_sha256(&existing, f.sha256) {
                     if f.is_shared() {
-                        let _ = fs::remove_file(lang_dir.join(f.name)); // drop legacy orphan
+                        if let Err(e) = fs::remove_file(lang_dir.join(f.name)) {
+                            if e.kind() != std::io::ErrorKind::NotFound {
+                                log::warn!("failed to remove legacy detector orphan: {e}");
+                            }
+                        }
                     }
                     continue;
                 }
@@ -109,6 +98,7 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
             );
         }
         file.flush().map_err(|e| e.to_string())?;
+        drop(file); // close before rename — required on Windows
 
         let digest = hex::encode(hasher.finalize());
         if !digest.eq_ignore_ascii_case(f.sha256) {
@@ -118,7 +108,11 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
 
         fs::rename(&part, &target).map_err(|e| e.to_string())?;
         if f.is_shared() {
-            let _ = fs::remove_file(lang_dir.join(f.name)); // drop legacy orphan
+            if let Err(e) = fs::remove_file(lang_dir.join(f.name)) {
+                if e.kind() != std::io::ErrorKind::NotFound {
+                    log::warn!("failed to remove legacy detector orphan: {e}");
+                }
+            }
         }
     }
 
@@ -128,8 +122,9 @@ pub async fn ensure_ocr_models(app: tauri::AppHandle, lang: String) -> Result<()
 /// Cheap presence check: returns `true` when every model file for `lang` is on
 /// disk at its expected size (`ModelFile::size`), without reading or hashing it.
 /// The size check (not just existence) means a same-filename model swap — e.g. a
-/// stale 94 MB fp32 detector vs the 53 MB int8 — is treated as not-present so the
-/// frontend runs the download/migration flow instead of keeping the stale file.
+/// stale pre-prune detector (94 MB fp32 or 53 MB full-output int8) vs the current
+/// 8.2 MB blk-only detector — is treated as not-present so the frontend re-runs
+/// the download flow instead of keeping the stale file.
 #[tauri::command]
 pub async fn ocr_models_present(app: tauri::AppHandle, lang: String) -> Result<bool, String> {
     let Some(manifest) = manga_ocr::models::manifest_for(&lang) else {

@@ -44,6 +44,10 @@ jobs:
         working-directory: apps/readest-app/src-tauri
         run: cargo test -p Readest --lib
 
+      - name: manga-ocr crate tests
+        working-directory: apps/readest-app/src-tauri
+        run: cargo test -p manga-ocr
+
   build_web_app:
     runs-on: ubuntu-latest
     steps:
