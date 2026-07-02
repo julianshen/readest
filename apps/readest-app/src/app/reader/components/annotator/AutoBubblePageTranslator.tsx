@@ -94,10 +94,10 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
             type: 'error',
             timeout: 5000,
           });
-          un();
           return;
+        } finally {
+          un();
         }
-        un();
       }
     }
 

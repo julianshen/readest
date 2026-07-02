@@ -29,10 +29,10 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
-    fn build_session_loads_and_runs_with_arena_disabled() {
+    fn build_session_loads_and_runs() {
         // A session built with the CPU memory arena disabled must still load and
         // run a model correctly (outputs are unaffected by the allocation
-        // strategy). Uses the embedded add_one fixture (y = x + 1).
+        // strategy). Uses the add_one fixture file (y = x + 1).
         let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests-fixtures/add_one.onnx");
         let mut session = build_session(&fixture).expect("build_session should load the fixture");
         let y = crate::runtime::run_add_one(&mut session, vec![1.0, 2.0, 3.0]).expect("run");
