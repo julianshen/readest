@@ -234,7 +234,7 @@ mod tests {
     fn every_manifest_entry_has_a_plausible_size() {
         // `ocr_models_present` compares on-disk size against `ModelFile::size`,
         // so a zero expected size would make it treat a valid file as
-        // not-present forever (m.len() == 0 is false for any real file).
+        // not-present forever (a real file's on-disk size is never 0).
         for m in [ja_manifest(), ko_manifest(), zh_manifest()] {
             for e in &m {
                 assert!(e.size > 0, "{} must have a non-zero expected size", e.name);

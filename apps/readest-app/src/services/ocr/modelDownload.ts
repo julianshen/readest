@@ -7,8 +7,19 @@ export interface OcrModelProgress {
   total: number;
 }
 
-export const ensureOcrModels = (lang: string): Promise<void> =>
-  invoke('ensure_ocr_models', { lang });
+// Serialize model downloads process-wide. `BooksGrid` mounts one
+// `AutoBubblePageTranslator` per open book, and every language shares the
+// detector file, so concurrent `ensure` calls would race on the same
+// partial-download (`.part`) file. Chaining runs them one at a time regardless
+// of which component (or how many) invoked the download.
+let ensureChain: Promise<unknown> = Promise.resolve();
+
+export const ensureOcrModels = (lang: string): Promise<void> => {
+  const next = ensureChain.then(() => invoke<void>('ensure_ocr_models', { lang }));
+  // A failed download must not wedge the chain for the next caller.
+  ensureChain = next.catch(() => {});
+  return next;
+};
 
 export const ocrModelsPresent = (lang: string): Promise<boolean> =>
   invoke<boolean>('ocr_models_present', { lang });

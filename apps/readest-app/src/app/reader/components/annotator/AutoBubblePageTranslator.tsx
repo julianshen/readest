@@ -46,7 +46,6 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
   const [popup, setPopup] = useState<PopupState | null>(null);
   const [translating, setTranslating] = useState(false);
   const modelsReady = useRef<OcrSourceLang | null>(null);
-  const downloadingRef = useRef(false);
 
   // Drop markers/popup when the page turns: they're positioned against the
   // previous page's geometry, so they'd otherwise float over the new page.
@@ -65,19 +64,10 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
       if (present) {
         modelsReady.current = sourceLang;
       } else {
-        // A download is already in flight (e.g. a double-tap): starting a second
-        // concurrent ensureOcrModels would race on the same partial-download file.
-        // Bail — the in-flight one will finish and set modelsReady.
-        if (downloadingRef.current) return;
-        downloadingRef.current = true;
-
         const { ask } = await import('@tauri-apps/plugin-dialog');
         const langLabel = _(OCR_LANG_LABELS[sourceLang]);
         const ok = await ask(_('Download {{lang}} OCR models?', { lang: langLabel }));
-        if (!ok) {
-          downloadingRef.current = false;
-          return;
-        }
+        if (!ok) return;
 
         let lastPct = -1;
         const dispatchProgress = (pct: number) => {
@@ -107,7 +97,6 @@ const AutoBubblePageTranslator: React.FC<{ bookKey: string }> = ({ bookKey }) =>
           return;
         } finally {
           un();
-          downloadingRef.current = false;
         }
       }
     }
