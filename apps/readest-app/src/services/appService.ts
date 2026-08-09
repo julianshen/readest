@@ -1,4 +1,5 @@
 import { SystemSettings } from '@/types/settings';
+import { applySyncBooksAutoEnable } from '@/services/sync/cloudSyncProvider';
 import {
   AppPlatform,
   AppService,
@@ -66,7 +67,7 @@ export abstract class BaseAppService implements AppService {
   storefrontRegionCode: string | null = null;
   isOnlineCatalogsAccessible = true;
 
-  protected CURRENT_MIGRATION_VERSION = 20251124;
+  protected CURRENT_MIGRATION_VERSION = 20260706;
 
   protected abstract fs: FileSystem;
   protected abstract resolvePath(fp: string, base: BaseDir): ResolvedPath;
@@ -93,13 +94,35 @@ export abstract class BaseAppService implements AppService {
     opts?: DatabaseOpts,
   ): Promise<DatabaseService>;
 
-  protected async runMigrations(lastMigrationVersion: number): Promise<void> {
+  protected async runMigrations(
+    lastMigrationVersion: number,
+    settings?: SystemSettings,
+  ): Promise<void> {
     if (lastMigrationVersion < 20251124) {
       try {
         await this.migrate20251124();
       } catch (error) {
         console.error('Error migrating to version 20251124:', error);
       }
+    }
+    if (lastMigrationVersion < 20260706 && settings) {
+      try {
+        this.migrate20260706(settings);
+      } catch (error) {
+        console.error('Error migrating to version 20260706:', error);
+      }
+    }
+  }
+
+  /**
+   * Users with enabled third-party backends would otherwise have native
+   * Readest Cloud derived off while their legacy syncBooks default stays off.
+   * Mutate the migration snapshot once; the caller persists it with the
+   * migration version so ordinary settings loads preserve later opt-outs.
+   */
+  private migrate20260706(settings: SystemSettings): void {
+    if (applySyncBooksAutoEnable(settings)) {
+      console.log('Migration 20260706: enabled syncBooks for enabled cloud sync backends.');
     }
   }
 

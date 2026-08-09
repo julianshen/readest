@@ -10,7 +10,7 @@ export interface AuthRequest {
 
 /** Provider OAuth supplies an exact Android custom-scheme callback URI. */
 export interface CustomTabAuthRequest extends AuthRequest {
-  callbackUrl?: string;
+  callbackUrl: string;
 }
 
 export interface AuthResponse {

@@ -169,6 +169,7 @@
       "mobile": [
         { "scheme": ["https"], "host": "web.readest.com", "appLink": true },
         { "scheme": ["readest"], "appLink": false },
+        { "scheme": ["readest-onedrive"], "appLink": false },
         {
           "scheme": ["com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq"],
           "appLink": false
@@ -177,6 +178,7 @@
       "desktop": {
         "schemes": [
           "readest",
+          "readest-onedrive",
           "com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq"
         ]
       }

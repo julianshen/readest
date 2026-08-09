@@ -7,6 +7,8 @@ pub struct AuthRequest {
     pub auth_url: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_scheme: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub callback_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]

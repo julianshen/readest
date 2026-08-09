@@ -78,6 +78,7 @@ vi.mock('@/utils/book', () => ({
 }));
 
 import { WebAppService } from '@/services/webAppService';
+import * as Settings from '@/services/settingsService';
 import { isPWA } from '@/services/environment';
 import { getOSPlatform } from '@/utils/misc';
 
@@ -448,6 +449,34 @@ describe('WebAppService', () => {
           writable: true,
         });
       }
+    });
+  });
+
+  describe('settings migrations', () => {
+    test.each([
+      ['absent', { enabled: true }],
+      ['false', { enabled: true, syncBooks: false }],
+    ])('persists the syncBooks upgrade once when legacy WebDAV syncBooks is %s', async (_, webdav) => {
+      let persisted = {
+        localBooksDir: '',
+        migrationVersion: 20260000,
+        readestCloud: { enabled: false },
+        webdav,
+      } as Awaited<ReturnType<typeof Settings.loadSettings>>;
+      vi.mocked(Settings.loadSettings).mockImplementation(async () => persisted);
+      vi.mocked(Settings.saveSettings).mockImplementation(async (_fs, settings) => {
+        persisted = settings;
+      });
+
+      await (service as unknown as { runMigrations: () => Promise<void> }).runMigrations();
+
+      expect(persisted.migrationVersion).toBe(20260706);
+      expect(persisted.webdav?.syncBooks).toBe(true);
+      expect(Settings.saveSettings).toHaveBeenCalledTimes(1);
+
+      await (service as unknown as { runMigrations: () => Promise<void> }).runMigrations();
+
+      expect(Settings.saveSettings).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -64,6 +64,82 @@ fn auth_request_omits_an_unspecified_callback_scheme() {
 }
 
 #[test]
+fn android_oauth_callbacks_require_the_active_provider_target() {
+    let google: AuthRequest = serde_json::from_value(json!({
+        "authUrl": "https://provider.example/authorize",
+        "callbackUrl": "com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq:/oauthredirect"
+    }))
+    .unwrap();
+    let onedrive: AuthRequest = serde_json::from_value(json!({
+        "authUrl": "https://provider.example/authorize",
+        "callbackUrl": "readest-onedrive://auth"
+    }))
+    .unwrap();
+    let android_dir =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("android/src/main/java");
+    let kotlin_source = std::fs::read_to_string(android_dir.join("NativeBridgePlugin.kt")).unwrap();
+    let callback_target_source =
+        std::fs::read_to_string(android_dir.join("OAuthCallbackTarget.kt")).unwrap();
+    let auth_page_source = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../src/app/auth/page.tsx"),
+    )
+    .unwrap();
+    let kotlin_test_source =
+        std::fs::read_to_string(android_dir.join("../../test/java/OAuthCallbackTargetTest.kt"))
+            .unwrap();
+
+    assert_eq!(
+        serde_json::to_value(google).unwrap()["callbackUrl"],
+        "com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq:/oauthredirect"
+    );
+    assert_eq!(
+        serde_json::to_value(onedrive).unwrap()["callbackUrl"],
+        "readest-onedrive://auth"
+    );
+    assert!(kotlin_source.contains("var callbackUrl: String? = null"));
+    assert!(kotlin_source.contains("pendingAuthCallbackTarget"));
+    assert!(kotlin_source.contains("if (intent.action == Intent.ACTION_VIEW)"));
+    assert!(kotlin_source.contains("pendingAuthCallbackTarget?.matches(uri.toString()) == true"));
+    assert!(callback_target_source
+        .contains("fun matches(callbackUrl: String): Boolean = parse(callbackUrl) == this"));
+    assert!(callback_target_source.contains("scheme = scheme.lowercase(Locale.ROOT)"));
+    assert!(callback_target_source.contains("path = normalizeRootPath(uri.rawPath)"));
+    assert!(auth_page_source
+        .contains("authWithCustomTab({ authUrl: data.url, callbackUrl: redirectTo })"));
+    for fixture in [
+        "googleCallback_matchesItsReverseDnsSchemeAndRegisteredPath",
+        "oneDriveCallback_matchesOnlyItsExpectedHostAndRootPath",
+        "COM.GOOGLEUSERCONTENT.APPS",
+        "READEST-ONEDRIVE://auth/?code=CODE&state=STATE",
+        "readest-onedrive://attacker/?code=CODE",
+        "https://provider.example/oauthredirect?code=CODE",
+    ] {
+        assert!(kotlin_test_source.contains(fixture));
+    }
+    assert!(!kotlin_source.contains("uri.scheme == \"readest\""));
+    assert!(!kotlin_source.contains("scheme.startsWith(\"com.googleusercontent.apps.\")"));
+}
+
+#[test]
+fn desktop_deep_link_config_registers_all_oauth_schemes() {
+    let tauri_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let config: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(tauri_dir.join("tauri.conf.json")).unwrap())
+            .unwrap();
+    let schemes = config["plugins"]["deep-link"]["desktop"]["schemes"]
+        .as_array()
+        .unwrap();
+
+    for scheme in [
+        "readest",
+        "com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq",
+        "readest-onedrive",
+    ] {
+        assert!(schemes.iter().any(|registered| registered == scheme));
+    }
+}
+
+#[test]
 fn icloud_capability_and_apple_signing_include_container_access() {
     let tauri_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let capability: serde_json::Value = serde_json::from_str(

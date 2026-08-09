@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @InvokeArg
 class AuthRequestArgs {
     var authUrl: String? = null
+    var callbackUrl: String? = null
 }
 
 @InvokeArg
@@ -135,8 +136,6 @@ interface KeyDownInterceptor {
 )
 class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     private val implementation = NativeBridge()
-    private var redirectScheme = "readest"
-    private var redirectHost = "auth-callback"
     private val billingManager by lazy {
         BillingManager(activity)
     }
@@ -151,6 +150,7 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         private const val REQUEST_MANAGE_STORAGE = 1001
         private const val FOLDER_PICKER_REQUEST_CODE = 1002
         var pendingInvoke: Invoke? = null
+        private var pendingAuthCallbackTarget: OAuthCallbackTarget? = null
         var pendingFolderPickerInvoke: Invoke? = null
         private var instance: NativeBridgePlugin? = null
         fun getInstance(): NativeBridgePlugin? = instance
@@ -170,16 +170,20 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         if (intent == null) return
         Log.d("NativeBridgePlugin", "Received intent: action=${intent.action} data=${intent.data}")
 
-        // OAuth callback uses a custom scheme on intent.data and is handled
-        // separately from any user-shared content.
-        intent.data?.let { uri ->
-            if (uri.scheme == "readest" && uri.host == "auth-callback") {
-                val result = JSObject().apply {
-                    put("redirectUrl", uri.toString())
+        // Accept an OAuth callback only for the active authorization attempt.
+        // Its full provider callback target is checked before ordinary VIEW
+        // intents are forwarded as user-shared content.
+        if (intent.action == Intent.ACTION_VIEW) {
+            intent.data?.let { uri ->
+                if (pendingAuthCallbackTarget?.matches(uri.toString()) == true) {
+                    val result = JSObject().apply {
+                        put("redirectUrl", uri.toString())
+                    }
+                    pendingInvoke?.resolve(result)
+                    pendingInvoke = null
+                    pendingAuthCallbackTarget = null
+                    return
                 }
-                pendingInvoke?.resolve(result)
-                pendingInvoke = null
-                return
             }
         }
 
@@ -259,15 +263,25 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     @Command
     fun auth_with_custom_tab(invoke: Invoke) {
         val args = invoke.parseArgs(AuthRequestArgs::class.java)
+        val callbackTarget = args.callbackUrl?.let(OAuthCallbackTarget::parse)
+        if (callbackTarget == null) {
+            invoke.reject("Invalid OAuth callback URL")
+            return
+        }
         val uri = Uri.parse(args.authUrl)
-
         val customTabsIntent = CustomTabsIntent.Builder().build()
         customTabsIntent.intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
 
         Log.d("NativeBridgePlugin", "Launching OAuth URL: ${args.authUrl}")
-        customTabsIntent.launchUrl(activity, uri)
-
         pendingInvoke = invoke
+        pendingAuthCallbackTarget = callbackTarget
+        try {
+            customTabsIntent.launchUrl(activity, uri)
+        } catch (error: Exception) {
+            pendingInvoke = null
+            pendingAuthCallbackTarget = null
+            invoke.reject("Failed to launch OAuth URL: ${error.message}")
+        }
     }
 
     @Command
