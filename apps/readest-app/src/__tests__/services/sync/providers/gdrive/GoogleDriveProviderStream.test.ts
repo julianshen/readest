@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 // streaming methods, and stub the native transfer plugin.
 vi.mock('@/services/environment', () => ({ isTauriAppPlatform: () => true }));
 vi.mock('@/utils/transfer', () => ({
-  tauriUpload: vi.fn(async () => '{"id":"NID"}'),
+  tauriUpload: vi.fn(async () => ({ status: 200, body: '{"id":"NID"}' })),
   tauriDownload: vi.fn(async () => ({})),
 }));
 

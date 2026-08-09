@@ -15,6 +15,12 @@ export interface ProgressPayload {
 
 export type ProgressHandler = (progress: ProgressPayload) => void;
 
+/** Native upload response needed by resumable protocols to distinguish 202 from completion. */
+export interface UploadResponse {
+  status: number;
+  body: string;
+}
+
 export const webUpload = (file: File, uploadUrl: string, onProgress?: ProgressHandler) => {
   return new Promise<void>((resolve, reject) => {
     const startTime = Date.now();
@@ -98,8 +104,10 @@ export const tauriUpload = async (
   filePath: string,
   method: UploadMethod,
   progressHandler?: ProgressHandler,
-  headers?: Map<string, string>,
-): Promise<string> => {
+  headers?: Record<string, string>,
+  offset?: number,
+  length?: number,
+): Promise<UploadResponse> => {
   const ids = new Uint32Array(1);
   window.crypto.getRandomValues(ids);
   const id = ids[0];
@@ -109,12 +117,14 @@ export const tauriUpload = async (
     onProgress.onmessage = progressHandler;
   }
 
-  return await invoke('upload_file', {
+  return await invoke<UploadResponse>('upload_file', {
     id,
     url,
     filePath,
     method,
     headers: headers ?? {},
+    offset,
+    length,
     onProgress,
   });
 };

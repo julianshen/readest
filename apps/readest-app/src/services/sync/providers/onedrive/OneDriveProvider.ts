@@ -57,6 +57,9 @@ const HEAD_SELECT = 'size,cTag,file,folder';
 const MAX_BACKOFF_RETRIES = 4;
 const BASE_BACKOFF_MS = 500;
 const MS_PER_SEC = 1000;
+// Graph requires fragments below 60 MiB and every non-final fragment to be a
+// multiple of 320 KiB. Ten MiB is 32 × 320 KiB and Graph's recommended size.
+const UPLOAD_CHUNK_SIZE = 10 * 1024 * 1024;
 
 /** Graph error codes that are transient even under a 403 (throttling). */
 const THROTTLE_CODES = new Set(['activityLimitReached', 'quotaLimitReached']);
@@ -235,13 +238,9 @@ class OneDriveProviderImpl {
   // --- streaming (Tauri only) ----------------------------------------------
 
   /**
-   * Streaming upload: open a Graph upload session and PUT the whole file to
-   * the returned pre-authed `uploadUrl` straight from disk, so a gigabyte-scale
-   * book never lands in the JS heap (buffered {@link writeBinary} marshals the
-   * whole file across the WebView↔Rust bridge, which crashes the renderer on
-   * mobile). Unlike Drive's resumable session, Graph's single-PUT completion
-   * requires an explicit `Content-Range` naming the total size, so the local
-   * file size is read via the Tauri fs plugin before the PUT.
+   * Streaming upload: open a Graph upload session and stream each bounded
+   * fragment straight from disk. This keeps large files out of the JS heap and
+   * follows Graph's sequential, 320 KiB-aligned fragment requirements.
    *
    * Returns `true` on success, `false` on a swallowed failure (matching the
    * provider contract: the engine retries once, then falls back to buffered).
@@ -249,14 +248,65 @@ class OneDriveProviderImpl {
   async uploadStream(remotePath: string, localPath: string): Promise<boolean> {
     try {
       const size = (await stat(localPath)).size;
+      // Graph upload sessions cannot express an empty range. The regular
+      // content endpoint accepts a zero-length body and retains its authenticated
+      // request validation/retry behavior.
+      if (size === 0) {
+        await this.writeBinary(remotePath, new ArrayBuffer(0));
+        return true;
+      }
+
       const uploadUrl = await this.openUploadSession(remotePath);
-      await tauriUpload(uploadUrl, localPath, 'PUT', undefined, {
-        'Content-Range': `bytes 0-${size - 1}/${size}`,
-      } as unknown as Map<string, string>);
+      for (let offset = 0; offset < size; offset += UPLOAD_CHUNK_SIZE) {
+        const length = Math.min(UPLOAD_CHUNK_SIZE, size - offset);
+        await this.uploadFragment(uploadUrl, localPath, offset, length, size);
+      }
       return true;
     } catch (e) {
       console.warn('OneDriveProvider.uploadStream failed', remotePath, e);
       return false;
+    }
+  }
+
+  /** Upload one Graph session fragment, retrying only rejected native requests. */
+  private async uploadFragment(
+    uploadUrl: string,
+    localPath: string,
+    offset: number,
+    length: number,
+    totalSize: number,
+  ): Promise<void> {
+    const headers = {
+      'Content-Range': `bytes ${offset}-${offset + length - 1}/${totalSize}`,
+    };
+    const response = await this.uploadWithBackoff(uploadUrl, localPath, headers, offset, length);
+    const isFinal = offset + length === totalSize;
+    const complete = response.status === 200 || response.status === 201;
+    // Graph returns 202 while it expects another sequential fragment, and
+    // 200/201 only after it has committed the final fragment.
+    if ((isFinal && !complete) || (!isFinal && response.status !== 202)) {
+      throw new Error(
+        `OneDrive upload: unexpected HTTP ${response.status} for ${
+          isFinal ? 'final' : 'intermediate'
+        } fragment`,
+      );
+    }
+  }
+
+  private async uploadWithBackoff(
+    uploadUrl: string,
+    localPath: string,
+    headers: Record<string, string>,
+    offset: number,
+    length: number,
+  ) {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await tauriUpload(uploadUrl, localPath, 'PUT', undefined, headers, offset, length);
+      } catch (e) {
+        if (attempt >= MAX_BACKOFF_RETRIES) throw e;
+        await this.sleep(BASE_BACKOFF_MS * 2 ** attempt);
+      }
     }
   }
 

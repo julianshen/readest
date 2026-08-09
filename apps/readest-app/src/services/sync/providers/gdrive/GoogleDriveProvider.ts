@@ -728,9 +728,9 @@ class DriveProviderImpl {
         remotePath,
       );
 
-      const responseBody = await tauriUpload(sessionUri, localPath, 'PUT', undefined, {
+      const { body: responseBody } = await tauriUpload(sessionUri, localPath, 'PUT', undefined, {
         [CONTENT_TYPE_HEADER]: DEFAULT_BINARY_CONTENT_TYPE,
-      } as unknown as Map<string, string>);
+      });
 
       // Overwrite preserves the file id; a new file's id is in the completion
       // body. Cache it so a following head/read skips re-walking the tree;

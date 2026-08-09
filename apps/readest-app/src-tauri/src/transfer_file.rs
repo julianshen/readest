@@ -11,7 +11,7 @@ use serde::{ser::Serializer, Serialize};
 use tauri::{command, ipc::Channel};
 use tokio::{
     fs::File,
-    io::{AsyncWriteExt, BufWriter},
+    io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, BufWriter},
 };
 use tokio_util::codec::{BytesCodec, FramedRead};
 
@@ -101,6 +101,13 @@ pub struct ProgressPayload {
     transfer_speed: u64,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UploadResponse {
+    status: u16,
+    body: String,
+}
+
 #[command]
 pub async fn download_file(
     url: &str,
@@ -113,8 +120,6 @@ pub async fn download_file(
 ) -> Result<HashMap<String, String>> {
     use futures::stream::{self, StreamExt};
     use std::cmp::min;
-    use tokio::io::AsyncSeekExt;
-
     const PART_SIZE: u64 = 1024 * 1024;
 
     let client = reqwest::ClientBuilder::new()
@@ -283,10 +288,11 @@ pub async fn upload_file(
     file_path: &str,
     method: &str,
     headers: HashMap<String, String>,
+    offset: Option<u64>,
+    length: Option<u64>,
     on_progress: Channel<ProgressPayload>,
-) -> Result<String> {
-    let file = File::open(file_path).await?;
-    let file_len = file.metadata().await.unwrap().len();
+) -> Result<UploadResponse> {
+    let (file, upload_length) = open_upload_range(file_path, offset, length).await?;
 
     let client = reqwest::Client::new();
     let mut request = match method.to_uppercase().as_str() {
@@ -296,16 +302,20 @@ pub async fn upload_file(
     };
 
     request = request
-        .header(reqwest::header::CONTENT_LENGTH, file_len)
-        .body(file_to_body(on_progress.clone(), file, file_len));
+        .header(reqwest::header::CONTENT_LENGTH, upload_length)
+        .body(file_to_body(on_progress.clone(), file, upload_length));
 
     for (key, value) in headers {
         request = request.header(&key, value);
     }
 
     let response = request.send().await?;
-    if response.status().is_success() {
-        response.text().await.map_err(Into::into)
+    let status = response.status();
+    if status.is_success() {
+        Ok(UploadResponse {
+            status: status.as_u16(),
+            body: response.text().await?,
+        })
     } else {
         Err(Error::HttpErrorCode(
             response.status().as_u16(),
@@ -314,7 +324,39 @@ pub async fn upload_file(
     }
 }
 
-fn file_to_body(channel: Channel<ProgressPayload>, file: File, file_len: u64) -> reqwest::Body {
+async fn open_upload_range(
+    file_path: &str,
+    offset: Option<u64>,
+    length: Option<u64>,
+) -> Result<(tokio::io::Take<File>, u64)> {
+    let mut file = File::open(file_path).await?;
+    let file_len = file.metadata().await?.len();
+    let offset = offset.unwrap_or(0);
+    if offset > file_len {
+        return Err(Error::ContentLength(format!(
+            "Upload offset {offset} exceeds file length {file_len}"
+        )));
+    }
+
+    let length = length.unwrap_or(file_len - offset);
+    let end = offset
+        .checked_add(length)
+        .ok_or_else(|| Error::ContentLength("Upload range overflows u64".into()))?;
+    if end > file_len {
+        return Err(Error::ContentLength(format!(
+            "Upload range {offset}..{end} exceeds file length {file_len}"
+        )));
+    }
+
+    file.seek(std::io::SeekFrom::Start(offset)).await?;
+    Ok((file.take(length), length))
+}
+
+fn file_to_body(
+    channel: Channel<ProgressPayload>,
+    file: tokio::io::Take<File>,
+    file_len: u64,
+) -> reqwest::Body {
     let stream = FramedRead::new(file, BytesCodec::new()).map_ok(|r| r.freeze());
 
     let mut stats = TransferStats::default();
@@ -329,4 +371,69 @@ fn file_to_body(channel: Channel<ProgressPayload>, file: File, file_len: u64) ->
             });
         }),
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::open_upload_range;
+    use futures_util::TryStreamExt;
+    use std::{
+        fs,
+        time::{SystemTime, UNIX_EPOCH},
+    };
+    use tokio_util::codec::{BytesCodec, FramedRead};
+
+    #[test]
+    fn upload_range_streams_only_the_requested_disk_slice() {
+        let path = std::env::temp_dir().join(format!(
+            "readest-upload-range-{}-{}.bin",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos(),
+        ));
+        fs::write(&path, b"0123456789").unwrap();
+
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let result = runtime.block_on(async {
+            let (file, length) =
+                open_upload_range(path.to_str().unwrap(), Some(3), Some(4)).await?;
+            let chunks = FramedRead::new(file, BytesCodec::new())
+                .map_ok(|chunk| chunk.freeze())
+                .try_collect::<Vec<_>>()
+                .await?;
+            Ok::<_, super::Error>((length, chunks.concat()))
+        });
+        fs::remove_file(&path).unwrap();
+
+        let (length, body) = result.unwrap();
+        assert_eq!(length, 4);
+        assert_eq!(body, b"3456");
+    }
+
+    #[test]
+    fn upload_range_rejects_a_slice_past_end_of_file() {
+        let path = std::env::temp_dir().join(format!(
+            "readest-upload-range-invalid-{}-{}.bin",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos(),
+        ));
+        fs::write(&path, b"0123456789").unwrap();
+
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let result = runtime.block_on(open_upload_range(path.to_str().unwrap(), Some(8), Some(3)));
+        fs::remove_file(&path).unwrap();
+
+        assert!(result.is_err());
+    }
 }
