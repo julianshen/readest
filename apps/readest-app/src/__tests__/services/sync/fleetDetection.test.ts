@@ -59,7 +59,7 @@ describe('checkMixedFleetOnce', () => {
 
     expect(await checkMixedFleetOnce(client, settings, translationFn)).toBe(true);
 
-    expect(client.pullChanges).toHaveBeenCalledWith(12345, 'books', undefined, undefined, 1);
+    expect(client.pullChanges).toHaveBeenCalledWith(12345, 'books');
     expect(vi.mocked(eventDispatcher.dispatch)).toHaveBeenCalledWith(
       'toast',
       expect.objectContaining({
@@ -125,7 +125,7 @@ describe('checkMixedFleetOnce', () => {
     } as unknown as SystemSettings;
 
     expect(await checkMixedFleetOnce({ pullChanges } as never, settings, translationFn)).toBe(true);
-    expect(pullChanges).toHaveBeenCalledWith(5000, 'books', undefined, undefined, 1);
+    expect(pullChanges).toHaveBeenCalledWith(5000, 'books');
   });
 
   test('falls back to the earliest providerSelectedAt for a legacy user', async () => {
@@ -141,6 +141,6 @@ describe('checkMixedFleetOnce', () => {
     } as unknown as SystemSettings;
 
     await checkMixedFleetOnce({ pullChanges } as never, settings, translationFn);
-    expect(pullChanges).toHaveBeenCalledWith(3000, 'books', undefined, undefined, 1);
+    expect(pullChanges).toHaveBeenCalledWith(3000, 'books');
   });
 });
