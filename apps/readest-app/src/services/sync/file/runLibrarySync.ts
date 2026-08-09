@@ -73,6 +73,7 @@ const syncOneBackend = async (
   envConfig: EnvConfigType,
   kind: FileSyncBackendKind,
   _: TranslationFunc,
+  concurrency: number,
 ): Promise<SyncLibraryResult | null> => {
   const appService = await envConfig.getAppService();
   const current = useSettingsStore.getState().settings;
@@ -94,7 +95,7 @@ const syncOneBackend = async (
     strategy: strategy === 'prompt' ? 'silent' : strategy,
     syncBooks: ps?.syncBooks ?? false,
     fullSync: false,
-    concurrency: 6,
+    concurrency,
     deviceId,
     onProgress: ({ index, total, action }) => {
       const label = action === 'downloading' ? _('Downloading') : _('Uploading');
@@ -133,14 +134,26 @@ const syncOneBackend = async (
  * if a dead mirror takes the live one down with it. Returns the summed result
  * of the backends that succeeded, or null when none did.
  */
+export interface FileLibrarySyncPassOptions {
+  /** Restrict a pass to specific active backends (for a provider's manual UI). */
+  backends?: readonly FileSyncBackendKind[];
+  /** Provider concurrency; manual WebDAV stays sequential for server safety. */
+  concurrency?: number;
+}
+
 export const runFileLibrarySyncPass = async (
   envConfig: EnvConfigType,
   _: TranslationFunc,
+  options: FileLibrarySyncPassOptions = {},
 ): Promise<SyncLibraryResult | null> => {
   // Paused means paused (#4959): a downgraded account's still-enabled backends
   // must not sync, and must not fall back to Readest Cloud either.
-  const backends = getActiveFileSyncBackends(useSettingsStore.getState().settings);
+  const activeBackends = getActiveFileSyncBackends(useSettingsStore.getState().settings);
+  const backends = options.backends
+    ? activeBackends.filter((kind) => options.backends?.includes(kind))
+    : activeBackends;
   if (backends.length === 0) return null;
+  const concurrency = Math.max(1, options.concurrency ?? 6);
 
   // NEVER sync a library that is not loaded from disk: pushing an empty index
   // would clobber the remote.
@@ -154,7 +167,7 @@ export const runFileLibrarySyncPass = async (
       const kind = backends[i]!;
       if (i > 0) useFileSyncStore.getState().switchSync(kind, _('Syncing…'));
       try {
-        const result = await syncOneBackend(envConfig, kind, _);
+        const result = await syncOneBackend(envConfig, kind, _, concurrency);
         useFileSyncStore.getState().setLastError(kind, null);
         if (result) {
           merged = merged

@@ -109,6 +109,19 @@ describe('runFileLibrarySyncPass', () => {
     expect(result?.booksSynced).toBe(2);
   });
 
+  test('supports a sequential WebDAV-only manual pass', async () => {
+    await runFileLibrarySyncPass(envConfig, translationFn, {
+      backends: ['webdav'],
+      concurrency: 1,
+    });
+
+    expect(syncLibrary).toHaveBeenCalledTimes(1);
+    expect(syncLibrary).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ concurrency: 1 }),
+    );
+  });
+
   test('holds the mutex for the whole pass', async () => {
     let lockedDuringPass: boolean | null = null;
     syncLibrary.mockImplementation(async () => {
