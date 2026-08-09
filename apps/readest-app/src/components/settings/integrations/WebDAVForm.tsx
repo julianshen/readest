@@ -16,7 +16,8 @@ import {
 } from '@/services/webdav/WebDAVClient';
 import { type TranslationFunc } from '@/hooks/useTranslation';
 import { runFileLibrarySyncPass } from '@/services/sync/file/runLibrarySync';
-import { buildWebDAVConnectSettings } from '@/services/webdav/webdavConnectSettings';
+import { buildWebDAVConnectSettings } from '@/services/sync/providers/webdav/connectSettings';
+import { persistCloudProviderEnabled } from '@/services/sync/cloudSyncActivation';
 import {
   WEBDAV_SYNC_LOG_LIMIT,
   WebDAVSyncLogEntry,
@@ -151,17 +152,15 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
     // syncProgress, syncNotes, lastSyncedAt, syncLog. Rotating deviceId
     // on reconnect would make this device look new to the cross-device
     // clobber check in `RemoteBookConfig.writerDeviceId`.
-    const newSettings = {
-      ...settings,
-      webdav: buildWebDAVConnectSettings(settings.webdav, {
+    await persistCloudProviderEnabled(envConfig, 'webdav', true, (current) => ({
+      ...current,
+      webdav: buildWebDAVConnectSettings(current.webdav, {
         serverUrl: url,
         username,
         password,
         rootPath: normalizedRoot,
       }),
-    };
-    setSettings(newSettings);
-    await saveSettings(envConfig, newSettings);
+    }));
     setIsConnecting(false);
     eventDispatcher.dispatch('toast', { type: 'info', message: _('Connected') });
   };

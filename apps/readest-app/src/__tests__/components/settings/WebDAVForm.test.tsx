@@ -6,9 +6,13 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useLibraryStore } from '@/store/libraryStore';
 
 const runFileLibrarySyncPassMock = vi.hoisted(() => vi.fn());
+const checkConnectionMock = vi.hoisted(() => vi.fn());
 const saveSettingsMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const appService = vi.hoisted(() => ({
+  saveSettings: vi.fn().mockResolvedValue(undefined),
+}));
 const envConfig = vi.hoisted(() => ({
-  getAppService: vi.fn().mockResolvedValue({}),
+  getAppService: vi.fn().mockResolvedValue(appService),
 }));
 
 vi.mock('@/hooks/useTranslation', () => ({
@@ -26,6 +30,11 @@ vi.mock('@/services/environment', async (importOriginal) => ({
 
 vi.mock('@/services/sync/file/runLibrarySync', () => ({
   runFileLibrarySyncPass: runFileLibrarySyncPassMock,
+}));
+
+vi.mock('@/services/webdav/WebDAVClient', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/services/webdav/WebDAVClient')>()),
+  checkConnection: checkConnectionMock,
 }));
 
 vi.mock('@/utils/event', () => ({
@@ -57,6 +66,7 @@ const successfulResult = {
 
 const setConfiguredSettings = (enabled = true) => {
   const settings = {
+    version: 1,
     webdav: {
       enabled,
       serverUrl: enabled ? 'https://dav.example.test' : '',
@@ -78,12 +88,63 @@ const setConfiguredSettings = (enabled = true) => {
 
 beforeEach(() => {
   runFileLibrarySyncPassMock.mockReset();
+  checkConnectionMock.mockReset();
+  checkConnectionMock.mockResolvedValue({ success: true });
   saveSettingsMock.mockClear();
+  appService.saveSettings.mockClear();
   setConfiguredSettings();
   useLibraryStore.setState({ library: [], libraryLoaded: true });
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
+
+describe('WebDAVForm connection', () => {
+  test('activates book sync and persists once after a successful connection', async () => {
+    const now = 1_700_000_000_000;
+    vi.spyOn(Date, 'now').mockReturnValue(now);
+    setConfiguredSettings(false);
+
+    render(<WebDAVForm onBack={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Server URL'), {
+      target: { value: 'https://dav.example.test' },
+    });
+    fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'alice' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret' } });
+    fireEvent.change(screen.getByLabelText('Root Directory'), { target: { value: '/books/' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Connect' }));
+
+    await waitFor(() =>
+      expect(useSettingsStore.getState().settings.webdav).toMatchObject({
+        enabled: true,
+        syncBooks: true,
+        providerSelectedAt: now,
+      }),
+    );
+
+    expect(checkConnectionMock).toHaveBeenCalledWith(
+      {
+        serverUrl: 'https://dav.example.test',
+        username: 'alice',
+        password: 'secret',
+      },
+      '/books',
+    );
+    expect(appService.saveSettings).toHaveBeenCalledTimes(1);
+    expect(appService.saveSettings).toHaveBeenCalledWith(
+      expect.objectContaining({
+        webdav: expect.objectContaining({
+          enabled: true,
+          syncBooks: true,
+          providerSelectedAt: now,
+        }),
+      }),
+    );
+    expect(saveSettingsMock).not.toHaveBeenCalled();
+  });
+});
 
 describe('WebDAVForm manual sync', () => {
   test('uses the provider runner and records a successful manual history entry', async () => {
