@@ -9,11 +9,12 @@ import { SYNC_BOOKS_INTERVAL_SEC } from '@/services/constants';
 import { throttle } from '@/utils/throttle';
 import { debounce } from '@/utils/debounce';
 import { eventDispatcher } from '@/utils/event';
+import { runFileLibrarySyncPass } from '@/services/sync/file/runLibrarySync';
 
 export const useBooksSync = () => {
   const _ = useTranslation();
   const { user } = useAuth();
-  const { appService } = useEnv();
+  const { envConfig, appService } = useEnv();
   const { library, isSyncing, libraryLoaded } = useLibraryStore();
   const { setLibrary, setIsSyncing, setSyncProgress } = useLibraryStore();
   const { useSyncInited, syncedBooks, syncBooks, lastSyncedAtBooks } = useSync();
@@ -74,10 +75,12 @@ export const useBooksSync = () => {
       async () => {
         if (isPullingRef.current) return;
         const newBooks = getNewBooks();
-        if (!newBooks.lastSyncedAt) return;
         isPullingRef.current = true;
         try {
-          await syncBooks(newBooks.books, 'both');
+          if (user && newBooks.books?.length) {
+            await syncBooks(newBooks.books, 'both');
+          }
+          await runFileLibrarySyncPass(envConfig, _);
         } finally {
           isPullingRef.current = false;
         }
@@ -85,14 +88,13 @@ export const useBooksSync = () => {
       SYNC_BOOKS_INTERVAL_SEC * 1000,
       { emitLast: true },
     ),
-    [syncBooks],
+    [syncBooks, user, getNewBooks, envConfig, _],
   );
 
   useEffect(() => {
-    if (!user) return;
     if (isPullingRef.current) return;
     handleAutoSync();
-  }, [user, library, handleAutoSync]);
+  }, [library, handleAutoSync]);
 
   const pushLibrary = useCallback(async () => {
     if (!user) return;

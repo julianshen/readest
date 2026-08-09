@@ -36,8 +36,11 @@ import { useTheme } from '@/hooks/useTheme';
 import { useUICSS } from '@/hooks/useUICSS';
 import { useDemoBooks } from './hooks/useDemoBooks';
 import { useBooksSync } from './hooks/useBooksSync';
+import { createLibraryRefreshHandler } from './refreshLibrarySync';
 import { useInboxDrainer } from '@/hooks/useInboxDrainer';
 import { useOPDSSubscriptions } from '@/hooks/useOPDSSubscriptions';
+import { runFileLibrarySyncPass } from '@/services/sync/file/runLibrarySync';
+import { hasAnyThirdPartyEnabled } from '@/services/sync/cloudSyncProvider';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useTransferStore } from '@/store/transferStore';
 import { useScreenWakeLock } from '@/hooks/useScreenWakeLock';
@@ -254,22 +257,32 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
 
   usePullToRefresh(
     scrollRef,
-    async () => {
-      if (!user) {
-        navigateToLogin(router);
-        return;
-      }
-      await pullLibrary(false, true);
-      checkOPDSSubscriptions(true);
-    },
-    async () => {
-      if (!user) {
-        navigateToLogin(router);
-        return;
-      }
-      await pullLibrary(true, true);
-      checkOPDSSubscriptions(true);
-    },
+    createLibraryRefreshHandler({
+      user,
+      settings,
+      envConfig,
+      translate: _,
+      router,
+      pullLibrary,
+      checkOPDSSubscriptions,
+      fullRefresh: false,
+      hasAnyThirdPartyEnabled,
+      runFileLibrarySyncPass,
+      navigateToLogin,
+    }),
+    createLibraryRefreshHandler({
+      user,
+      settings,
+      envConfig,
+      translate: _,
+      router,
+      pullLibrary,
+      checkOPDSSubscriptions,
+      fullRefresh: true,
+      hasAnyThirdPartyEnabled,
+      runFileLibrarySyncPass,
+      navigateToLogin,
+    }),
   );
   useScreenWakeLock(settings.screenWakeLock);
 
