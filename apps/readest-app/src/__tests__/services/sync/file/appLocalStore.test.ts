@@ -86,6 +86,29 @@ describe('createAppLocalStore — library hydration (data-loss guard)', () => {
     expect(savedLibrary!.map((b) => b.hash).sort()).toEqual(['a', 'b', 'c']);
   });
 
+  test('keeps every concurrent remote download in the live library', async () => {
+    useLibraryStore.getState().setLibrary([makeBook('a'), makeBook('b')]);
+    const store = makeStore();
+
+    await Promise.all([
+      store.addBookToLibrary(makeBook('remote-c')),
+      store.addBookToLibrary(makeBook('remote-d')),
+    ]);
+
+    expect(
+      useLibraryStore
+        .getState()
+        .library.map((book) => book.hash)
+        .sort(),
+    ).toEqual(['a', 'b', 'remote-c', 'remote-d']);
+    expect(savedLibrary!.map((book) => book.hash).sort()).toEqual([
+      'a',
+      'b',
+      'remote-c',
+      'remote-d',
+    ]);
+  });
+
   test('deleteBookLocally removes the managed copy and persists the tombstone (#4860)', async () => {
     useLibraryStore.getState().setLibrary([makeBook('a'), makeBook('b')]);
 

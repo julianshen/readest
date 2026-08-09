@@ -1,6 +1,7 @@
 import type { EnvConfigType } from '@/services/environment';
 import type { TranslationFunc } from '@/hooks/useTranslation';
 import type { SystemSettings } from '@/types/settings';
+import { isReadestCloudEnabled } from '@/services/sync/cloudSyncProvider';
 
 type RunFileLibrarySyncPass =
   typeof import('@/services/sync/file/runLibrarySync').runFileLibrarySyncPass;
@@ -42,7 +43,7 @@ export const createLibraryRefreshHandler = ({
     }
 
     await runFileLibrarySyncPass(envConfig, translate);
-    if (user) {
+    if (user && isReadestCloudEnabled(settings)) {
       await pullLibrary(fullRefresh, true);
     }
     await checkOPDSSubscriptions(true);

@@ -20,6 +20,12 @@ const webdavSettings = {
 
 const noThirdPartySettings = { version: 1 } as SystemSettings;
 
+const nativeCloudDisabledSettings: SystemSettings = {
+  ...noThirdPartySettings,
+  readestCloud: { enabled: false },
+  webdav: { ...noThirdPartySettings.webdav, enabled: true },
+};
+
 describe('library pull-to-refresh sync', () => {
   beforeEach(() => {
     h.runFileLibrarySyncPass.mockReset().mockResolvedValue(null);
@@ -78,6 +84,36 @@ describe('library pull-to-refresh sync', () => {
     expect(h.runFileLibrarySyncPass).not.toHaveBeenCalled();
     expect(h.pullLibrary).not.toHaveBeenCalled();
     expect(h.checkOPDSSubscriptions).not.toHaveBeenCalled();
+  });
+
+  test('runs file sync and OPDS refresh without a native pull when Readest Cloud is disabled', async () => {
+    const events: string[] = [];
+    h.runFileLibrarySyncPass.mockImplementation(async () => {
+      events.push('file');
+      return null;
+    });
+    h.checkOPDSSubscriptions.mockImplementation(async () => {
+      events.push('opds');
+    });
+    const refresh = createLibraryRefreshHandler({
+      user: { id: 'user-1' },
+      settings: nativeCloudDisabledSettings,
+      envConfig: h.envConfig,
+      translate: h.translate,
+      router: h.router,
+      pullLibrary: h.pullLibrary,
+      checkOPDSSubscriptions: h.checkOPDSSubscriptions,
+      fullRefresh: false,
+      hasAnyThirdPartyEnabled,
+      runFileLibrarySyncPass: h.runFileLibrarySyncPass,
+      navigateToLogin: h.navigateToLogin,
+    });
+
+    await refresh();
+
+    expect(h.navigateToLogin).not.toHaveBeenCalled();
+    expect(h.pullLibrary).not.toHaveBeenCalled();
+    expect(events).toEqual(['file', 'opds']);
   });
 
   test.each([

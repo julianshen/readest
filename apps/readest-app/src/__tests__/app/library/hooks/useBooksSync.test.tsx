@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import { useLibraryStore } from '@/store/libraryStore';
+import { useSettingsStore } from '@/store/settingsStore';
 
 const h = vi.hoisted(() => ({
   user: null as { id: string } | null,
@@ -45,6 +46,9 @@ describe('useBooksSync auto-sync', () => {
     h.user = null;
     h.syncBooks.mockReset().mockResolvedValue(0);
     h.runFileLibrarySyncPass.mockReset().mockResolvedValue(null);
+    useSettingsStore.setState((state) => ({
+      settings: { ...state.settings, readestCloud: { enabled: true } },
+    }));
     useLibraryStore.setState({
       library: [
         {
@@ -72,6 +76,25 @@ describe('useBooksSync auto-sync', () => {
     await waitFor(() =>
       expect(h.runFileLibrarySyncPass).toHaveBeenCalledWith(h.envConfig, expect.any(Function)),
     );
+    expect(h.syncBooks).not.toHaveBeenCalled();
+  });
+
+  test('keeps third-party file sync independent when signed in with Readest Cloud disabled', async () => {
+    h.user = { id: 'user-1' };
+    useSettingsStore.setState((state) => ({
+      settings: {
+        ...state.settings,
+        readestCloud: { enabled: false },
+        webdav: { ...state.settings.webdav, enabled: true },
+      },
+    }));
+
+    const { result } = renderHook(() => useBooksSync());
+
+    await waitFor(() => expect(h.runFileLibrarySyncPass).toHaveBeenCalledTimes(1));
+    await result.current.pullLibrary();
+    await result.current.pushLibrary();
+
     expect(h.syncBooks).not.toHaveBeenCalled();
   });
 
