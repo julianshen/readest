@@ -45,6 +45,18 @@ export const EMAIL_IN_PLANS: readonly UserPlan[] = ['plus', 'pro', 'purchase'];
 export const isEmailInPlan = (plan: UserPlan): boolean =>
   (EMAIL_IN_PLANS as readonly UserPlan[]).includes(plan);
 
+/** Paid plans that can use third-party cloud sync. */
+export const CLOUD_SYNC_PLANS: readonly UserPlan[] = ['plus', 'pro', 'purchase'];
+
+export const isCloudSyncInPlan = (plan: UserPlan): boolean =>
+  (CLOUD_SYNC_PLANS as readonly UserPlan[]).includes(plan);
+
+/** Mirrors upstream's current cloud-sync entitlement policy. */
+export const CLOUD_SYNC_REQUIRES_PREMIUM = true;
+
+export const isCloudSyncAllowed = (plan: UserPlan): boolean =>
+  !CLOUD_SYNC_REQUIRES_PREMIUM || isCloudSyncInPlan(plan);
+
 export const STORAGE_QUOTA_GRACE_BYTES = 10 * 1024 * 1024; // 10 MB grace
 
 export const getStoragePlanData = (token: string) => {

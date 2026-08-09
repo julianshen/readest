@@ -264,7 +264,66 @@ export async function isSyncKeychainAvailable(): Promise<SyncKeychainAvailableRe
   return invoke<SyncKeychainAvailableResponse>('plugin:native-bridge|is_sync_keychain_available');
 }
 
+export interface SetSecureItemRequest {
+  key: string;
+  value: string;
+}
+
+export interface GetSecureItemRequest {
+  key: string;
+}
+
+export interface SecureItemResponse {
+  success: boolean;
+  error?: string;
+}
+
+export interface GetSecureItemResponse {
+  value?: string;
+  error?: string;
+}
+
+export async function setSecureItem(request: SetSecureItemRequest): Promise<SecureItemResponse> {
+  return invoke<SecureItemResponse>('plugin:native-bridge|set_secure_item', { payload: request });
+}
+
+export async function getSecureItem(request: GetSecureItemRequest): Promise<GetSecureItemResponse> {
+  return invoke<GetSecureItemResponse>('plugin:native-bridge|get_secure_item', {
+    payload: request,
+  });
+}
+
+export async function clearSecureItem(request: GetSecureItemRequest): Promise<SecureItemResponse> {
+  return invoke<SecureItemResponse>('plugin:native-bridge|clear_secure_item', { payload: request });
+}
+
 // === Eink/EPD Bridge ===
+
+export interface ICloudContainerStatusResponse {
+  available: boolean;
+  documentsPath?: string;
+}
+
+export interface ICloudEnsureDownloadedRequest {
+  path: string;
+  timeoutMs?: number;
+}
+
+export interface ICloudEnsureDownloadedResponse {
+  status: 'ready' | 'notFound' | 'timeout';
+}
+
+export async function getICloudContainerStatus(): Promise<ICloudContainerStatusResponse> {
+  return invoke<ICloudContainerStatusResponse>('plugin:native-bridge|icloud_container_status');
+}
+
+export async function icloudEnsureDownloaded(
+  request: ICloudEnsureDownloadedRequest,
+): Promise<ICloudEnsureDownloadedResponse> {
+  return invoke<ICloudEnsureDownloadedResponse>('plugin:native-bridge|icloud_ensure_downloaded', {
+    payload: request,
+  });
+}
 
 export interface EpdCapabilities {
   available: boolean;
