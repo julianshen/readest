@@ -55,7 +55,7 @@ export const getReadyFileSyncBackends = (
   getActiveFileSyncBackends(settings, plan).filter((k) => canBackendRun(k));
 
 /** Build one backend's engine, or null when it cannot run here. */
-const buildEngine = async (
+export const buildFileSyncEngine = async (
   envConfig: EnvConfigType,
   kind: FileSyncBackendKind,
 ): Promise<FileSyncEngine | null> => {
@@ -77,7 +77,7 @@ const syncOneBackend = async (
 ): Promise<SyncLibraryResult | null> => {
   const appService = await envConfig.getAppService();
   const current = useSettingsStore.getState().settings;
-  const engine = await buildEngine(envConfig, kind);
+  const engine = await buildFileSyncEngine(envConfig, kind);
   if (!engine) return null;
 
   const key = settingsKeyForBackend(kind);
@@ -200,7 +200,7 @@ export const runFileBookUpload = async (envConfig: EnvConfigType, book: Book): P
   let anyUploaded = false;
   for (const kind of backends) {
     try {
-      const engine = await buildEngine(envConfig, kind);
+      const engine = await buildFileSyncEngine(envConfig, kind);
       if (!engine) continue;
       const result = await engine.pushBookFile(book);
       if (!result.uploaded && result.reason !== 'remote-matches') continue;
@@ -231,7 +231,7 @@ export const runFileBookDownload = async (
   const backends = getActiveFileSyncBackends(useSettingsStore.getState().settings);
   for (const kind of backends) {
     try {
-      const engine = await buildEngine(envConfig, kind);
+      const engine = await buildFileSyncEngine(envConfig, kind);
       if (!engine) continue;
       if (!(await engine.downloadBookFile(book))) continue;
       book.downloadedAt = Date.now();

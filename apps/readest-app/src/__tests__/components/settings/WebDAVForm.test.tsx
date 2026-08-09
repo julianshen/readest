@@ -4,10 +4,8 @@ import type { SystemSettings } from '@/types/settings';
 import WebDAVForm from '@/components/settings/integrations/WebDAVForm';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useLibraryStore } from '@/store/libraryStore';
-import { useWebDAVSyncStore } from '@/store/webdavSyncStore';
 
 const runFileLibrarySyncPassMock = vi.hoisted(() => vi.fn());
-const legacySyncLibraryMock = vi.hoisted(() => vi.fn());
 const saveSettingsMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const envConfig = vi.hoisted(() => ({
   getAppService: vi.fn().mockResolvedValue({}),
@@ -28,10 +26,6 @@ vi.mock('@/services/environment', async (importOriginal) => ({
 
 vi.mock('@/services/sync/file/runLibrarySync', () => ({
   runFileLibrarySyncPass: runFileLibrarySyncPassMock,
-}));
-
-vi.mock('@/services/webdav/WebDAVSync', () => ({
-  syncLibrary: legacySyncLibraryMock,
 }));
 
 vi.mock('@/utils/event', () => ({
@@ -84,11 +78,9 @@ const setConfiguredSettings = (enabled = true) => {
 
 beforeEach(() => {
   runFileLibrarySyncPassMock.mockReset();
-  legacySyncLibraryMock.mockReset();
   saveSettingsMock.mockClear();
   setConfiguredSettings();
   useLibraryStore.setState({ library: [], libraryLoaded: true });
-  useWebDAVSyncStore.setState({ isSyncing: false, progressLabel: null, startedAt: null });
 });
 
 afterEach(cleanup);
@@ -96,7 +88,6 @@ afterEach(cleanup);
 describe('WebDAVForm manual sync', () => {
   test('uses the provider runner and records a successful manual history entry', async () => {
     runFileLibrarySyncPassMock.mockResolvedValue(successfulResult);
-    legacySyncLibraryMock.mockResolvedValue(successfulResult);
 
     render(<WebDAVForm onBack={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Sync now' }));
@@ -118,7 +109,6 @@ describe('WebDAVForm manual sync', () => {
 
   test('records a failed manual run in WebDAV history', async () => {
     runFileLibrarySyncPassMock.mockRejectedValue(new Error('network down'));
-    legacySyncLibraryMock.mockRejectedValue(new Error('network down'));
 
     render(<WebDAVForm onBack={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Sync now' }));
