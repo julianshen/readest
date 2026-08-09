@@ -289,6 +289,35 @@ impl<R: Runtime> NativeBridge<R> {
 }
 
 impl<R: Runtime> NativeBridge<R> {
+    pub fn set_secure_item(
+        &self,
+        payload: SetSecureItemRequest,
+    ) -> crate::Result<SecureItemResponse> {
+        self.0
+            .run_mobile_plugin("set_secure_item", payload)
+            .map_err(Into::into)
+    }
+
+    pub fn get_secure_item(
+        &self,
+        payload: GetSecureItemRequest,
+    ) -> crate::Result<GetSecureItemResponse> {
+        self.0
+            .run_mobile_plugin("get_secure_item", payload)
+            .map_err(Into::into)
+    }
+
+    pub fn clear_secure_item(
+        &self,
+        payload: GetSecureItemRequest,
+    ) -> crate::Result<SecureItemResponse> {
+        self.0
+            .run_mobile_plugin("clear_secure_item", payload)
+            .map_err(Into::into)
+    }
+}
+
+impl<R: Runtime> NativeBridge<R> {
     /// Open a full-screen `WKWebView` / `WebView` over the main app,
     /// navigate to `payload.url` with a real Chrome UA, wait for load
     /// + settle, then return `document.documentElement.outerHTML`. The
@@ -298,6 +327,23 @@ impl<R: Runtime> NativeBridge<R> {
     pub fn clip_url(&self, payload: ClipUrlRequest) -> crate::Result<ClipUrlResponse> {
         self.0
             .run_mobile_plugin("clip_url", payload)
+            .map_err(Into::into)
+    }
+}
+
+impl<R: Runtime> NativeBridge<R> {
+    pub fn icloud_container_status(&self) -> crate::Result<ICloudContainerStatusResponse> {
+        self.0
+            .run_mobile_plugin("icloud_container_status", ())
+            .map_err(Into::into)
+    }
+
+    pub fn icloud_ensure_downloaded(
+        &self,
+        payload: ICloudEnsureDownloadedRequest,
+    ) -> crate::Result<ICloudEnsureDownloadedResponse> {
+        self.0
+            .run_mobile_plugin("icloud_ensure_downloaded", payload)
             .map_err(Into::into)
     }
 }

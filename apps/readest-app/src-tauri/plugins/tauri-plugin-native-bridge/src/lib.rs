@@ -84,6 +84,11 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             commands::get_sync_passphrase,
             commands::clear_sync_passphrase,
             commands::is_sync_keychain_available,
+            commands::set_secure_item,
+            commands::get_secure_item,
+            commands::clear_secure_item,
+            commands::icloud_container_status,
+            commands::icloud_ensure_downloaded,
         ])
         .setup(|app, api| {
             #[cfg(mobile)]

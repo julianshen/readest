@@ -977,6 +977,64 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         invoke.resolve(ret)
     }
 
+    private val secureItemsPrefsName = "readest_secure_items_v1"
+
+    private fun openSecureItemsPrefs(): android.content.SharedPreferences {
+        val masterKey = androidx.security.crypto.MasterKey.Builder(activity)
+            .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        return androidx.security.crypto.EncryptedSharedPreferences.create(
+            activity,
+            secureItemsPrefsName,
+            masterKey,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
+    }
+
+    @Command
+    fun set_secure_item(invoke: Invoke) {
+        val args = invoke.parseArgs(SecureItemSetArgs::class.java)
+        val ret = JSObject()
+        try {
+            openSecureItemsPrefs().edit().putString(args.key, args.value).apply()
+            ret.put("success", true)
+        } catch (e: Exception) {
+            Log.e("NativeBridgePlugin", "set_secure_item failed", e)
+            ret.put("success", false)
+            ret.put("error", e.message ?: "unknown")
+        }
+        invoke.resolve(ret)
+    }
+
+    @Command
+    fun get_secure_item(invoke: Invoke) {
+        val args = invoke.parseArgs(SecureItemGetArgs::class.java)
+        val ret = JSObject()
+        try {
+            openSecureItemsPrefs().getString(args.key, null)?.let { ret.put("value", it) }
+        } catch (e: Exception) {
+            Log.e("NativeBridgePlugin", "get_secure_item failed", e)
+            ret.put("error", e.message ?: "unknown")
+        }
+        invoke.resolve(ret)
+    }
+
+    @Command
+    fun clear_secure_item(invoke: Invoke) {
+        val args = invoke.parseArgs(SecureItemGetArgs::class.java)
+        val ret = JSObject()
+        try {
+            openSecureItemsPrefs().edit().remove(args.key).apply()
+            ret.put("success", true)
+        } catch (e: Exception) {
+            Log.e("NativeBridgePlugin", "clear_secure_item failed", e)
+            ret.put("success", false)
+            ret.put("error", e.message ?: "unknown")
+        }
+        invoke.resolve(ret)
+    }
+
     /**
      * Hand a selected word off to whatever dictionary / lookup app the
      * user has installed, via the standard `ACTION_PROCESS_TEXT`
@@ -1086,4 +1144,15 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
 @app.tauri.annotation.InvokeArg
 class SyncPassphraseSetArgs {
     lateinit var passphrase: String
+}
+
+@app.tauri.annotation.InvokeArg
+class SecureItemSetArgs {
+    lateinit var key: String
+    lateinit var value: String
+}
+
+@app.tauri.annotation.InvokeArg
+class SecureItemGetArgs {
+    lateinit var key: String
 }

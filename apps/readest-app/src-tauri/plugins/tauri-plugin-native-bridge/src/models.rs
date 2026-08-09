@@ -5,6 +5,8 @@ use std::collections::HashMap;
 #[serde(rename_all = "camelCase")]
 pub struct AuthRequest {
     pub auth_url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub callback_scheme: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
@@ -336,4 +338,53 @@ pub struct ClipUrlResponse {
 pub struct SyncKeychainAvailableResponse {
     pub available: bool,
     pub error: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SetSecureItemRequest {
+    pub key: String,
+    pub value: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSecureItemRequest {
+    pub key: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SecureItemResponse {
+    pub success: bool,
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSecureItemResponse {
+    pub value: Option<String>,
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ICloudContainerStatusResponse {
+    pub available: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub documents_path: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ICloudEnsureDownloadedRequest {
+    pub path: String,
+    #[serde(default)]
+    pub timeout_ms: Option<u64>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ICloudEnsureDownloadedResponse {
+    pub status: String,
 }
