@@ -181,12 +181,11 @@ export const createAppLocalStore = ({
     },
 
     deleteBookLocally: async (book) => {
-      // Remove this device's managed copy of the book file (cloudService.deleteBook
-      // with 'local' only ever touches app-managed Books/<hash>/ sources; an
-      // in-place / external original is left untouched). The tombstone itself is
+      // A peer tombstone may remove this device's managed Books/<hash>/ copy,
+      // never the user's in-place external original. The tombstone itself is
       // set by the engine before this call — we just persist it.
       try {
-        await appService.deleteBook(book, 'local');
+        await appService.deleteBook({ ...book, filePath: undefined }, 'local');
       } catch (e) {
         console.warn('createAppLocalStore: local book delete failed', book.hash, e);
       }

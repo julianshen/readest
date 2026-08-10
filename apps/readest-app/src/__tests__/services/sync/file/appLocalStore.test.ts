@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Book } from '@/types/book';
-import type { AppService } from '@/types/system';
+import type { AppService, FileSystem } from '@/types/system';
 import type { SystemSettings } from '@/types/settings';
 import type { EnvConfigType } from '@/services/environment';
 import { useLibraryStore } from '@/store/libraryStore';
+import { deleteBook as deleteLocalBook } from '@/services/cloudService';
 import { createAppLocalStore } from '@/services/sync/file/appLocalStore';
+import { getLocalBookFilename } from '@/utils/book';
 
 /**
  * Regression test for the library-clobber data-loss path: when "Sync now"
@@ -109,16 +111,31 @@ describe('createAppLocalStore — library hydration (data-loss guard)', () => {
     ]);
   });
 
-  test('deleteBookLocally removes the managed copy and persists the tombstone (#4860)', async () => {
+  test('remote tombstone preserves its external original and persists the tombstone (#4860)', async () => {
+    const externalOriginal = '/Users/reader/Calibre/Book a.epub';
+    const managedCopy = getLocalBookFilename(makeBook('a'));
+    const removeFile = vi.fn(async () => {});
+    const fs = {
+      // The managed copy is already gone, but the external original still exists.
+      exists: vi.fn(
+        async (path: string, base: string) => path === externalOriginal && base === 'None',
+      ),
+      removeFile,
+    } as unknown as FileSystem;
+    appService.deleteBook = vi.fn((book, action) => deleteLocalBook(fs, book, action));
     useLibraryStore.getState().setLibrary([makeBook('a'), makeBook('b')]);
 
-    await makeStore().deleteBookLocally(makeBook('a', { deletedAt: 500 }));
+    await makeStore().deleteBookLocally(
+      makeBook('a', { deletedAt: 500, filePath: externalOriginal }),
+    );
 
-    // The managed local copy is removed via the 'local' delete action.
+    // Tombstone propagation may attempt the managed location, never the external original.
     expect(appService.deleteBook).toHaveBeenCalledWith(
-      expect.objectContaining({ hash: 'a' }),
+      expect.objectContaining({ filePath: undefined, hash: 'a' }),
       'local',
     );
+    expect(fs.exists).toHaveBeenCalledWith(managedCopy, 'Books');
+    expect(removeFile).not.toHaveBeenCalledWith(externalOriginal, 'None');
     // The tombstone is persisted and the other book survives.
     expect(savedLibrary!.map((b) => b.hash).sort()).toEqual(['a', 'b']);
     expect(savedLibrary!.find((b) => b.hash === 'a')!.deletedAt).toBe(500);
