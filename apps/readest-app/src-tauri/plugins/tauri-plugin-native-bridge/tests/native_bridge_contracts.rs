@@ -80,12 +80,17 @@ fn android_oauth_callbacks_require_the_active_provider_target() {
     let kotlin_source = std::fs::read_to_string(android_dir.join("NativeBridgePlugin.kt")).unwrap();
     let callback_target_source =
         std::fs::read_to_string(android_dir.join("OAuthCallbackTarget.kt")).unwrap();
+    let pending_request_source =
+        std::fs::read_to_string(android_dir.join("OAuthPendingRequest.kt")).unwrap();
     let auth_page_source = std::fs::read_to_string(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../src/app/auth/page.tsx"),
     )
     .unwrap();
     let kotlin_test_source =
         std::fs::read_to_string(android_dir.join("../../test/java/OAuthCallbackTargetTest.kt"))
+            .unwrap();
+    let pending_request_test_source =
+        std::fs::read_to_string(android_dir.join("../../test/java/OAuthPendingRequestTest.kt"))
             .unwrap();
 
     assert_eq!(
@@ -97,9 +102,12 @@ fn android_oauth_callbacks_require_the_active_provider_target() {
         "readest-onedrive://auth"
     );
     assert!(kotlin_source.contains("var callbackUrl: String? = null"));
-    assert!(kotlin_source.contains("pendingAuthCallbackTarget"));
+    assert!(kotlin_source.contains("private const val OAUTH_CALLBACK_TIMEOUT_MS = 5 * 60 * 1000L"));
+    assert!(kotlin_source.contains("OAuthPendingRequest<Invoke>"));
+    assert!(kotlin_source.contains("OAuth authorization already in progress"));
+    assert!(kotlin_source.contains("OAuth authorization timed out"));
     assert!(kotlin_source.contains("if (intent.action == Intent.ACTION_VIEW)"));
-    assert!(kotlin_source.contains("pendingAuthCallbackTarget?.matches(uri.toString()) == true"));
+    assert!(kotlin_source.contains("pendingAuthRequest.takeMatching(uri.toString())"));
     assert!(callback_target_source
         .contains("fun matches(callbackUrl: String): Boolean = parse(callbackUrl) == this"));
     assert!(callback_target_source.contains("scheme = scheme.lowercase(Locale.ROOT)"));
@@ -108,14 +116,30 @@ fn android_oauth_callbacks_require_the_active_provider_target() {
         .contains("authWithCustomTab({ authUrl: data.url, callbackUrl: redirectTo })"));
     for fixture in [
         "googleCallback_matchesItsReverseDnsSchemeAndRegisteredPath",
+        "supabaseCallback_matchesOnlyItsRegisteredDestination",
         "oneDriveCallback_matchesOnlyItsExpectedHostAndRootPath",
         "COM.GOOGLEUSERCONTENT.APPS",
         "READEST-ONEDRIVE://auth/?code=CODE&state=STATE",
         "readest-onedrive://attacker/?code=CODE",
         "https://provider.example/oauthredirect?code=CODE",
+        "readest://auth-callback#access_token=ACCESS&refresh_token=REFRESH",
     ] {
         assert!(kotlin_test_source.contains(fixture));
     }
+    for fixture in [
+        "timeout_clearsTheRequestAndAllowsAnotherAuthorization",
+        "replacement_doesNotOverwriteTheActiveAuthorization",
+        "exactCallback_clearsTheRequestAndCancelsItsDeadline",
+        "callbackCleanup_ignoresRepeatedCallbackAndCancelledDeadline",
+        "arbitraryCallback_leavesTheActiveAuthorizationUntouched",
+    ] {
+        assert!(pending_request_test_source.contains(fixture));
+    }
+    assert!(pending_request_source.contains("interface OAuthDeadlineScheduler"));
+    assert!(pending_request_source.contains("interface OAuthDeadline"));
+    assert!(pending_request_source.contains("fun begin("));
+    assert!(pending_request_source.contains("fun takeMatching("));
+    assert!(pending_request_source.contains("fun remove("));
     assert!(!kotlin_source.contains("uri.scheme == \"readest\""));
     assert!(!kotlin_source.contains("scheme.startsWith(\"com.googleusercontent.apps.\")"));
 }

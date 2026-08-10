@@ -25,6 +25,17 @@ class OAuthCallbackTargetTest {
     }
 
     @Test
+    fun supabaseCallback_matchesOnlyItsRegisteredDestination() {
+        val target = OAuthCallbackTarget.parse("readest://auth-callback")
+
+        assertNotNull(target)
+        assertTrue(target!!.matches("readest://auth-callback#access_token=ACCESS&refresh_token=REFRESH"))
+        assertFalse(target.matches("readest://attacker#access_token=ACCESS"))
+        assertFalse(target.matches("readest-other://auth-callback#access_token=ACCESS"))
+        assertFalse(target.matches("readest://auth-callback-other#access_token=ACCESS"))
+    }
+
+    @Test
     fun oneDriveCallback_matchesOnlyItsExpectedHostAndRootPath() {
         val target = OAuthCallbackTarget.parse("readest-onedrive://auth")
 

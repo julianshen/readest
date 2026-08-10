@@ -7,6 +7,8 @@ import android.net.Uri
 import android.util.Log
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.provider.DocumentsContract
 import android.view.View
@@ -149,8 +151,24 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     companion object {
         private const val REQUEST_MANAGE_STORAGE = 1001
         private const val FOLDER_PICKER_REQUEST_CODE = 1002
-        var pendingInvoke: Invoke? = null
-        private var pendingAuthCallbackTarget: OAuthCallbackTarget? = null
+        private const val OAUTH_CALLBACK_TIMEOUT_MS = 5 * 60 * 1000L
+        private val oauthHandler = Handler(Looper.getMainLooper())
+        private val pendingAuthRequest by lazy {
+            OAuthPendingRequest<Invoke>(
+                scheduler = object : OAuthDeadlineScheduler {
+                    override fun schedule(delayMs: Long, action: () -> Unit): OAuthDeadline {
+                        val runnable = Runnable { action() }
+                        oauthHandler.postDelayed(runnable, delayMs)
+                        return object : OAuthDeadline {
+                            override fun cancel() {
+                                oauthHandler.removeCallbacks(runnable)
+                            }
+                        }
+                    }
+                },
+                timeoutMs = OAUTH_CALLBACK_TIMEOUT_MS,
+            )
+        }
         var pendingFolderPickerInvoke: Invoke? = null
         private var instance: NativeBridgePlugin? = null
         fun getInstance(): NativeBridgePlugin? = instance
@@ -175,13 +193,12 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         // intents are forwarded as user-shared content.
         if (intent.action == Intent.ACTION_VIEW) {
             intent.data?.let { uri ->
-                if (pendingAuthCallbackTarget?.matches(uri.toString()) == true) {
+                val invoke = pendingAuthRequest.takeMatching(uri.toString())
+                if (invoke != null) {
                     val result = JSObject().apply {
                         put("redirectUrl", uri.toString())
                     }
-                    pendingInvoke?.resolve(result)
-                    pendingInvoke = null
-                    pendingAuthCallbackTarget = null
+                    invoke.resolve(result)
                     return
                 }
             }
@@ -272,15 +289,21 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         val customTabsIntent = CustomTabsIntent.Builder().build()
         customTabsIntent.intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
 
+        if (!pendingAuthRequest.begin(invoke, callbackTarget) { timedOutInvoke ->
+                timedOutInvoke.reject("OAuth authorization timed out")
+            }
+        ) {
+            invoke.reject("OAuth authorization already in progress")
+            return
+        }
+
         Log.d("NativeBridgePlugin", "Launching OAuth URL: ${args.authUrl}")
-        pendingInvoke = invoke
-        pendingAuthCallbackTarget = callbackTarget
         try {
             customTabsIntent.launchUrl(activity, uri)
         } catch (error: Exception) {
-            pendingInvoke = null
-            pendingAuthCallbackTarget = null
-            invoke.reject("Failed to launch OAuth URL: ${error.message}")
+            if (pendingAuthRequest.remove(invoke)) {
+                invoke.reject("Failed to launch OAuth URL: ${error.message}")
+            }
         }
     }
 
@@ -873,7 +896,6 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         }
 
         invoke.resolve(result)
-        pendingInvoke = null
     }
 
     private fun extractPathFromUri(uri: Uri): String? {
