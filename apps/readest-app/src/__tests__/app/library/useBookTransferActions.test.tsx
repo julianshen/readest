@@ -122,16 +122,46 @@ describe('useBookTransferActions upload routing (issue #5062)', () => {
 });
 
 describe('useBookTransferActions download routing (issue #5062)', () => {
-  it('uses the native (queue-backed) path when the book is already in Readest Cloud storage', async () => {
+  it('uses an enabled file backend before native storage because uploadedAt has shared provenance', async () => {
     routing.readestEnabled = true;
     routing.backends = ['webdav'];
 
-    const { result } = setup();
+    const { result, updateBook } = setup();
     const book = makeBook({ uploadedAt: 12345 });
     const ok = await result.current.handleBookDownload(book, { queued: true });
 
-    expect(runFileBookDownload).not.toHaveBeenCalled();
+    expect(runFileBookDownload).toHaveBeenCalledWith(envConfig, book);
+    expect(queueDownload).not.toHaveBeenCalled();
+    expect(updateBook).toHaveBeenCalledWith(envConfig, book);
+    expect(ok).toBe(true);
+  });
+
+  it('queues native download after enabled file backends miss', async () => {
+    routing.readestEnabled = true;
+    routing.backends = ['webdav'];
+    runFileBookDownload.mockResolvedValueOnce(false);
+    const { result } = setup();
+    const book = makeBook({ uploadedAt: 12345 });
+
+    const ok = await result.current.handleBookDownload(book, { queued: true, silent: true });
+
+    expect(runFileBookDownload).toHaveBeenCalledWith(envConfig, book);
     expect(queueDownload).toHaveBeenCalledWith(book, 1);
+    expect(ok).toBe(true);
+  });
+
+  it('uses native immediate download after enabled file backends miss', async () => {
+    routing.readestEnabled = true;
+    routing.backends = ['webdav'];
+    runFileBookDownload.mockResolvedValueOnce(false);
+    const appService = { downloadBook } as unknown as AppService;
+    const { result } = setup(appService);
+    const book = makeBook({ uploadedAt: 12345 });
+
+    const ok = await result.current.handleBookDownload(book, { queued: false, silent: true });
+
+    expect(runFileBookDownload).toHaveBeenCalledWith(envConfig, book);
+    expect(downloadBook).toHaveBeenCalled();
     expect(ok).toBe(true);
   });
 
@@ -210,26 +240,33 @@ describe('useBookTransferActions third-party-only restore (finding 3744450943)',
     });
   });
 
-  it('does not touch the library row and reports failure when the native download throws', async () => {
+  it('falls back to a file backend when native immediate download throws', async () => {
     routing.readestEnabled = true;
-    routing.backends = [];
+    routing.backends = ['webdav'];
+    runFileBookDownload.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     downloadBook.mockRejectedValueOnce(new Error('network down'));
     const appService = { downloadBook } as unknown as AppService;
-    const dispatchSpy = vi.spyOn(eventDispatcher, 'dispatch');
 
     const { result, updateBook } = setup(appService);
     const book = makeBook({ uploadedAt: 12345 });
-    const ok = await result.current.handleBookDownload(book, { queued: false });
+    const ok = await result.current.handleBookDownload(book, { queued: false, silent: true });
 
     expect(downloadBook).toHaveBeenCalled();
-    expect(runFileBookDownload).not.toHaveBeenCalled();
-    expect(updateBook).not.toHaveBeenCalled();
+    expect(runFileBookDownload).toHaveBeenCalledTimes(2);
+    expect(updateBook).toHaveBeenCalledWith(envConfig, book);
+    expect(ok).toBe(true);
+  });
+
+  it('reports no-provider downloads as a failure without queueing native work', async () => {
+    routing.readestEnabled = false;
+    routing.backends = [];
+    const dispatchSpy = vi.spyOn(eventDispatcher, 'dispatch');
+
+    const { result } = setup();
+    const ok = await result.current.handleBookDownload(makeBook(), { queued: true });
+
+    expect(queueDownload).not.toHaveBeenCalled();
     expect(ok).toBe(false);
-    const toastCalls = dispatchSpy.mock.calls.filter(([event]) => event === 'toast');
-    expect(toastCalls).toHaveLength(1);
-    expect(toastCalls[0]?.[1]).toMatchObject({
-      type: 'error',
-      message: 'Failed to download book: Title',
-    });
+    expect(dispatchSpy).toHaveBeenCalledWith('toast', expect.objectContaining({ type: 'info' }));
   });
 });

@@ -111,6 +111,34 @@ describe('createAppLocalStore — library hydration (data-loss guard)', () => {
     ]);
   });
 
+  test('serializes concurrent metadata saves so neither update is lost', async () => {
+    useLibraryStore.getState().setLibrary([makeBook('a'), makeBook('b')]);
+    let releaseFirstSave!: () => void;
+    const firstSave = new Promise<void>((resolve) => {
+      releaseFirstSave = resolve;
+    });
+    let saveCount = 0;
+    appService.saveLibraryBooks = vi.fn(async (books: Book[]) => {
+      saveCount += 1;
+      if (saveCount === 1) await firstSave;
+      savedLibrary = books;
+    });
+    const store = makeStore();
+
+    const first = store.updateBookMetadata(makeBook('a', { title: 'Updated A' }));
+    await vi.waitFor(() => expect(saveCount).toBe(1));
+    const second = store.updateBookMetadata(makeBook('b', { title: 'Updated B' }));
+    await Promise.resolve();
+    expect(saveCount).toBe(1);
+
+    releaseFirstSave();
+    await Promise.all([first, second]);
+
+    expect(saveCount).toBe(2);
+    expect(savedLibrary!.find((book) => book.hash === 'a')!.title).toBe('Updated A');
+    expect(savedLibrary!.find((book) => book.hash === 'b')!.title).toBe('Updated B');
+  });
+
   test('remote tombstone preserves its external original and persists the tombstone (#4860)', async () => {
     const externalOriginal = '/Users/reader/Calibre/Book a.epub';
     const managedCopy = getLocalBookFilename(makeBook('a'));

@@ -12,6 +12,7 @@ import { hasValidWebDriveToken } from '@/services/sync/providers/gdrive/auth/web
 import { isICloudSupportedPlatform } from '@/services/sync/providers/icloud/buildICloudProvider';
 import {
   getActiveFileSyncBackends,
+  getEnabledFileSyncBackends,
   settingsKeyForBackend,
 } from '@/services/sync/cloudSyncProvider';
 import {
@@ -215,6 +216,60 @@ export const runFileBookUpload = async (envConfig: EnvConfigType, book: Book): P
     }
   }
   return anyUploaded;
+};
+
+/** A single file backend's failure during explicit remote deletion. */
+export interface FileBookDeleteFailure {
+  kind: FileSyncBackendKind;
+  reason: string;
+}
+
+export interface FileBookDeleteResult {
+  attempted: FileSyncBackendKind[];
+  published: FileSyncBackendKind[];
+  /** Greatest remote tombstone timestamp published by this run. */
+  maxTombstoneAt?: number;
+  succeeded: FileSyncBackendKind[];
+  failed: FileBookDeleteFailure[];
+}
+
+/**
+ * Delete one book's remote copy from every enabled file backend. Each engine
+ * owns its backend's tombstone/index update and managed directory cleanup;
+ * failures are isolated so one unavailable mirror cannot hide other results.
+ */
+export const runFileBookDelete = async (
+  envConfig: EnvConfigType,
+  book: Book,
+): Promise<FileBookDeleteResult> => {
+  const result: FileBookDeleteResult = { attempted: [], published: [], succeeded: [], failed: [] };
+  const backends = getEnabledFileSyncBackends(useSettingsStore.getState().settings);
+  for (const kind of backends) {
+    result.attempted.push(kind);
+    try {
+      const engine = await buildFileSyncEngine(envConfig, kind);
+      if (!engine) {
+        result.failed.push({ kind, reason: 'Provider unavailable' });
+        continue;
+      }
+      const deletion = await engine.deleteBookFile(book);
+      if (deletion.tombstonePublished) {
+        result.published.push(kind);
+        if (deletion.tombstoneAt !== undefined) {
+          result.maxTombstoneAt = Math.max(result.maxTombstoneAt ?? 0, deletion.tombstoneAt);
+        }
+      }
+      if (deletion.tombstonePublished && deletion.directoryDeleted) {
+        result.succeeded.push(kind);
+      } else {
+        result.failed.push({ kind, reason: deletion.reason ?? 'Remote deletion failed' });
+      }
+    } catch (e) {
+      result.failed.push({ kind, reason: e instanceof Error ? e.message : String(e) });
+      console.warn('[cloudSync] book deletion failed', kind, book.hash, e);
+    }
+  }
+  return result;
 };
 
 /**

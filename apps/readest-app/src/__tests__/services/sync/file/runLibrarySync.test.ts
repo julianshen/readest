@@ -9,6 +9,7 @@ const syncLibrary = vi.fn().mockResolvedValue({ booksSynced: 0 });
 const pushBookFile = vi.fn().mockResolvedValue({ uploaded: true });
 const pushBookCover = vi.fn().mockResolvedValue({ uploaded: true });
 const downloadBookFile = vi.fn().mockResolvedValue(true);
+const deleteBookFile = vi.fn().mockResolvedValue({ ok: true });
 
 vi.mock('@/services/sync/file/providerRegistry', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/services/sync/file/providerRegistry')>();
@@ -28,6 +29,7 @@ vi.mock('@/services/sync/file/engine', () => ({
     this['pushBookFile'] = pushBookFile;
     this['pushBookCover'] = pushBookCover;
     this['downloadBookFile'] = downloadBookFile;
+    this['deleteBookFile'] = deleteBookFile;
   }),
 }));
 
@@ -53,6 +55,7 @@ import { hasValidWebDriveToken } from '@/services/sync/providers/gdrive/auth/web
 import {
   canBackendRun,
   getReadyFileSyncBackends,
+  runFileBookDelete,
   runFileBookDownload,
   runFileBookUpload,
   runFileLibrarySyncPass,
@@ -223,6 +226,67 @@ describe('runFileBookUpload', () => {
       .mockResolvedValueOnce({ uploaded: false, reason: 'remote-matches' })
       .mockResolvedValueOnce({ uploaded: false, reason: 'no-source' });
     expect(await runFileBookUpload(envConfig, makeBook('h1'))).toBe(true);
+  });
+});
+
+describe('runFileBookDelete', () => {
+  beforeEach(() => {
+    deleteBookFile.mockReset().mockResolvedValue({
+      tombstonePublished: true,
+      directoryDeleted: true,
+    });
+    useSettingsStore.getState().setSettings(multiProviderSettings);
+    setCachedUserPlan('pro');
+  });
+
+  test('deletes a third-party copy from every enabled backend', async () => {
+    const result = await runFileBookDelete(envConfig, makeBook('h1'));
+
+    expect(deleteBookFile).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      attempted: ['webdav', 'gdrive'],
+      published: ['webdav', 'gdrive'],
+      succeeded: ['webdav', 'gdrive'],
+      failed: [],
+    });
+  });
+
+  test('continues deleting other backends after one provider fails', async () => {
+    deleteBookFile
+      .mockResolvedValueOnce({
+        tombstonePublished: true,
+        directoryDeleted: false,
+        reason: 'webdav offline',
+      })
+      .mockResolvedValueOnce({ tombstonePublished: true, directoryDeleted: true });
+
+    const result = await runFileBookDelete(envConfig, makeBook('h1'));
+
+    expect(deleteBookFile).toHaveBeenCalledTimes(2);
+    expect(result.published).toEqual(['webdav', 'gdrive']);
+    expect(result.succeeded).toEqual(['gdrive']);
+    expect(result.failed).toEqual([{ kind: 'webdav', reason: 'webdav offline' }]);
+  });
+
+  test('deletes selected backends even when the cloud-sync plan is paused', async () => {
+    setCachedUserPlan('free');
+
+    const result = await runFileBookDelete(envConfig, makeBook('h1'));
+
+    expect(result.attempted).toEqual(['webdav', 'gdrive']);
+    expect(deleteBookFile).toHaveBeenCalledTimes(2);
+  });
+
+  test('reports no providers instead of claiming deletion succeeded', async () => {
+    useSettingsStore.getState().setSettings({ version: 1 } as SystemSettings);
+
+    await expect(runFileBookDelete(envConfig, makeBook('h1'))).resolves.toEqual({
+      attempted: [],
+      published: [],
+      succeeded: [],
+      failed: [],
+    });
+    expect(deleteBookFile).not.toHaveBeenCalled();
   });
 });
 

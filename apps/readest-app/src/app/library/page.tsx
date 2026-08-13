@@ -41,7 +41,12 @@ import { createLibraryRefreshHandler } from './refreshLibrarySync';
 import { useInboxDrainer } from '@/hooks/useInboxDrainer';
 import { useOPDSSubscriptions } from '@/hooks/useOPDSSubscriptions';
 import { runFileLibrarySyncPass } from '@/services/sync/file/runLibrarySync';
-import { hasAnyThirdPartyEnabled } from '@/services/sync/cloudSyncProvider';
+import {
+  applyPublishedFileCloudDeletion,
+  executeBookDeletion,
+  runCloudBookDelete,
+} from '@/services/sync/cloudBookDelete';
+import { hasAnyThirdPartyEnabled, isReadestCloudEnabled } from '@/services/sync/cloudSyncProvider';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useTransferStore } from '@/store/transferStore';
 import { useScreenWakeLock } from '@/hooks/useScreenWakeLock';
@@ -835,25 +840,46 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       };
 
       try {
-        // Handle local deletion immediately
-        if (deleteAction === 'local' || deleteAction === 'both') {
-          await appService?.deleteBook(book, 'local');
-          if (deleteAction === 'both') {
-            book.deletedAt = Date.now();
-            book.downloadedAt = null;
-            book.coverDownloadedAt = null;
-          }
-          await updateBook(envConfig, book);
-          clearBookData(book.hash);
-          if (syncBooks) pushLibrary();
-        }
-
-        // Queue cloud deletion
-        if (deleteAction === 'cloud' || deleteAction === 'both') {
-          const transferId = transferManager.queueDelete(book, 1, true);
-          if (!transferId) {
-            throw new Error('Failed to queue cloud deletion');
-          }
+        const deletionResult = await executeBookDeletion(
+          deleteAction,
+          async () => {
+            await appService?.deleteBook(book, 'local');
+            if (deleteAction === 'both') {
+              book.deletedAt = Date.now();
+              book.downloadedAt = null;
+              book.coverDownloadedAt = null;
+            }
+            await updateBook(envConfig, book);
+            clearBookData(book.hash);
+            if (syncBooks) pushLibrary();
+          },
+          async () => {
+            // File backends tombstone the shared index and remove only their
+            // managed hash dir; native Readest Cloud remains queue-backed.
+            const readestEnabled = isReadestCloudEnabled(useSettingsStore.getState().settings);
+            const cloudDeletion = await runCloudBookDelete(
+              envConfig,
+              book,
+              readestEnabled,
+              (targetBook, priority, isBackground) =>
+                transferManager.queueDelete(targetBook, priority, isBackground),
+            );
+            // Keep a local row newer than a published file tombstone. A later
+            // sync may re-upload it when file sync remains enabled.
+            if (applyPublishedFileCloudDeletion(book, cloudDeletion, readestEnabled)) {
+              await updateBook(envConfig, book);
+            }
+            return cloudDeletion;
+          },
+        );
+        if (!deletionResult.ok) {
+          eventDispatcher.dispatch('toast', {
+            message: deletionResult.cloud?.partial
+              ? _('Partially failed to delete cloud backup: {{title}}', { title: book.title })
+              : deletionFailMessages[deleteAction],
+            type: 'error',
+          });
+          return false;
         }
 
         eventDispatcher.dispatch('toast', {

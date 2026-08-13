@@ -49,6 +49,17 @@ export interface DeleteRemoteBookDirResult {
   reason?: string;
 }
 
+export interface DeleteBookFileResult {
+  /** The shared tombstone/index was published successfully. */
+  tombstonePublished: boolean;
+  /** Timestamp written to the shared tombstone. */
+  tombstoneAt?: number;
+  /** The managed remote hash directory was removed successfully. */
+  directoryDeleted: boolean;
+  /** Compact reason string when either stage failed. */
+  reason?: string;
+}
+
 export interface SyncFailureEntry {
   hash: string;
   title: string;
@@ -467,6 +478,67 @@ export class FileSyncEngine {
       console.warn('file sync: config download failed', book.hash, e);
     }
     return true;
+  }
+
+  /**
+   * Tombstone one book in the shared index and remove its remote hash directory.
+   * The index write is attempted even when directory cleanup fails so a later
+   * sync can retry the existing GC path without resurrecting the book.
+   */
+  async deleteBookFile(book: Book): Promise<DeleteBookFileResult> {
+    const remoteIndex = await this.pullLibraryIndex();
+    const booksByHash = new Map(
+      (remoteIndex?.books ?? []).map((remoteBook) => [remoteBook.hash, remoteBook]),
+    );
+    const current = booksByHash.get(book.hash) ?? book;
+    const deletedAt = Math.max(Date.now(), current.deletedAt ?? 0, book.deletedAt ?? 0);
+    booksByHash.set(
+      book.hash,
+      stripDeviceLocalFields({
+        ...current,
+        deletedAt,
+        updatedAt: Math.max(current.updatedAt ?? 0, deletedAt),
+      }),
+    );
+
+    const nextUploadedHashes = (remoteIndex?.uploadedHashes ?? []).filter(
+      (hash) => hash !== book.hash,
+    );
+    const nextEmptyDirs = (remoteIndex?.emptyDirs ?? []).filter((hash) => hash !== book.hash);
+    try {
+      await this.pushLibraryIndex({
+        schemaVersion: 1,
+        books: Array.from(booksByHash.values()),
+        updatedAt: Date.now(),
+        uploadedHashes: nextUploadedHashes,
+        emptyDirs: nextEmptyDirs,
+      });
+      remoteIndexCache.delete(this.provider);
+    } catch (e) {
+      return {
+        tombstonePublished: false,
+        directoryDeleted: false,
+        reason: `Failed to publish deletion: ${e instanceof Error ? e.message : String(e)}`,
+      };
+    }
+
+    try {
+      const directoryResult = await deleteRemoteBookDir(this.provider, book.hash);
+      return {
+        tombstonePublished: true,
+        tombstoneAt: deletedAt,
+        directoryDeleted: directoryResult.ok,
+        reason: directoryResult.reason,
+      };
+    } catch (e) {
+      if (e instanceof FileSyncError && e.code === 'AUTH_FAILED') throw e;
+      return {
+        tombstonePublished: true,
+        tombstoneAt: deletedAt,
+        directoryDeleted: false,
+        reason: e instanceof Error ? e.message : String(e),
+      };
+    }
   }
 
   /** GET + parse the shared library.json index, or null when absent/malformed. */
@@ -1157,6 +1229,11 @@ export class FileSyncEngine {
           remoteIndexCache.delete(this.provider);
         } catch (e) {
           console.warn('file sync: failed to push index', e);
+          // library.json is the authoritative membership/metadata/tombstone
+          // index. A per-book upload can succeed while this publication fails;
+          // do not report the backend as synced or advance lastSyncedAt in that
+          // case. The caller records the backend error and can retry the index.
+          throw e;
         }
       }
     }

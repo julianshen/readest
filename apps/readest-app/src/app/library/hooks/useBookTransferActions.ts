@@ -86,22 +86,68 @@ export const useBookTransferActions = (
       const settingsNow = useSettingsStore.getState().settings;
       const backends = getActiveFileSyncBackends(settingsNow);
       const readest = isReadestCloudEnabled(settingsNow);
-      // Prefer Readest Cloud when the book is actually in its storage — that is
-      // the resumable, queue-backed path. Otherwise fetch it from a file mirror.
-      const useFileBackend = backends.length > 0 && !(readest && book.uploadedAt);
-      if (useFileBackend) {
-        const ok = await runFileBookDownload(envConfig, book);
-        if (ok) await updateBook(envConfig, book);
+      if (!readest && backends.length === 0) {
         if (!silent) {
           eventDispatcher.dispatch('toast', {
-            type: ok ? 'info' : 'error',
-            timeout: 2000,
-            message: ok
-              ? _('Book downloaded: {{title}}', { title: book.title })
-              : _('Failed to download book: {{title}}', { title: book.title }),
+            type: 'info',
+            timeout: 5000,
+            message: _('Turn on a provider in Cloud Sync settings to download this book'),
           });
         }
-        return ok;
+        return false;
+      }
+
+      const downloadFromFileBackend = async (notify = !silent): Promise<boolean> => {
+        try {
+          const ok = await runFileBookDownload(envConfig, book);
+          if (ok) await updateBook(envConfig, book);
+          if (notify && !silent) {
+            eventDispatcher.dispatch('toast', {
+              type: ok ? 'info' : 'error',
+              timeout: 2000,
+              message: ok
+                ? _('Book downloaded: {{title}}', { title: book.title })
+                : _('Failed to download book: {{title}}', { title: book.title }),
+            });
+          }
+          return ok;
+        } catch {
+          if (notify && !silent) {
+            eventDispatcher.dispatch('toast', {
+              type: 'error',
+              timeout: 2000,
+              message: _('Failed to download book: {{title}}', { title: book.title }),
+            });
+          }
+          return false;
+        }
+      };
+
+      // `uploadedAt` is shared by native and file sync, so it cannot identify
+      // which provider owns the remote copy. Probe enabled file mirrors first;
+      // only fall back to native Readest Cloud when no mirror has the book.
+      if (backends.length > 0) {
+        const fileOk = await downloadFromFileBackend(false);
+        if (fileOk) {
+          if (!silent) {
+            eventDispatcher.dispatch('toast', {
+              type: 'info',
+              timeout: 2000,
+              message: _('Book downloaded: {{title}}', { title: book.title }),
+            });
+          }
+          return true;
+        }
+        if (!readest) {
+          if (!silent) {
+            eventDispatcher.dispatch('toast', {
+              type: 'error',
+              timeout: 2000,
+              message: _('Failed to download book: {{title}}', { title: book.title }),
+            });
+          }
+          return false;
+        }
       }
 
       if (redownload || !queued) {
@@ -121,6 +167,7 @@ export const useBookTransferActions = (
           }
           return true;
         } catch {
+          if (backends.length > 0) return downloadFromFileBackend();
           if (!silent) {
             eventDispatcher.dispatch('toast', {
               message: _('Failed to download book: {{title}}', {
@@ -135,6 +182,7 @@ export const useBookTransferActions = (
 
       // Use transfer queue for normal downloads - priority 1 for manual downloads
       const transferId = transferManager.queueDownload(book, 1);
+      if (!transferId && backends.length > 0) return downloadFromFileBackend();
       if (transferId) {
         if (!silent) {
           eventDispatcher.dispatch('toast', {

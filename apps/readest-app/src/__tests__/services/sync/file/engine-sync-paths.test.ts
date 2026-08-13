@@ -4,7 +4,11 @@ import type { Book, BookConfig } from '@/types/book';
 import { FileSyncEngine } from '@/services/sync/file/engine';
 import type { FileSyncProvider } from '@/services/sync/file/provider';
 import type { LocalStore } from '@/services/sync/file/localStore';
-import type { RemoteBookConfig, RemoteLibraryIndex } from '@/services/sync/file/wire';
+import {
+  parseRemoteLibraryIndex,
+  type RemoteBookConfig,
+  type RemoteLibraryIndex,
+} from '@/services/sync/file/wire';
 
 /**
  * Coverage for the engine paths the behavior-preservation gate
@@ -25,7 +29,7 @@ const makeBook = (hash: string, overrides: Partial<Book> = {}): Book => ({
   ...overrides,
 });
 
-type Captured = { writes: { path: string; body: string }[] };
+type Captured = { writes: { path: string; body: string }[]; deletedDirs?: string[] };
 
 const fakeProvider = (
   opts: Partial<FileSyncProvider> & { captured?: Captured } = {},
@@ -42,7 +46,11 @@ const fakeProvider = (
     }),
   writeBinary: opts.writeBinary ?? (async () => {}),
   ensureDir: opts.ensureDir ?? (async () => {}),
-  deleteDir: opts.deleteDir ?? (async () => {}),
+  deleteDir:
+    opts.deleteDir ??
+    (async (path: string) => {
+      opts.captured?.deletedDirs?.push(path);
+    }),
   uploadStream: opts.uploadStream,
   downloadStream: opts.downloadStream,
 });
@@ -203,6 +211,156 @@ describe('FileSyncEngine.downloadBookFile', () => {
 
     expect(ok).toBe(true);
     expect(downloadStream).toHaveBeenCalledWith('/Readest/books/h1/B.epub', '/local/h1/B.epub');
+  });
+});
+
+describe('FileSyncEngine.deleteBookFile', () => {
+  test('tombstones the remote book, removes its uploaded-file record, and deletes its managed directory', async () => {
+    const captured: Captured = { writes: [], deletedDirs: [] };
+    const provider = fakeProvider({
+      captured,
+      readText: async (path) =>
+        path.endsWith('library.json')
+          ? JSON.stringify({
+              schemaVersion: 1,
+              updatedAt: 1,
+              books: [makeBook('h1')],
+              uploadedHashes: ['h1', 'h2'],
+              emptyDirs: ['h1', 'h2'],
+            })
+          : null,
+    });
+    const deleteBookLocally = vi.fn(async () => {});
+    const result = await new FileSyncEngine(
+      provider,
+      fakeStore({ deleteBookLocally }),
+    ).deleteBookFile(makeBook('h1'));
+
+    expect(result.tombstonePublished).toBe(true);
+    expect(result.directoryDeleted).toBe(true);
+    expect(deleteBookLocally).not.toHaveBeenCalled();
+    expect(captured.deletedDirs).toContain('/Readest/books/h1');
+    const indexWrite = captured.writes.find((write) => write.path.endsWith('library.json'));
+    expect(indexWrite).toBeDefined();
+    const index = parseRemoteLibraryIndex(indexWrite!.body);
+    expect(index).not.toBeNull();
+    expect(index!.books.find((book) => book.hash === 'h1')?.deletedAt).toBeTypeOf('number');
+    expect(index!.uploadedHashes).toEqual(['h2']);
+    expect(index!.emptyDirs).toEqual(['h2']);
+  });
+
+  test('does not delete bytes when tombstone publication fails', async () => {
+    const deleteDir = vi.fn(async () => {});
+    const provider = fakeProvider({
+      deleteDir,
+      writeText: async (path) => {
+        if (path.endsWith('library.json')) throw new Error('index unavailable');
+      },
+    });
+    const result = await new FileSyncEngine(provider, fakeStore()).deleteBookFile(makeBook('h1'));
+
+    expect(result.tombstonePublished).toBe(false);
+    expect(result.directoryDeleted).toBe(false);
+    expect(deleteDir).not.toHaveBeenCalled();
+  });
+
+  test('invalidates the cached index after publishing a deletion', async () => {
+    let remoteIndex: RemoteLibraryIndex = {
+      schemaVersion: 1,
+      updatedAt: 1,
+      books: [makeBook('h1')],
+      uploadedHashes: ['h1'],
+    };
+    let indexReads = 0;
+    const provider = fakeProvider({
+      head: async () => ({ etag: 'stable' }),
+      readText: async (path) => {
+        if (!path.endsWith('library.json')) return null;
+        indexReads += 1;
+        return JSON.stringify(remoteIndex);
+      },
+      writeText: async (path, body) => {
+        if (path.endsWith('library.json')) {
+          const parsed = parseRemoteLibraryIndex(body);
+          if (!parsed) throw new Error('invalid library index');
+          remoteIndex = parsed;
+        }
+      },
+    });
+    const engine = new FileSyncEngine(provider, fakeStore());
+
+    await engine.syncLibrary([], { strategy: 'silent', syncBooks: false, deviceId: 'd' });
+    await engine.deleteBookFile(makeBook('h1'));
+    const readsBeforeNextSync = indexReads;
+    await engine.syncLibrary([], { strategy: 'silent', syncBooks: false, deviceId: 'd' });
+
+    expect(indexReads).toBeGreaterThan(readsBeforeNextSync);
+  });
+
+  test('retained local edits win the next sync and can re-upload the deleted backup', async () => {
+    let remoteIndex: RemoteLibraryIndex = {
+      schemaVersion: 1,
+      updatedAt: 1,
+      books: [makeBook('h1')],
+      uploadedHashes: ['h1'],
+    };
+    const deleteBookLocally = vi.fn(async () => {});
+    const writeBinary = vi.fn(async () => {});
+    const provider = fakeProvider({
+      readText: async (path) =>
+        path.endsWith('library.json') ? JSON.stringify(remoteIndex) : null,
+      writeText: async (path, body) => {
+        if (path.endsWith('library.json')) {
+          const parsed = parseRemoteLibraryIndex(body);
+          if (!parsed) throw new Error('invalid library index');
+          remoteIndex = parsed;
+        }
+      },
+      writeBinary,
+    });
+    const engine = new FileSyncEngine(
+      provider,
+      fakeStore({
+        loadBookFile: async () => ({ bytes: new ArrayBuffer(8), size: 8 }),
+        deleteBookLocally,
+      }),
+    );
+    const localBook = makeBook('h1', { downloadedAt: 1 });
+
+    await engine.deleteBookFile(localBook);
+    const tombstone = remoteIndex.books[0]!;
+    const retainedLocalBook = {
+      ...localBook,
+      uploadedAt: null,
+      updatedAt: (tombstone.updatedAt ?? 0) + 1,
+    };
+    await engine.syncLibrary([retainedLocalBook], {
+      strategy: 'silent',
+      syncBooks: true,
+      deviceId: 'd',
+    });
+
+    expect(deleteBookLocally).not.toHaveBeenCalled();
+    expect(writeBinary).toHaveBeenCalled();
+    expect(remoteIndex.books.find((book) => book.hash === 'h1')?.deletedAt).toBeUndefined();
+    expect(remoteIndex.uploadedHashes).toContain('h1');
+  });
+
+  test('publishes the tombstone even when remote directory cleanup fails', async () => {
+    const captured: Captured = { writes: [], deletedDirs: [] };
+    const provider = fakeProvider({
+      captured,
+      deleteDir: async () => {
+        throw new Error('remote unavailable');
+      },
+    });
+    const result = await new FileSyncEngine(provider, fakeStore()).deleteBookFile(makeBook('h1'));
+
+    expect(result.tombstonePublished).toBe(true);
+    expect(result.tombstoneAt).toBeTypeOf('number');
+    expect(result.directoryDeleted).toBe(false);
+    expect(result.reason).toBe('remote unavailable');
+    expect(captured.writes.some((write) => write.path.endsWith('library.json'))).toBe(true);
   });
 });
 

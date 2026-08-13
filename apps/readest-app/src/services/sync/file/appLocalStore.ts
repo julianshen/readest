@@ -47,7 +47,15 @@ export const createAppLocalStore = ({
   settings: SystemSettings;
   envConfig: EnvConfigType;
 }): LocalStore => {
-  let addBookQueue = Promise.resolve();
+  let libraryMutationQueue: Promise<void> = Promise.resolve();
+  const enqueueLibraryMutation = <T>(mutation: () => Promise<T>): Promise<T> => {
+    const queued = libraryMutationQueue.then(mutation, mutation);
+    libraryMutationQueue = queued.then(
+      () => undefined,
+      () => undefined,
+    );
+    return queued;
+  };
 
   return {
     loadConfig: (book) => appService.loadBookConfig(book, settings),
@@ -104,8 +112,8 @@ export const createAppLocalStore = ({
       await appService.writeFile(getCoverFilename(book), 'Books', bytes);
     },
 
-    addBookToLibrary: (book) => {
-      const addBook = async () => {
+    addBookToLibrary: (book) =>
+      enqueueLibraryMutation(async () => {
         try {
           book.coverImageUrl = await appService.generateCoverImageUrl(book);
         } catch (e) {
@@ -136,65 +144,62 @@ export const createAppLocalStore = ({
         // Update the store last so subscribers re-render against a library that's
         // already persisted on disk.
         useLibraryStore.getState().setLibrary(newLibrary);
-      };
+      }),
 
-      const queued = addBookQueue.then(addBook, addBook);
-      // Keep later downloads runnable when a cover or persistence operation fails.
-      addBookQueue = queued.catch(() => undefined);
-      return queued;
-    },
+    updateBookMetadata: (book) =>
+      enqueueLibraryMutation(async () => {
+        // The cover bytes were just refreshed via saveBookCover, so regenerate the
+        // device-local blob URL the bookshelf renders.
+        try {
+          book.coverImageUrl = await appService.generateCoverImageUrl(book);
+        } catch (e) {
+          console.warn('createAppLocalStore: cover URL generation failed', book.hash, e);
+        }
+        book.syncedAt = Date.now();
+        // Hydrate before updating: updateBook merges against the in-memory library,
+        // so an unloaded store would persist an empty (or single-book) library and
+        // clobber the disk. See the same guard in addBookToLibrary.
+        if (!useLibraryStore.getState().libraryLoaded) {
+          useLibraryStore.getState().setLibrary(await appService.loadLibraryBooks());
+        }
+        // updateBook persists via saveLibraryBooks and refreshes the store, so the
+        // new title / author / cover show up without a reload.
+        await useLibraryStore.getState().updateBook(envConfig, book);
+      }),
 
-    updateBookMetadata: async (book) => {
-      // The cover bytes were just refreshed via saveBookCover, so regenerate the
-      // device-local blob URL the bookshelf renders.
-      try {
-        book.coverImageUrl = await appService.generateCoverImageUrl(book);
-      } catch (e) {
-        console.warn('createAppLocalStore: cover URL generation failed', book.hash, e);
-      }
-      book.syncedAt = Date.now();
-      // Hydrate before updating: updateBook merges against the in-memory library,
-      // so an unloaded store would persist an empty (or single-book) library and
-      // clobber the disk. See the same guard in addBookToLibrary.
-      if (!useLibraryStore.getState().libraryLoaded) {
-        useLibraryStore.getState().setLibrary(await appService.loadLibraryBooks());
-      }
-      // updateBook persists via saveLibraryBooks and refreshes the store, so the
-      // new title / author / cover show up without a reload.
-      await useLibraryStore.getState().updateBook(envConfig, book);
-    },
+    markBooksUploaded: (hashes, uploadedAt) =>
+      enqueueLibraryMutation(async () => {
+        if (!hashes.length) return;
+        if (!useLibraryStore.getState().libraryLoaded) {
+          useLibraryStore.getState().setLibrary(await appService.loadLibraryBooks());
+        }
+        // Stamp the LIVE rows (see the LocalStore contract): a book the user read
+        // while the sync was running must keep the progress it saved meanwhile.
+        const wanted = new Set(hashes);
+        const rows = useLibraryStore
+          .getState()
+          .library.filter((book) => wanted.has(book.hash) && !book.uploadedAt && !book.deletedAt)
+          .map((book) => ({ ...book, uploadedAt }));
+        if (!rows.length) return;
+        await useLibraryStore.getState().updateBooks(envConfig, rows);
+      }),
 
-    markBooksUploaded: async (hashes, uploadedAt) => {
-      if (!hashes.length) return;
-      if (!useLibraryStore.getState().libraryLoaded) {
-        useLibraryStore.getState().setLibrary(await appService.loadLibraryBooks());
-      }
-      // Stamp the LIVE rows (see the LocalStore contract): a book the user read
-      // while the sync was running must keep the progress it saved meanwhile.
-      const wanted = new Set(hashes);
-      const rows = useLibraryStore
-        .getState()
-        .library.filter((book) => wanted.has(book.hash) && !book.uploadedAt && !book.deletedAt)
-        .map((book) => ({ ...book, uploadedAt }));
-      if (!rows.length) return;
-      await useLibraryStore.getState().updateBooks(envConfig, rows);
-    },
-
-    deleteBookLocally: async (book) => {
-      // A peer tombstone may remove this device's managed Books/<hash>/ copy,
-      // never the user's in-place external original. The tombstone itself is
-      // set by the engine before this call — we just persist it.
-      try {
-        await appService.deleteBook({ ...book, filePath: undefined }, 'local');
-      } catch (e) {
-        console.warn('createAppLocalStore: local book delete failed', book.hash, e);
-      }
-      book.coverImageUrl = null;
-      book.syncedAt = Date.now();
-      if (!useLibraryStore.getState().libraryLoaded) {
-        useLibraryStore.getState().setLibrary(await appService.loadLibraryBooks());
-      }
-      await useLibraryStore.getState().updateBook(envConfig, book);
-    },
+    deleteBookLocally: (book) =>
+      enqueueLibraryMutation(async () => {
+        // A peer tombstone may remove this device's managed Books/<hash>/ copy,
+        // never the user's in-place external original. The tombstone itself is
+        // set by the engine before this call — we just persist it.
+        try {
+          await appService.deleteBook({ ...book, filePath: undefined }, 'local');
+        } catch (e) {
+          console.warn('createAppLocalStore: local book delete failed', book.hash, e);
+        }
+        book.coverImageUrl = null;
+        book.syncedAt = Date.now();
+        if (!useLibraryStore.getState().libraryLoaded) {
+          useLibraryStore.getState().setLibrary(await appService.loadLibraryBooks());
+        }
+        await useLibraryStore.getState().updateBook(envConfig, book);
+      }),
   };
 };
