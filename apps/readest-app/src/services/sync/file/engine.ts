@@ -202,6 +202,9 @@ const remoteIndexCache = new WeakMap<
   { etag: string; index: RemoteLibraryIndex }
 >();
 
+/** Serialize per-book tombstone read-modify-write operations per provider. */
+const deleteBookQueues = new WeakMap<FileSyncProvider, Promise<void>>();
+
 /**
  * Per-provider memo of "this device holds no source for this book" verdicts,
  * keyed to the book's `updatedAt` at the time of the verdict. Without it,
@@ -486,6 +489,21 @@ export class FileSyncEngine {
    * sync can retry the existing GC path without resurrecting the book.
    */
   async deleteBookFile(book: Book): Promise<DeleteBookFileResult> {
+    const queued = (deleteBookQueues.get(this.provider) ?? Promise.resolve()).then(
+      () => this.deleteBookFileNow(book),
+      () => this.deleteBookFileNow(book),
+    );
+    deleteBookQueues.set(
+      this.provider,
+      queued.then(
+        () => undefined,
+        () => undefined,
+      ),
+    );
+    return queued;
+  }
+
+  private async deleteBookFileNow(book: Book): Promise<DeleteBookFileResult> {
     const remoteIndex = await this.pullLibraryIndex();
     const booksByHash = new Map(
       (remoteIndex?.books ?? []).map((remoteBook) => [remoteBook.hash, remoteBook]),
@@ -1055,6 +1073,7 @@ export class FileSyncEngine {
     );
     result.totalBooks = booksToPush.length;
 
+    const failedConfigHashes = new Set<string>();
     if (canPush && booksToPush.length > 0) {
       let pushStarted = 0;
       await runPool(
@@ -1130,6 +1149,7 @@ export class FileSyncEngine {
             }
           } catch (e) {
             noteAbort(e);
+            if (phase === 'upload-config') failedConfigHashes.add(book.hash);
             result.failures += 1;
             result.failedBooks.push({
               hash: book.hash,
@@ -1160,6 +1180,15 @@ export class FileSyncEngine {
         for (const rb of remoteIndex.books) {
           if (!indexByHash.has(rb.hash)) indexByHash.set(rb.hash, rb);
         }
+      }
+      // A failed config push must not publish this device's newer metadata
+      // cursor. Keep the previous remote row so the next run still sees the
+      // local row as newer; a brand-new row with no remote predecessor is not
+      // published until its config succeeds.
+      for (const hash of failedConfigHashes) {
+        const remoteBook = remoteIndex?.books.find((entry) => entry.hash === hash);
+        if (remoteBook) indexByHash.set(hash, remoteBook);
+        else indexByHash.delete(hash);
       }
 
       // GC the remote per-hash directory of every tombstoned book whose files

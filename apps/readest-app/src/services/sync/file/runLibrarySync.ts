@@ -235,6 +235,9 @@ export interface FileBookDeleteResult {
   failed: FileBookDeleteFailure[];
 }
 
+/** Bulk delete callers may build separate engines, so serialize by backend kind here. */
+const fileDeleteQueues = new Map<FileSyncBackendKind, Promise<void>>();
+
 /**
  * Delete one book's remote copy from every enabled file backend. Each engine
  * owns its backend's tombstone/index update and managed directory cleanup;
@@ -248,27 +251,51 @@ export const runFileBookDelete = async (
   const backends = getEnabledFileSyncBackends(useSettingsStore.getState().settings);
   for (const kind of backends) {
     result.attempted.push(kind);
+    const previous = fileDeleteQueues.get(kind) ?? Promise.resolve();
+    const current = previous.then(
+      () => deleteOneFileBackend(kind),
+      () => deleteOneFileBackend(kind),
+    );
+    fileDeleteQueues.set(
+      kind,
+      current.then(
+        () => undefined,
+        () => undefined,
+      ),
+    );
+    const deletionResult = await current;
+    if (deletionResult.published) {
+      result.published.push(kind);
+      if (deletionResult.tombstoneAt !== undefined) {
+        result.maxTombstoneAt = Math.max(result.maxTombstoneAt ?? 0, deletionResult.tombstoneAt);
+      }
+    }
+    if (deletionResult.succeeded) result.succeeded.push(kind);
+    else result.failed.push({ kind, reason: deletionResult.reason });
+  }
+  async function deleteOneFileBackend(kind: FileSyncBackendKind): Promise<{
+    published: boolean;
+    tombstoneAt?: number;
+    succeeded: boolean;
+    reason: string;
+  }> {
     try {
       const engine = await buildFileSyncEngine(envConfig, kind);
-      if (!engine) {
-        result.failed.push({ kind, reason: 'Provider unavailable' });
-        continue;
-      }
+      if (!engine) return { published: false, succeeded: false, reason: 'Provider unavailable' };
       const deletion = await engine.deleteBookFile(book);
-      if (deletion.tombstonePublished) {
-        result.published.push(kind);
-        if (deletion.tombstoneAt !== undefined) {
-          result.maxTombstoneAt = Math.max(result.maxTombstoneAt ?? 0, deletion.tombstoneAt);
-        }
-      }
-      if (deletion.tombstonePublished && deletion.directoryDeleted) {
-        result.succeeded.push(kind);
-      } else {
-        result.failed.push({ kind, reason: deletion.reason ?? 'Remote deletion failed' });
-      }
+      return {
+        published: deletion.tombstonePublished,
+        tombstoneAt: deletion.tombstoneAt,
+        succeeded: deletion.tombstonePublished && deletion.directoryDeleted,
+        reason: deletion.reason ?? 'Remote deletion failed',
+      };
     } catch (e) {
-      result.failed.push({ kind, reason: e instanceof Error ? e.message : String(e) });
       console.warn('[cloudSync] book deletion failed', kind, book.hash, e);
+      return {
+        published: false,
+        succeeded: false,
+        reason: e instanceof Error ? e.message : String(e),
+      };
     }
   }
   return result;

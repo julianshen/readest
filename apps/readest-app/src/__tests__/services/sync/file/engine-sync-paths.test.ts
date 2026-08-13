@@ -249,6 +249,38 @@ describe('FileSyncEngine.deleteBookFile', () => {
     expect(index!.emptyDirs).toEqual(['h2']);
   });
 
+  test('serializes concurrent tombstones so every deletion remains indexed', async () => {
+    let remoteIndex: RemoteLibraryIndex = {
+      schemaVersion: 1,
+      updatedAt: 1,
+      books: [makeBook('h1'), makeBook('h2')],
+    };
+    const provider = fakeProvider({
+      readText: async (path) => {
+        if (!path.endsWith('library.json')) return null;
+        await new Promise((resolve) => setTimeout(resolve, 1));
+        return JSON.stringify(remoteIndex);
+      },
+      writeText: async (path, body) => {
+        if (path.endsWith('library.json')) {
+          const parsed = parseRemoteLibraryIndex(body);
+          if (!parsed) throw new Error('invalid library index');
+          await new Promise((resolve) => setTimeout(resolve, 1));
+          remoteIndex = parsed;
+        }
+      },
+    });
+    const engine = new FileSyncEngine(provider, fakeStore());
+
+    await Promise.all([
+      engine.deleteBookFile(makeBook('h1')),
+      engine.deleteBookFile(makeBook('h2')),
+    ]);
+
+    expect(remoteIndex.books.find((book) => book.hash === 'h1')?.deletedAt).toBeTypeOf('number');
+    expect(remoteIndex.books.find((book) => book.hash === 'h2')?.deletedAt).toBeTypeOf('number');
+  });
+
   test('does not delete bytes when tombstone publication fails', async () => {
     const deleteDir = vi.fn(async () => {});
     const provider = fakeProvider({
@@ -456,6 +488,35 @@ describe('FileSyncEngine.syncLibrary — incremental diff (default)', () => {
     expect(res.configsUploaded).toBe(1);
     expect(res.booksSynced).toBe(1);
     expect(configWrites(captured)).toHaveLength(1);
+  });
+
+  test('keeps the previous remote cursor when a config upload fails', async () => {
+    const captured: Captured = { writes: [] };
+    const remoteBook = makeBook('h1', { updatedAt: 100, title: 'Remote' });
+    const provider = fakeProvider({
+      readText: async (path) =>
+        path.endsWith('library.json') ? JSON.stringify(makeIndex([remoteBook])) : null,
+      writeText: async (path, body) => {
+        if (path.endsWith('config.json')) throw new Error('config unavailable');
+        captured.writes.push({ path, body });
+      },
+      captured,
+    });
+    const store = fakeStore({ loadConfig: async () => ({ updatedAt: 200, booknotes: [] }) });
+
+    const result = await new FileSyncEngine(provider, store).syncLibrary(
+      [makeBook('h1', { updatedAt: 200, title: 'Local' })],
+      { strategy: 'silent', syncBooks: false, deviceId: 'd' },
+    );
+
+    expect(result.failures).toBe(1);
+    const indexWrite = captured.writes.find((write) => write.path.endsWith('library.json'));
+    expect(indexWrite).toBeDefined();
+    const published = parseRemoteLibraryIndex(indexWrite!.body)!;
+    expect(published.books.find((book) => book.hash === 'h1')).toMatchObject({
+      title: 'Remote',
+      updatedAt: 100,
+    });
   });
 
   test('pulls config + metadata for a book newer in the index', async () => {
