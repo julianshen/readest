@@ -19,8 +19,14 @@ import {
   parseRemoteLibraryIndexStrict,
   stripDeviceLocalFields,
   RemoteLibraryIndex,
+  RemoteBookConfig,
 } from './wire';
-import { mergeBookConfig, mergeBookMetadata, shouldApplyRemoteBookMetadata } from './merge';
+import {
+  mergeBookConfig,
+  mergeBookMetadata,
+  shouldApplyRemoteBookMetadata,
+  type SyncScope,
+} from './merge';
 
 export type SyncStrategy = 'silent' | 'send' | 'receive';
 
@@ -33,6 +39,7 @@ export interface PullResult {
   mergedNotes?: BookNote[];
   /** The remote's writerDeviceId, useful for diagnostics. */
   remoteDeviceId?: string;
+  remoteConfig?: RemoteBookConfig;
 }
 
 export interface PushBookFileResult {
@@ -110,6 +117,9 @@ export interface SyncLibraryOptions {
    * still hiding per-request latency.
    */
   concurrency?: number;
+  /** Whether reading progress/location and notes are replicated. */
+  syncProgress?: boolean;
+  syncNotes?: boolean;
   /**
    * Optional progress callback fired before each book is processed,
    * suitable for driving a UI like "Syncing 3 / 42 — Project Hail Mary".
@@ -285,16 +295,21 @@ export class FileSyncEngine {
    * the merged config back (so the engine stays free of store-write side
    * effects here). `applied: false` when the remote file is absent/malformed.
    */
-  async pullBookConfig(book: Book, localConfig: BookConfig): Promise<PullResult> {
+  async pullBookConfig(
+    book: Book,
+    localConfig: BookConfig,
+    scope: SyncScope = { progress: true, notes: true },
+  ): Promise<PullResult> {
     const path = buildBookConfigPath(this.provider.rootPath, book.hash);
     const remote = parseRemotePayloadStrict(await this.provider.readText(path));
     if (!remote) return { applied: false };
-    const { config, notes } = mergeBookConfig(localConfig, remote);
+    const { config, notes } = mergeBookConfig(localConfig, remote, scope);
     return {
       applied: true,
       mergedConfig: config,
       mergedNotes: notes,
       remoteDeviceId: remote.writerDeviceId,
+      remoteConfig: remote,
     };
   }
 
@@ -304,12 +319,18 @@ export class FileSyncEngine {
    * retry. Deciding *whether* to push is the caller's job; this is the dumb
    * mechanism.
    */
-  async pushBookConfig(book: Book, config: BookConfig, deviceId: string): Promise<void> {
+  async pushBookConfig(
+    book: Book,
+    config: BookConfig,
+    deviceId: string,
+    scope: SyncScope = { progress: true, notes: true },
+    remote?: RemoteBookConfig,
+  ): Promise<void> {
     const dirPath = buildBookDirPath(this.provider.rootPath, book.hash);
     const path = buildBookConfigPath(this.provider.rootPath, book.hash);
     const dirs = [...ancestorsOf(`${dirPath}/.placeholder`), dirPath];
     await this.ensureDirs(dirs);
-    const body = JSON.stringify(buildRemotePayload(book, config, deviceId));
+    const body = JSON.stringify(buildRemotePayload(book, config, deviceId, scope, remote));
     try {
       await this.provider.writeText(path, body);
     } catch (e) {
@@ -604,11 +625,15 @@ export class FileSyncEngine {
     // overlap (a Full-Sync re-check both reconciles and re-pushes the same
     // book, and one book can push a config + cover + file).
     const syncedHashes = new Set<string>();
+    const failedConfigHashes = new Set<string>();
 
     const strategy = options.strategy || 'silent';
     const canPull = strategy !== 'send';
     const canPush = strategy !== 'receive';
     const fullSync = options.fullSync ?? false;
+    const syncProgress = options.syncProgress ?? true;
+    const syncNotes = options.syncNotes ?? true;
+    const syncScope = { progress: syncProgress, notes: syncNotes };
     const concurrency = Math.max(1, options.concurrency ?? 4);
 
     let remoteIndex: RemoteLibraryIndex | null = null;
@@ -771,7 +796,7 @@ export class FileSyncEngine {
         concurrency,
         async (rb) => {
           const local = allBooksMap.get(rb.hash)!;
-          const merged = mergeBookMetadata(local, rb);
+          const merged = mergeBookMetadata(local, rb, syncScope);
           // Re-pull the cover so a changed cover travels with the metadata. The
           // subsequent push-side pushBookCover HEAD/size short-circuit then
           // matches (local now equals remote), so we never bounce it back up.
@@ -787,20 +812,29 @@ export class FileSyncEngine {
           // notes wouldn't propagate without re-walking every book. In full-sync
           // mode the push loop pulls each config, so we skip this to avoid a
           // duplicate GET.
-          if (!fullSync) {
+          if (!fullSync && (syncProgress || syncNotes)) {
             try {
               const localConfig = (await this.store.loadConfig(merged)) ?? {
                 updatedAt: 0,
                 booknotes: [],
               };
-              const pull = await this.pullBookConfig(merged, localConfig);
+              const pull = await this.pullBookConfig(merged, localConfig, syncScope);
               if (pull.applied && pull.mergedConfig) {
                 await this.store.saveBookConfig(merged, pull.mergedConfig);
                 result.configsDownloaded += 1;
               }
             } catch (e) {
               noteAbort(e);
+              result.failures += 1;
+              result.failedBooks.push({
+                hash: rb.hash,
+                title: rb.title || rb.hash,
+                phase: 'download',
+                reason: formatFailureReason(e),
+              });
+              failedConfigHashes.add(rb.hash);
               console.warn('file sync: metadata config pull failed', rb.hash, e);
+              return;
             }
           }
           try {
@@ -1007,7 +1041,7 @@ export class FileSyncEngine {
               // failure.
               try {
                 const emptyLocal: BookConfig = { updatedAt: 0, booknotes: [] };
-                const pullResult = await this.pullBookConfig(rb, emptyLocal);
+                const pullResult = await this.pullBookConfig(rb, emptyLocal, syncScope);
                 if (pullResult.applied && pullResult.mergedConfig) {
                   await this.store.saveBookConfig(rb, pullResult.mergedConfig);
                   result.configsDownloaded += 1;
@@ -1073,7 +1107,6 @@ export class FileSyncEngine {
     );
     result.totalBooks = booksToPush.length;
 
-    const failedConfigHashes = new Set<string>();
     if (canPush && booksToPush.length > 0) {
       let pushStarted = 0;
       await runPool(
@@ -1089,7 +1122,7 @@ export class FileSyncEngine {
           pushStarted += 1;
           let phase: SyncFailureEntry['phase'] = 'upload-config';
           try {
-            if (configChanged(book)) {
+            if (configChanged(book) && (syncProgress || syncNotes)) {
               const config = await this.store.loadConfig(book);
               if (config) {
                 // Mirror the reader hook's pull-merge-push discipline so a manual
@@ -1097,8 +1130,10 @@ export class FileSyncEngine {
                 // yet. Only in two-way ('silent') mode — 'send' keeps the blind
                 // push. A failed pull-merge falls back to the local config.
                 let configToPush = config;
+                let remoteConfig: RemoteBookConfig | undefined;
                 if (canPull) {
-                  const pull = await this.pullBookConfig(book, config);
+                  const pull = await this.pullBookConfig(book, config, syncScope);
+                  remoteConfig = pull.remoteConfig;
                   if (pull.applied && pull.mergedConfig) {
                     configToPush = pull.mergedConfig;
                     // Persist the merged superset locally so this device
@@ -1106,7 +1141,13 @@ export class FileSyncEngine {
                     await this.store.saveBookConfig(book, pull.mergedConfig);
                   }
                 }
-                await this.pushBookConfig(book, configToPush, options.deviceId);
+                await this.pushBookConfig(
+                  book,
+                  configToPush,
+                  options.deviceId,
+                  syncScope,
+                  remoteConfig,
+                );
                 result.configsUploaded += 1;
                 syncedHashes.add(book.hash);
               }

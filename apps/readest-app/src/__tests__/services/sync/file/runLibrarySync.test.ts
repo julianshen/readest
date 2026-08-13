@@ -126,7 +126,19 @@ describe('runFileLibrarySyncPass', () => {
     expect(syncLibrary).toHaveBeenCalledTimes(1);
     expect(syncLibrary).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ concurrency: 1 }),
+      expect.objectContaining({ concurrency: 1, syncProgress: true, syncNotes: true }),
+    );
+  });
+
+  test('forwards provider progress and notes toggles', async () => {
+    useSettingsStore.getState().setSettings({
+      ...multiProviderSettings,
+      webdav: { ...multiProviderSettings.webdav, syncProgress: false, syncNotes: false },
+    });
+    await runFileLibrarySyncPass(envConfig, translationFn, { backends: ['webdav'] });
+    expect(syncLibrary).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ syncProgress: false, syncNotes: false }),
     );
   });
 

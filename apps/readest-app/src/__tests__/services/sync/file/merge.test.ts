@@ -100,6 +100,23 @@ describe('mergeBookConfig (LWW scalars + CRDT notes)', () => {
     expect(notes.map((n) => n.id).sort()).toEqual(['l', 'r']);
   });
 
+  test('disabled progress and notes preserve local values', () => {
+    const local: BookConfig = {
+      updatedAt: 50,
+      progress: [1, 10],
+      location: 'local',
+      booknotes: [note('local', 50)],
+    };
+    const remote = envelope({
+      config: { updatedAt: 100, progress: [9, 10], location: 'remote' },
+      booknotes: [note('remote', 100)],
+    });
+    const { config, notes } = mergeBookConfig(local, remote, { progress: false, notes: false });
+    expect(config.progress).toEqual([1, 10]);
+    expect(config.location).toBe('local');
+    expect(notes.map((item) => item.id)).toEqual(['local']);
+  });
+
   test('null/undefined remote scalars are dropped (never clobber local)', () => {
     const local: BookConfig = { updatedAt: 50, location: 'keepme', booknotes: [] };
     const r = envelope({

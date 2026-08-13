@@ -97,6 +97,8 @@ const syncOneBackend = async (
   const result = await engine.syncLibrary(useLibraryStore.getState().library, {
     strategy: strategy === 'prompt' ? 'silent' : strategy,
     syncBooks: ps?.syncBooks ?? false,
+    syncProgress: ps?.syncProgress ?? true,
+    syncNotes: ps?.syncNotes ?? true,
     fullSync: false,
     concurrency,
     deviceId,

@@ -1,5 +1,5 @@
 import { Book, BookConfig, BookNote } from '@/types/book';
-import { RemoteBookConfig } from './wire';
+import type { RemoteBookConfig } from './wire';
 
 /**
  * Declarative merge policies for the file-sync engine. Each function is
@@ -65,9 +65,15 @@ export const mergeNotes = (local: BookNote[], remote: BookNote[]): BookNote[] =>
  * Returns both the merged config (with `booknotes` populated) and the merged
  * notes separately so callers can drive a live view off the note set.
  */
+export interface SyncScope {
+  progress: boolean;
+  notes: boolean;
+}
+
 export const mergeBookConfig = (
   local: BookConfig,
   remote: RemoteBookConfig,
+  scope: SyncScope = { progress: true, notes: true },
 ): { config: BookConfig; notes: BookNote[] } => {
   const remoteConfigUpdated = remote.config.updatedAt ?? remote.updatedAt;
   const localConfigUpdated = local.updatedAt ?? 0;
@@ -78,7 +84,14 @@ export const mergeBookConfig = (
     remoteConfigUpdated >= localConfigUpdated
       ? ({ ...local, ...filteredRemote } as BookConfig)
       : ({ ...filteredRemote, ...local } as BookConfig);
-  const notes = mergeNotes(local.booknotes ?? [], remote.booknotes ?? []);
+  if (!scope.progress) {
+    merged.progress = local.progress;
+    merged.location = local.location;
+    merged.xpointer = local.xpointer;
+  }
+  const notes = scope.notes
+    ? mergeNotes(local.booknotes ?? [], remote.booknotes ?? [])
+    : (local.booknotes ?? []);
   merged.booknotes = notes;
   return { config: merged, notes };
 };
@@ -119,7 +132,11 @@ export const mergeBookConfig = (
  * separately as cover.png bytes (see the reconciliation pass in the engine),
  * so it is intentionally absent here.
  */
-export const mergeBookMetadata = (local: Book, remote: Book): Book => {
+export const mergeBookMetadata = (
+  local: Book,
+  remote: Book,
+  scope: SyncScope = { progress: true, notes: true },
+): Book => {
   const remoteMetaNewer = (remote.updatedAt ?? 0) > (local.updatedAt ?? 0);
   const merged: Book = remoteMetaNewer
     ? {
@@ -131,7 +148,7 @@ export const mergeBookMetadata = (local: Book, remote: Book): Book => {
         groupId: remote.groupId,
         groupName: remote.groupName,
         tags: remote.tags,
-        progress: remote.progress ?? local.progress,
+        progress: scope.progress ? (remote.progress ?? local.progress) : local.progress,
         updatedAt: remote.updatedAt,
         metadataUpdatedAt: remote.metadataUpdatedAt,
       }

@@ -53,15 +53,19 @@ export interface RemoteBookConfig {
  * ever merges fields the server actually carries — so a malicious or
  * buggy server can't somehow inject viewSettings into a local config.
  */
+import type { SyncScope } from './merge';
+
 export const buildRemotePayload = (
   book: Book,
   config: BookConfig,
   deviceId: string,
+  scope: SyncScope = { progress: true, notes: true },
+  remote?: RemoteBookConfig,
 ): RemoteBookConfig => {
   const trimmed: Partial<BookConfig> = {
-    progress: config.progress,
-    location: config.location,
-    xpointer: config.xpointer,
+    progress: scope.progress ? config.progress : remote?.config.progress,
+    location: scope.progress ? config.location : remote?.config.location,
+    xpointer: scope.progress ? config.xpointer : remote?.config.xpointer,
     updatedAt: config.updatedAt,
   };
   return {
@@ -69,7 +73,7 @@ export const buildRemotePayload = (
     bookHash: book.hash,
     metaHash: book.metaHash,
     config: trimmed,
-    booknotes: config.booknotes ?? [],
+    booknotes: scope.notes ? (config.booknotes ?? []) : (remote?.booknotes ?? []),
     writerDeviceId: deviceId,
     writerVersion: 'readest-webdav-1',
     updatedAt: Date.now(),
