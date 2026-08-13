@@ -34,6 +34,38 @@ fn secure_item_requests_and_responses_use_the_js_wire_contract() {
 }
 
 #[test]
+fn ios_secure_item_set_updates_existing_entries_instead_of_value_delete() {
+    // Regression contract for the review finding: `SecItemDelete` must not
+    // receive a query containing kSecValueData — the value is not part of a
+    // Keychain item's identity, so the old token survives the delete and the
+    // following SecItemAdd fails with errSecDuplicateItem.
+    let swift = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("ios/Sources/NativeBridgePlugin.swift"),
+    )
+    .unwrap();
+    let set_fn_start = swift.find("func set_secure_item").expect("set_secure_item exists");
+    let set_fn_end = swift[set_fn_start..]
+        .find("@objc public func get_secure_item")
+        .map(|i| set_fn_start + i)
+        .expect("get_secure_item follows set_secure_item");
+    let set_fn = &swift[set_fn_start..set_fn_end];
+
+    assert!(
+        set_fn.contains("SecItemUpdate"),
+        "set_secure_item must update existing items in place"
+    );
+    assert!(
+        !set_fn.contains("SecItemDelete"),
+        "set_secure_item must not delete with a value-bearing query"
+    );
+    assert!(
+        set_fn.contains("errSecItemNotFound"),
+        "set_secure_item must add only when no item exists"
+    );
+}
+
+#[test]
 fn auth_request_forwards_an_optional_callback_scheme_to_mobile() {
     let request: AuthRequest = serde_json::from_value(json!({
         "authUrl": "https://provider.example/authorize",

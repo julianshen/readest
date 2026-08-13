@@ -1258,10 +1258,24 @@ class NativeBridgePlugin: Plugin {
         invoke.resolve(["success": false, "error": "encoding"])
         return
       }
-      var query = secureItemBaseQuery(args.key)
-      query[kSecValueData as String] = data
-      SecItemDelete(query as CFDictionary)
-      let status = SecItemAdd(query as CFDictionary, nil)
+      let baseQuery = secureItemBaseQuery(args.key)
+      // Replace in place when the item already exists. Deleting with a query
+      // that carries kSecValueData does not match the stored item (the value
+      // is not part of its identity), so the old entry survives and the
+      // subsequent SecItemAdd fails with errSecDuplicateItem — surfacing as
+      // AUTH_FAILED on every token refresh or reconnect.
+      let updateStatus = SecItemUpdate(
+        baseQuery as CFDictionary,
+        [kSecValueData as String: data] as CFDictionary
+      )
+      let status: OSStatus
+      if updateStatus == errSecItemNotFound {
+        var addQuery = baseQuery
+        addQuery[kSecValueData as String] = data
+        status = SecItemAdd(addQuery as CFDictionary, nil)
+      } else {
+        status = updateStatus
+      }
       if status == errSecSuccess {
         invoke.resolve(["success": true])
       } else {
