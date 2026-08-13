@@ -87,17 +87,32 @@ beforeEach(() => {
 });
 
 describe('useBookTransferActions upload routing (issue #5062)', () => {
-  it('reaches every enabled destination when Readest Cloud and a file backend are both on', async () => {
+  it('reaches every enabled destination and persists file provenance', async () => {
     routing.readestEnabled = true;
     routing.backends = ['gdrive'];
 
-    const { result } = setup();
+    const { result, updateBook } = setup();
     const book = makeBook();
     const ok = await result.current.handleBookUpload(book);
 
     expect(runFileBookUpload).toHaveBeenCalledWith(envConfig, book);
     expect(queueUpload).toHaveBeenCalledWith(book, 1);
+    expect(book.uploadedAt).toEqual(expect.any(Number));
+    expect(updateBook).toHaveBeenCalledWith(envConfig, book);
     expect(ok).toBe(true);
+  });
+
+  it('persists provenance for a third-party-only explicit upload', async () => {
+    routing.readestEnabled = false;
+    routing.backends = ['gdrive'];
+
+    const { result, updateBook } = setup();
+    const book = makeBook();
+    const ok = await result.current.handleBookUpload(book);
+
+    expect(ok).toBe(true);
+    expect(book.uploadedAt).toEqual(expect.any(Number));
+    expect(updateBook).toHaveBeenCalledWith(envConfig, book);
   });
 
   it('toasts "turn on a provider" and returns false when nothing is enabled', async () => {

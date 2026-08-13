@@ -45,6 +45,13 @@ export const useBookTransferActions = (
       // An explicit Upload must reach EVERY destination the user selected,
       // not just the first one.
       const pushed = backends.length > 0 ? await runFileBookUpload(envConfig, book) : false;
+      if (pushed && book.uploadedAt == null) {
+        // Explicit file uploads do not run the library-wide engine pass that
+        // normally stamps cloud provenance. Persist it now so Remove from
+        // Device Only can restore the remote copy before the next sync.
+        book.uploadedAt = Date.now();
+        await updateBook(envConfig, book);
+      }
       // Readest Cloud uploads go through the transfer queue (resumable, with its
       // own progress panel), so it reports "queued", not "uploaded".
       const queued = readest ? !!transferManager.queueUpload(book, 1) : false;

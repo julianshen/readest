@@ -6,7 +6,7 @@
 //!
 //! Download files from a remote HTTP server to disk.
 
-use futures_util::TryStreamExt;
+use futures_util::{StreamExt, TryStreamExt};
 use serde::{ser::Serializer, Serialize};
 use tauri::{command, ipc::Channel};
 use tokio::{
@@ -118,7 +118,7 @@ pub async fn download_file(
     skip_ssl_verification: Option<bool>,
     on_progress: Channel<ProgressPayload>,
 ) -> Result<HashMap<String, String>> {
-    use futures::stream::{self, StreamExt};
+    use futures::stream::{self, TryStreamExt};
     use std::cmp::min;
     const PART_SIZE: u64 = 1024 * 1024;
 
@@ -226,7 +226,8 @@ pub async fn download_file(
     let progress = Arc::new(tokio::sync::Mutex::new(TransferStats::default()));
 
     stream::iter(0..part_count)
-        .for_each_concurrent(8, |i| {
+        .map(Ok)
+        .try_for_each_concurrent(8, |i| {
             let client = client.clone();
             let file = Arc::clone(&file);
             let progress = Arc::clone(&progress);
@@ -237,6 +238,7 @@ pub async fn download_file(
             async move {
                 let start = i * PART_SIZE;
                 let end = min(start + PART_SIZE - 1, total - 1);
+                let expected_len = end - start + 1;
                 let range_header = format!("bytes={start}-{end}");
 
                 let mut req = client.get(&url).header("Range", range_header);
@@ -244,26 +246,26 @@ pub async fn download_file(
                     req = req.header(key, value);
                 }
 
-                let resp = match req.send().await {
-                    Ok(r) => r,
-                    Err(_) => return,
-                };
-
-                if !resp.status().is_success()
-                    && resp.status() != reqwest::StatusCode::PARTIAL_CONTENT
-                {
-                    return;
+                let resp = req.send().await?;
+                if resp.status() != reqwest::StatusCode::PARTIAL_CONTENT {
+                    return Err(Error::HttpErrorCode(
+                        resp.status().as_u16(),
+                        format!("expected partial content for range {start}..={end}"),
+                    ));
                 }
 
-                let bytes = match resp.bytes().await {
-                    Ok(b) => b,
-                    Err(_) => return,
-                };
+                let bytes = resp.bytes().await?;
+                if bytes.len() as u64 != expected_len {
+                    return Err(Error::ContentLength(format!(
+                        "download range {start}..={end} returned {} bytes, expected {expected_len}",
+                        bytes.len()
+                    )));
+                }
 
                 {
                     let mut f = file.lock().await;
-                    f.seek(std::io::SeekFrom::Start(start)).await.unwrap();
-                    f.write_all(&bytes).await.unwrap();
+                    f.seek(std::io::SeekFrom::Start(start)).await?;
+                    f.write_all(&bytes).await?;
                 }
 
                 {
@@ -275,9 +277,10 @@ pub async fn download_file(
                         transfer_speed: stat.transfer_speed,
                     });
                 }
+                Ok::<(), Error>(())
             }
         })
-        .await;
+        .await?;
 
     Ok(resp_headers)
 }
