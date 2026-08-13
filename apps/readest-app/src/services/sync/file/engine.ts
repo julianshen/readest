@@ -16,7 +16,7 @@ import {
 import {
   buildRemotePayload,
   parseRemotePayload,
-  parseRemoteLibraryIndex,
+  parseRemoteLibraryIndexStrict,
   stripDeviceLocalFields,
   RemoteLibraryIndex,
 } from './wire';
@@ -544,7 +544,7 @@ export class FileSyncEngine {
   /** GET + parse the shared library.json index, or null when absent/malformed. */
   async pullLibraryIndex(): Promise<RemoteLibraryIndex | null> {
     const path = buildLibraryPath(this.provider.rootPath);
-    return parseRemoteLibraryIndex(await this.provider.readText(path));
+    return parseRemoteLibraryIndexStrict(await this.provider.readText(path));
   }
 
   /** PUT the shared library.json index, creating its parent dirs. */

@@ -3,6 +3,7 @@ import {
   buildRemotePayload,
   parseRemotePayload,
   parseRemoteLibraryIndex,
+  parseRemoteLibraryIndexStrict,
 } from '@/services/sync/file/wire';
 import type { Book, BookConfig } from '@/types/book';
 
@@ -58,6 +59,14 @@ describe('wire envelope (frozen)', () => {
     );
     expect(ok?.books).toHaveLength(1);
     expect(ok?.updatedAt).toBe(5);
+  });
+
+  test('strict index parsing distinguishes absent from invalid content', () => {
+    expect(parseRemoteLibraryIndexStrict(null)).toBeNull();
+    expect(() => parseRemoteLibraryIndexStrict('{')).toThrow(/malformed/);
+    expect(() =>
+      parseRemoteLibraryIndexStrict(JSON.stringify({ schemaVersion: 9, books: [] })),
+    ).toThrow(/unsupported schema/);
   });
 
   test('parseRemoteLibraryIndex preserves the optional uploadedHashes record (#4856)', () => {

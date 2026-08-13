@@ -125,9 +125,28 @@ export const parseRemoteLibraryIndex = (raw: string | null): RemoteLibraryIndex 
     const parsed = JSON.parse(raw) as RemoteLibraryIndex;
     if (parsed && parsed.schemaVersion === 1) return parsed;
   } catch {
-    // Ignore parse errors — a malformed index is treated as "no index".
+    // Keep the permissive parser for callers that only need to inspect a
+    // payload. Sync itself uses the strict variant below so an existing but
+    // invalid index can never be mistaken for an absent first-sync index.
   }
   return null;
+};
+
+/**
+ * Parse the authoritative library index for a sync run. `null` is reserved for
+ * an actually absent file; malformed or newer-schema content is a hard error,
+ * because replacing it with a locally rebuilt v1 index could discard remote
+ * metadata and tombstones.
+ */
+export const parseRemoteLibraryIndexStrict = (raw: string | null): RemoteLibraryIndex | null => {
+  if (raw === null) return null;
+  try {
+    const parsed = JSON.parse(raw) as RemoteLibraryIndex;
+    if (parsed && parsed.schemaVersion === 1) return parsed;
+  } catch {
+    // Fall through to the explicit sync error below.
+  }
+  throw new Error('Remote library index is malformed or uses an unsupported schema');
 };
 
 /**
