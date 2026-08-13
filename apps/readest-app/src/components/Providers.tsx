@@ -113,7 +113,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   const iconSize = useDefaultIconSize();
   const [showTelemetryConsent, setShowTelemetryConsent] = useState(false);
   useSafeAreaInsets(); // Initialize safe area insets
-  useSettingsSync(); // Adopt global settings broadcast by other windows
+  useSettingsSync(appService); // Adopt global settings broadcast by other windows
 
   useEffect(() => {
     const handlerLanguageChanged = (lng: string) => {

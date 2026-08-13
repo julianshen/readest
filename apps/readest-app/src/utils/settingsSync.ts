@@ -50,6 +50,11 @@ export interface CloudSyncProviderFlags {
   readestCloud?: { enabled?: boolean; disabledAt?: number };
 }
 
+export type PersistedProviderSettings = Pick<
+  SystemSettings,
+  'webdav' | 'googleDrive' | 's3' | 'onedrive' | 'icloud' | 'readestCloud'
+>;
+
 export interface SettingsSyncPayload {
   /** Label of the window that persisted the change, so receivers ignore their own echo. */
   sourceLabel: string;
@@ -74,29 +79,39 @@ export const mergeSyncedGlobalSettings = (
     SettingsSyncPayload,
     'globalViewSettings' | 'globalReadSettings' | 'cloudSyncProviders'
   >,
+  persistedProviderSettings?: PersistedProviderSettings,
 ): SystemSettings => {
   const merged: SystemSettings = {
     ...local,
     globalViewSettings: payload.globalViewSettings,
     globalReadSettings: payload.globalReadSettings,
   };
-  if (payload.cloudSyncProviders) {
-    merged.webdav = { ...local.webdav, ...payload.cloudSyncProviders.webdav };
-    merged.googleDrive = { ...local.googleDrive, ...payload.cloudSyncProviders.googleDrive };
-    if (payload.cloudSyncProviders.s3) {
-      merged.s3 = { ...local.s3, ...payload.cloudSyncProviders.s3 };
-    }
-    if (payload.cloudSyncProviders.onedrive) {
-      merged.onedrive = { ...local.onedrive, ...payload.cloudSyncProviders.onedrive };
-    }
-    if (payload.cloudSyncProviders.icloud) {
-      merged.icloud = { ...local.icloud, ...payload.cloudSyncProviders.icloud };
-    }
-    if (payload.cloudSyncProviders.readestCloud) {
-      merged.readestCloud = {
-        ...local.readestCloud,
-        ...payload.cloudSyncProviders.readestCloud,
-      };
+  const providerSettings = persistedProviderSettings ?? local;
+  const providerFlags = payload.cloudSyncProviders;
+
+  if (persistedProviderSettings || providerFlags) {
+    // A legacy provider-switch payload may omit newer optional slices. In that
+    // case the slice is unchanged; do not replace its live cursor/device state
+    // with the disk snapshot merely because another provider changed.
+    merged.webdav = providerFlags?.webdav
+      ? { ...providerSettings.webdav, ...providerFlags.webdav }
+      : local.webdav;
+    merged.googleDrive = providerFlags?.googleDrive
+      ? { ...providerSettings.googleDrive, ...providerFlags.googleDrive }
+      : local.googleDrive;
+    merged.s3 = providerFlags?.s3 ? { ...providerSettings.s3, ...providerFlags.s3 } : local.s3;
+    merged.onedrive = providerFlags?.onedrive
+      ? { ...providerSettings.onedrive, ...providerFlags.onedrive }
+      : local.onedrive;
+    merged.icloud = providerFlags?.icloud
+      ? { ...providerSettings.icloud, ...providerFlags.icloud }
+      : local.icloud;
+
+    const readestCloud = providerFlags?.readestCloud
+      ? (providerSettings.readestCloud ?? local.readestCloud)
+      : local.readestCloud;
+    if (readestCloud || providerFlags?.readestCloud) {
+      merged.readestCloud = { ...readestCloud, ...providerFlags?.readestCloud };
     }
   }
   return merged;
