@@ -15,7 +15,7 @@ import {
 } from './layout';
 import {
   buildRemotePayload,
-  parseRemotePayload,
+  parseRemotePayloadStrict,
   parseRemoteLibraryIndexStrict,
   stripDeviceLocalFields,
   RemoteLibraryIndex,
@@ -287,7 +287,7 @@ export class FileSyncEngine {
    */
   async pullBookConfig(book: Book, localConfig: BookConfig): Promise<PullResult> {
     const path = buildBookConfigPath(this.provider.rootPath, book.hash);
-    const remote = parseRemotePayload(await this.provider.readText(path));
+    const remote = parseRemotePayloadStrict(await this.provider.readText(path));
     if (!remote) return { applied: false };
     const { config, notes } = mergeBookConfig(localConfig, remote);
     return {
@@ -1098,16 +1098,12 @@ export class FileSyncEngine {
                 // push. A failed pull-merge falls back to the local config.
                 let configToPush = config;
                 if (canPull) {
-                  try {
-                    const pull = await this.pullBookConfig(book, config);
-                    if (pull.applied && pull.mergedConfig) {
-                      configToPush = pull.mergedConfig;
-                      // Persist the merged superset locally so this device
-                      // converges too, not just the remote.
-                      await this.store.saveBookConfig(book, pull.mergedConfig);
-                    }
-                  } catch (e) {
-                    console.warn('file sync: config pull-merge failed', book.hash, e);
+                  const pull = await this.pullBookConfig(book, config);
+                  if (pull.applied && pull.mergedConfig) {
+                    configToPush = pull.mergedConfig;
+                    // Persist the merged superset locally so this device
+                    // converges too, not just the remote.
+                    await this.store.saveBookConfig(book, pull.mergedConfig);
                   }
                 }
                 await this.pushBookConfig(book, configToPush, options.deviceId);

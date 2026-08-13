@@ -196,6 +196,14 @@ fn desktop_deep_link_config_registers_all_oauth_schemes() {
 }
 
 #[test]
+fn ios_info_plist_registers_all_oauth_callback_schemes() {
+    let tauri_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let plist = std::fs::read_to_string(tauri_dir.join("Info-ios.plist")).unwrap();
+    assert!(plist.contains("com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq"));
+    assert!(plist.contains("readest-onedrive"));
+}
+
+#[test]
 fn icloud_capability_and_apple_signing_include_container_access() {
     let tauri_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let capability: serde_json::Value = serde_json::from_str(

@@ -98,6 +98,21 @@ describe('useBooksSync auto-sync', () => {
     expect(h.syncBooks).not.toHaveBeenCalled();
   });
 
+  test('continues the file pass when native sync fails', async () => {
+    h.user = { id: 'user-1' };
+    const events: string[] = [];
+    h.syncBooks.mockRejectedValueOnce(new Error('native offline'));
+    h.runFileLibrarySyncPass.mockImplementation(async () => {
+      events.push('file');
+      return null;
+    });
+
+    renderHook(() => useBooksSync());
+
+    await waitFor(() => expect(h.runFileLibrarySyncPass).toHaveBeenCalledTimes(1));
+    expect(events).toEqual(['file']);
+  });
+
   test('awaits native sync before the file pass for logged-in changes', async () => {
     h.user = { id: 'user-1' };
     const events: string[] = [];

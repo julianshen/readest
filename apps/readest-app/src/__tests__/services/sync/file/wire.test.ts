@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   buildRemotePayload,
   parseRemotePayload,
+  parseRemotePayloadStrict,
   parseRemoteLibraryIndex,
   parseRemoteLibraryIndexStrict,
 } from '@/services/sync/file/wire';
@@ -48,6 +49,14 @@ describe('wire envelope (frozen)', () => {
     expect(parseRemotePayload(JSON.stringify({ schemaVersion: 2 }))).toBeNull();
     const ok = parseRemotePayload(JSON.stringify(buildRemotePayload(book, config, 'd')));
     expect(ok?.bookHash).toBe('h1');
+  });
+
+  test('strict payload parsing distinguishes absent from invalid content', () => {
+    expect(parseRemotePayloadStrict(null)).toBeNull();
+    expect(() => parseRemotePayloadStrict('{')).toThrow(/malformed/);
+    expect(() => parseRemotePayloadStrict(JSON.stringify({ schemaVersion: 9 }))).toThrow(
+      /unsupported schema/,
+    );
   });
 
   test('parseRemoteLibraryIndex rejects null / malformed / wrong schema', () => {

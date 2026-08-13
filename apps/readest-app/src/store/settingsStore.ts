@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { SystemSettings } from '@/types/settings';
 import { EnvConfigType } from '@/services/environment';
 import { initDayjs } from '@/utils/time';
+import { broadcastGlobalSettings } from '@/utils/settingsSync';
 
 export type FontPanelView = 'main-fonts' | 'custom-fonts';
 
@@ -50,6 +51,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   saveSettings: async (envConfig: EnvConfigType, settings: SystemSettings) => {
     const appService = await envConfig.getAppService();
     await appService.saveSettings(settings);
+    // Ordinary settings saves must update already-open reader/library windows.
+    // The event payload is deliberately credential-free; provider-switch saves
+    // may additionally broadcast provider flags through their dedicated path.
+    void broadcastGlobalSettings(settings);
   },
   setSettingsDialogBookKey: (bookKey) => set({ settingsDialogBookKey: bookKey }),
   setSettingsDialogOpen: (open) => set({ isSettingsDialogOpen: open }),

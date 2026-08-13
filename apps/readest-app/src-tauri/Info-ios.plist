@@ -61,6 +61,14 @@
           <string>com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq</string>
         </array>
       </dict>
+      <dict>
+        <key>CFBundleURLName</key>
+        <string>com.microsoft.onedrive-oauth</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>readest-onedrive</string>
+        </array>
+      </dict>
     </array>
     <key>NSUbiquitousContainers</key>
     <dict>

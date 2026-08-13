@@ -82,7 +82,14 @@ export const useBooksSync = () => {
         isPullingRef.current = true;
         try {
           if (user && readestCloudEnabled && newBooks.books?.length) {
-            await syncBooks(newBooks.books, 'both');
+            try {
+              await syncBooks(newBooks.books, 'both');
+            } catch (error) {
+              // Native Readest Cloud and third-party file mirrors are
+              // independent destinations. A native outage must not prevent
+              // the selected file-backend pass.
+              console.warn('[cloudSync] native library sync failed', error);
+            }
           }
           await runFileLibrarySyncPass(envConfig, _);
         } finally {

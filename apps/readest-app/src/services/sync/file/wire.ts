@@ -87,6 +87,18 @@ export const parseRemotePayload = (raw: string | null): RemoteBookConfig | null 
   }
 };
 
+/** Parse an existing config strictly; invalid content must not be overwritten. */
+export const parseRemotePayloadStrict = (raw: string | null): RemoteBookConfig | null => {
+  if (raw === null) return null;
+  try {
+    const parsed = JSON.parse(raw) as RemoteBookConfig;
+    if (parsed && parsed.schemaVersion === 1) return parsed;
+  } catch {
+    // Fall through to the explicit sync error.
+  }
+  throw new Error('Remote book config is malformed or uses an unsupported schema');
+};
+
 /**
  * The shared `<rootPath>/Readest/library.json` index. Membership is a
  * union-by-hash CRDT (with `deletedAt` tombstones); per-book metadata is
