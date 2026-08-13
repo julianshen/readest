@@ -238,7 +238,6 @@ pub async fn download_file(
             async move {
                 let start = i * PART_SIZE;
                 let end = min(start + PART_SIZE - 1, total - 1);
-                let expected_len = end - start + 1;
                 let range_header = format!("bytes={start}-{end}");
 
                 let mut req = client.get(&url).header("Range", range_header);
@@ -247,20 +246,9 @@ pub async fn download_file(
                 }
 
                 let resp = req.send().await?;
-                if resp.status() != reqwest::StatusCode::PARTIAL_CONTENT {
-                    return Err(Error::HttpErrorCode(
-                        resp.status().as_u16(),
-                        format!("expected partial content for range {start}..={end}"),
-                    ));
-                }
-
+                let status = resp.status();
                 let bytes = resp.bytes().await?;
-                if bytes.len() as u64 != expected_len {
-                    return Err(Error::ContentLength(format!(
-                        "download range {start}..={end} returned {} bytes, expected {expected_len}",
-                        bytes.len()
-                    )));
-                }
+                validate_download_range(status, start, end, bytes.len())?;
 
                 {
                     let mut f = file.lock().await;
@@ -355,6 +343,27 @@ async fn open_upload_range(
     Ok((file.take(length), length))
 }
 
+fn validate_download_range(
+    status: reqwest::StatusCode,
+    start: u64,
+    end: u64,
+    actual_len: usize,
+) -> Result<()> {
+    if status != reqwest::StatusCode::PARTIAL_CONTENT {
+        return Err(Error::HttpErrorCode(
+            status.as_u16(),
+            format!("expected partial content for range {start}..={end}"),
+        ));
+    }
+    let expected_len = end - start + 1;
+    if actual_len as u64 != expected_len {
+        return Err(Error::ContentLength(format!(
+            "download range {start}..={end} returned {actual_len} bytes, expected {expected_len}"
+        )));
+    }
+    Ok(())
+}
+
 fn file_to_body(
     channel: Channel<ProgressPayload>,
     file: tokio::io::Take<File>,
@@ -378,13 +387,31 @@ fn file_to_body(
 
 #[cfg(test)]
 mod tests {
-    use super::open_upload_range;
+    use super::{open_upload_range, validate_download_range, Error};
     use futures_util::TryStreamExt;
     use std::{
         fs,
         time::{SystemTime, UNIX_EPOCH},
     };
     use tokio_util::codec::{BytesCodec, FramedRead};
+
+    #[test]
+    fn ranged_download_rejects_non_partial_responses() {
+        let error = validate_download_range(reqwest::StatusCode::OK, 0, 9, 10).unwrap_err();
+        assert!(matches!(error, Error::HttpErrorCode(200, _)));
+    }
+
+    #[test]
+    fn ranged_download_rejects_short_response_bodies() {
+        let error =
+            validate_download_range(reqwest::StatusCode::PARTIAL_CONTENT, 10, 19, 9).unwrap_err();
+        assert!(matches!(error, Error::ContentLength(_)));
+    }
+
+    #[test]
+    fn ranged_download_accepts_an_exact_partial_response() {
+        validate_download_range(reqwest::StatusCode::PARTIAL_CONTENT, 10, 19, 10).unwrap();
+    }
 
     #[test]
     fn upload_range_streams_only_the_requested_disk_slice() {
