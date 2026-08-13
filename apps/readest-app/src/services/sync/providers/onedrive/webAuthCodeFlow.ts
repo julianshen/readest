@@ -156,6 +156,17 @@ export const hasValidWebOneDriveToken = (now: number = Date.now()): boolean => {
 };
 
 /**
+ * Whether web OneDrive has enough state to run. An expired access token is
+ * still runnable when its refresh token is present; PersistedOAuth can refresh
+ * it on the first request. A missing token or an expired token without refresh
+ * state would only produce a terminal AUTH_FAILED.
+ */
+export const hasRunnableWebOneDriveToken = (now: number = Date.now()): boolean => {
+  const tokens = loadWebOneDriveToken();
+  return !!tokens && (now < tokens.expiresAt || !!tokens.refreshToken);
+};
+
+/**
  * SessionStorage-backed {@link TokenPersistence} so the shared `PersistedOAuth`
  * can be reused unchanged for web auth (no separate web auth class): refreshed
  * tokens from Microsoft's CORS-enabled SPA token endpoint round-trip through

@@ -10,6 +10,7 @@ import { useFileSyncStore } from '@/store/fileSyncStore';
 import { isWebAppPlatform } from '@/services/environment';
 import { hasValidWebDriveToken } from '@/services/sync/providers/gdrive/auth/webTokenStore';
 import { isICloudSupportedPlatform } from '@/services/sync/providers/icloud/buildICloudProvider';
+import { hasRunnableWebOneDriveToken } from '@/services/sync/providers/onedrive/webAuthCodeFlow';
 import {
   getActiveFileSyncBackends,
   getEnabledFileSyncBackends,
@@ -38,6 +39,7 @@ import { FileSyncEngine, type SyncLibraryResult } from '@/services/sync/file/eng
  */
 export const canBackendRun = (kind: FileSyncBackendKind): boolean => {
   if (kind === 'gdrive' && isWebAppPlatform() && !hasValidWebDriveToken()) return false;
+  if (kind === 'onedrive' && isWebAppPlatform() && !hasRunnableWebOneDriveToken()) return false;
   if (kind === 'icloud' && !isICloudSupportedPlatform()) return false;
   return true;
 };

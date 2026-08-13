@@ -4,6 +4,7 @@ import type { BookNote } from '@/types/book';
 import { useEnv } from '@/context/EnvContext';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useReaderStore } from '@/store/readerStore';
+import { useLibraryStore } from '@/store/libraryStore';
 import { useBookProgress } from '@/store/readerProgressStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useQuotaStats } from '@/hooks/useQuotaStats';
@@ -231,7 +232,17 @@ export const useFileSync = (bookKey: string) => {
         if (fileSyncedRef.current.has(kind)) continue;
         fileSyncedRef.current.add(kind);
         try {
-          if ((await engine.pushBookFile(book)).uploaded) uploaded.push(kind);
+          const result = await engine.pushBookFile(book);
+          if (!result.uploaded && result.reason !== 'remote-matches') continue;
+
+          const latestBook = useLibraryStore.getState().getBookByHash(book.hash);
+          if (latestBook && latestBook.uploadedAt == null && !latestBook.deletedAt) {
+            await useLibraryStore.getState().updateBook(envConfig, {
+              ...latestBook,
+              uploadedAt: Date.now(),
+            });
+          }
+          uploaded.push(kind);
         } catch (error) {
           fileSyncedRef.current.delete(kind);
           handleSyncError(kind, 'file sync book push failed', error);
@@ -239,7 +250,16 @@ export const useFileSync = (bookKey: string) => {
       }
       await updateLastSyncedAt(uploaded);
     },
-    [allowsPush, bookKey, entriesFor, getBookData, handleSyncError, sliceFor, updateLastSyncedAt],
+    [
+      allowsPush,
+      bookKey,
+      entriesFor,
+      envConfig,
+      getBookData,
+      handleSyncError,
+      sliceFor,
+      updateLastSyncedAt,
+    ],
   );
 
   const pushBookCovers = useCallback(

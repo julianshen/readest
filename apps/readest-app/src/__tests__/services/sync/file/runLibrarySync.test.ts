@@ -43,6 +43,11 @@ vi.mock('@/services/sync/providers/gdrive/auth/webTokenStore', async (importOrig
   ...(await importOriginal<typeof import('@/services/sync/providers/gdrive/auth/webTokenStore')>()),
   hasValidWebDriveToken: vi.fn(() => false),
 }));
+const hasRunnableWebOneDriveToken = vi.hoisted(() => vi.fn(() => false));
+vi.mock('@/services/sync/providers/onedrive/webAuthCodeFlow', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/services/sync/providers/onedrive/webAuthCodeFlow')>()),
+  hasRunnableWebOneDriveToken,
+}));
 // jsdom is neither an iOS nor a macOS Tauri app, so the real gate would say
 // false anyway; the mock makes the platform dependency explicit and togglable.
 vi.mock('@/services/sync/providers/icloud/buildICloudProvider', () => ({
@@ -329,21 +334,25 @@ describe('getReadyFileSyncBackends', () => {
       rootPath: '/',
     },
     googleDrive: { enabled: true },
+    onedrive: { enabled: true },
   } as unknown as SystemSettings;
 
   beforeEach(() => {
     vi.mocked(isWebAppPlatform).mockReturnValue(true);
     vi.mocked(hasValidWebDriveToken).mockReturnValue(true);
+    hasRunnableWebOneDriveToken.mockReturnValue(true);
     setCachedUserPlan('pro');
   });
 
-  test('includes gdrive when the web token is valid', () => {
-    expect(getReadyFileSyncBackends(settings)).toEqual(['webdav', 'gdrive']);
+  test('includes gdrive and onedrive when web tokens are runnable', () => {
+    expect(getReadyFileSyncBackends(settings)).toEqual(['webdav', 'gdrive', 'onedrive']);
   });
 
   test('drops gdrive when the web token is gone (canBackendRun false)', () => {
     vi.mocked(hasValidWebDriveToken).mockReturnValue(false);
+    hasRunnableWebOneDriveToken.mockReturnValue(false);
     expect(canBackendRun('gdrive')).toBe(false);
+    expect(canBackendRun('onedrive')).toBe(false);
     expect(canBackendRun('webdav')).toBe(true);
     expect(getReadyFileSyncBackends(settings)).toEqual(['webdav']);
   });
@@ -351,7 +360,8 @@ describe('getReadyFileSyncBackends', () => {
   test('native (non-web) keeps gdrive regardless of the web token', () => {
     vi.mocked(isWebAppPlatform).mockReturnValue(false);
     vi.mocked(hasValidWebDriveToken).mockReturnValue(false);
-    expect(getReadyFileSyncBackends(settings)).toEqual(['webdav', 'gdrive']);
+    hasRunnableWebOneDriveToken.mockReturnValue(false);
+    expect(getReadyFileSyncBackends(settings)).toEqual(['webdav', 'gdrive', 'onedrive']);
   });
 
   test('excludes everything when the plan gate pauses third-party sync', () => {

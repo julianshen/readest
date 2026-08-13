@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { act, cleanup, renderHook } from '@testing-library/react';
 import type { BookConfig, BookNote } from '@/types/book';
-import type { PullResult } from '@/services/sync/file/engine';
+import type { PullResult, PushBookFileResult } from '@/services/sync/file/engine';
 
 const h = vi.hoisted(() => {
   const makeStore = <T,>(state: T) => {
@@ -19,6 +19,7 @@ const h = vi.hoisted(() => {
     config: { location: 'epubcfi(/6/2)', booknotes: [], updatedAt: 1 },
   };
   const book = { hash: 'book-1', title: 'Book', format: 'EPUB', updatedAt: 1 };
+  const libraryBook = book;
   const view = { addAnnotation: vi.fn() };
   const removeBookNoteOverlays = vi.fn();
   const engine = () => ({
@@ -27,8 +28,12 @@ const h = vi.hoisted(() => {
       mergedConfig: state.config,
     }),
     pushBookConfig: vi.fn(async () => {}),
-    pushBookFile: vi.fn(async () => ({ uploaded: false, reason: 'remote-matches' })),
-    pushBookCover: vi.fn(async () => ({ uploaded: false, reason: 'remote-matches' })),
+    pushBookFile: vi
+      .fn<() => Promise<PushBookFileResult>>()
+      .mockResolvedValue({ uploaded: false, reason: 'remote-matches' }),
+    pushBookCover: vi
+      .fn<() => Promise<PushBookFileResult>>()
+      .mockResolvedValue({ uploaded: false, reason: 'remote-matches' }),
   });
 
   return {
@@ -38,6 +43,7 @@ const h = vi.hoisted(() => {
     appService: {},
     state,
     book,
+    libraryBook,
     view,
     removeBookNoteOverlays,
     progress: null as { location: string } | null,
@@ -49,6 +55,7 @@ const h = vi.hoisted(() => {
     }),
     saveConfig: vi.fn(async () => {}),
     saveSettings: vi.fn(async () => {}),
+    updateBook: vi.fn(async () => {}),
   };
 });
 
@@ -73,6 +80,14 @@ vi.mock('@/store/readerStore', () => ({
     getViewsById: () => [h.view],
     getViewState: () => ({ previewMode: false }),
   }),
+}));
+vi.mock('@/store/libraryStore', () => ({
+  useLibraryStore: {
+    getState: () => ({
+      getBookByHash: (hash: string) => (hash === h.book.hash ? h.libraryBook : undefined),
+      updateBook: h.updateBook,
+    }),
+  },
 }));
 vi.mock('@/store/settingsStore', () => {
   const settings = {
@@ -118,6 +133,14 @@ const flushMicrotasks = async () => {
   for (let i = 0; i < 10; i++) await Promise.resolve();
 };
 
+const defer = <T,>() => {
+  let resolve: (value: T) => void = () => {};
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+};
+
 beforeEach(() => {
   vi.useFakeTimers();
   h.listeners.clear();
@@ -125,6 +148,8 @@ beforeEach(() => {
   h.state.config = { location: 'epubcfi(/6/2)', booknotes: [], updatedAt: 1 };
   h.setConfig.mockClear();
   h.saveConfig.mockClear();
+  h.updateBook.mockClear();
+  h.libraryBook = h.book;
   h.removeBookNoteOverlays.mockClear();
   h.view.addAnnotation.mockClear();
   h.webdav.pullBookConfig.mockReset();
@@ -250,6 +275,61 @@ describe('useFileSync', () => {
     expect(h.gdrive.pushBookFile).toHaveBeenCalledTimes(1);
     expect(h.webdav.pushBookCover).toHaveBeenCalledTimes(1);
     expect(h.gdrive.pushBookCover).toHaveBeenCalledTimes(1);
+  });
+
+  const successfulUploadResults: ReadonlyArray<[string, PushBookFileResult]> = [
+    ['uploaded', { uploaded: true }],
+    ['remote-matches', { uploaded: false, reason: 'remote-matches' }],
+  ];
+
+  test.each(
+    successfulUploadResults,
+  )('persists uploadedAt on the latest live row for a %s result', async (_label, uploadResult) => {
+    vi.setSystemTime(1234);
+    const deferred = defer<PushBookFileResult>();
+    h.webdav.pushBookFile.mockImplementationOnce(() => deferred.promise);
+    await mountReadyHook();
+
+    const push = eventDispatcher.dispatch('push-webdav-sync', { bookKey: 'book-1-view-1' });
+    await flushMicrotasks();
+    const latestProgress: [number, number] = [4, 10];
+    const latestLibraryBook = { ...h.book, title: 'Latest library row', progress: latestProgress };
+    h.libraryBook = latestLibraryBook;
+    deferred.resolve(uploadResult);
+
+    await act(async () => {
+      await push;
+      await flushMicrotasks();
+    });
+
+    expect(h.updateBook).toHaveBeenCalledWith(h.envConfig, {
+      ...latestLibraryBook,
+      uploadedAt: 1234,
+    });
+  });
+
+  test('does not persist uploadedAt when the file has no local source', async () => {
+    h.webdav.pushBookFile.mockResolvedValueOnce({ uploaded: false, reason: 'no-source' });
+    await mountReadyHook();
+
+    await act(async () => {
+      await eventDispatcher.dispatch('push-webdav-sync', { bookKey: 'book-1-view-1' });
+      await flushMicrotasks();
+    });
+
+    expect(h.updateBook).not.toHaveBeenCalled();
+  });
+
+  test('does not persist uploadedAt when the file upload fails', async () => {
+    h.webdav.pushBookFile.mockRejectedValueOnce(new Error('upload failed'));
+    await mountReadyHook();
+
+    await act(async () => {
+      await eventDispatcher.dispatch('push-webdav-sync', { bookKey: 'book-1-view-1' });
+      await flushMicrotasks();
+    });
+
+    expect(h.updateBook).not.toHaveBeenCalled();
   });
 
   test('applies pulled config and live annotation changes before persisting', async () => {

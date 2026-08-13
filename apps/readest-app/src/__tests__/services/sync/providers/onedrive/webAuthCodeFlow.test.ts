@@ -8,6 +8,7 @@ import {
   consumeWebOAuthState,
   consumeWebPkceVerifier,
   exchangeWebAuthCode,
+  hasRunnableWebOneDriveToken,
   hasValidWebOneDriveToken,
   loadWebOneDriveToken,
   oneDriveWebRedirectUri,
@@ -155,11 +156,18 @@ describe('web token store', () => {
     expect(loadWebOneDriveToken()).toBeNull();
   });
 
-  test('hasValidWebOneDriveToken reflects presence + expiry', () => {
+  test('web OneDrive readiness accepts valid or refreshable tokens only', () => {
     expect(hasValidWebOneDriveToken(1_000)).toBe(false); // none stored
+    expect(hasRunnableWebOneDriveToken(1_000)).toBe(false);
+
     saveWebOneDriveToken({ accessToken: 'AT', expiresAt: 5_000 });
-    expect(hasValidWebOneDriveToken(1_000)).toBe(true); // not yet expired
-    expect(hasValidWebOneDriveToken(9_000)).toBe(false); // expired
+    expect(hasValidWebOneDriveToken(1_000)).toBe(true);
+    expect(hasRunnableWebOneDriveToken(1_000)).toBe(true);
+    expect(hasValidWebOneDriveToken(9_000)).toBe(false);
+    expect(hasRunnableWebOneDriveToken(9_000)).toBe(false);
+
+    saveWebOneDriveToken({ accessToken: 'AT', refreshToken: 'RT', expiresAt: 5_000 });
+    expect(hasRunnableWebOneDriveToken(9_000)).toBe(true);
   });
 });
 
