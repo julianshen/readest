@@ -212,6 +212,9 @@ const remoteIndexCache = new WeakMap<
   { etag: string; index: RemoteLibraryIndex }
 >();
 
+/** Remote-only books whose config pull failed after their file was saved. */
+const pendingConfigPulls = new WeakMap<FileSyncProvider, Set<string>>();
+
 /** Serialize per-book tombstone read-modify-write operations per provider. */
 const deleteBookQueues = new WeakMap<FileSyncProvider, Promise<void>>();
 
@@ -231,6 +234,55 @@ const sameStringSet = (a: string[], b: string[]): boolean => {
   if (a.length !== b.length) return false;
   const bs = new Set(b);
   return a.every((x) => bs.has(x));
+};
+
+const sameBytes = (a: ArrayBuffer, b: ArrayBuffer): boolean => {
+  if (a.byteLength !== b.byteLength) return false;
+  const left = new Uint8Array(a);
+  const right = new Uint8Array(b);
+  return left.every((value, index) => value === right[index]);
+};
+
+const bookClock = (book: Book): number => Math.max(book.updatedAt ?? 0, book.deletedAt ?? 0);
+
+const mergeIndexDelta = (
+  base: RemoteLibraryIndex | null,
+  candidate: RemoteLibraryIndex,
+  latest: RemoteLibraryIndex,
+): RemoteLibraryIndex => {
+  const baseBooks = new Map((base?.books ?? []).map((book) => [book.hash, book] as const));
+  const mergedBooks = new Map(latest.books.map((book) => [book.hash, book] as const));
+  for (const local of candidate.books) {
+    const before = baseBooks.get(local.hash);
+    if (before && JSON.stringify(before) === JSON.stringify(local)) continue;
+    const remote = mergedBooks.get(local.hash);
+    if (!remote || bookClock(local) >= bookClock(remote)) mergedBooks.set(local.hash, local);
+  }
+
+  const applySetDelta = (before: string[], after: string[], current: string[]): string[] => {
+    const result = new Set(current);
+    const beforeSet = new Set(before);
+    const afterSet = new Set(after);
+    for (const value of beforeSet) if (!afterSet.has(value)) result.delete(value);
+    for (const value of afterSet) if (!beforeSet.has(value)) result.add(value);
+    return [...result];
+  };
+
+  return {
+    schemaVersion: 1,
+    books: [...mergedBooks.values()],
+    updatedAt: Date.now(),
+    uploadedHashes: applySetDelta(
+      base?.uploadedHashes ?? [],
+      candidate.uploadedHashes ?? [],
+      latest.uploadedHashes ?? [],
+    ),
+    emptyDirs: applySetDelta(
+      base?.emptyDirs ?? [],
+      candidate.emptyDirs ?? [],
+      latest.emptyDirs ?? [],
+    ),
+  };
 };
 
 /**
@@ -436,7 +488,10 @@ export class FileSyncEngine {
     const local = await this.store.loadBookCover(book);
     if (!local) return { uploaded: false, reason: 'no-source' };
     if (remoteHead && remoteHead.size === local.size) {
-      return { uploaded: false, reason: 'remote-matches' };
+      const remote = await this.provider.readBinary(path);
+      if (remote && sameBytes(remote, local.bytes)) {
+        return { uploaded: false, reason: 'remote-matches' };
+      }
     }
     await this.ensureDirs(dirs);
     try {
@@ -587,10 +642,50 @@ export class FileSyncEngine {
   }
 
   /** PUT the shared library.json index, creating its parent dirs. */
-  async pushLibraryIndex(index: RemoteLibraryIndex): Promise<void> {
+  async pushLibraryIndex(
+    index: RemoteLibraryIndex,
+    expectedEtag?: string | null,
+    baseIndex: RemoteLibraryIndex | null = null,
+  ): Promise<void> {
     const path = buildLibraryPath(this.provider.rootPath);
     await this.ensureDirs(ancestorsOf(path));
-    await this.provider.writeText(path, JSON.stringify(index));
+    if (!this.provider.writeTextConditional || expectedEtag === undefined) {
+      await this.provider.writeText(path, JSON.stringify(index));
+      return;
+    }
+
+    let candidate = index;
+    let etag = expectedEtag;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      if (await this.provider.writeTextConditional(path, JSON.stringify(candidate), etag)) return;
+      let stable = false;
+      for (let snapshotAttempt = 0; snapshotAttempt < 3; snapshotAttempt += 1) {
+        const beforePull = await this.provider.head(path);
+        const latest = await this.pullLibraryIndex();
+        const afterPull = await this.provider.head(path);
+        if (
+          beforePull?.etag !== undefined &&
+          afterPull?.etag !== undefined &&
+          beforePull.etag !== afterPull.etag
+        ) {
+          continue;
+        }
+        candidate = mergeIndexDelta(
+          baseIndex,
+          index,
+          latest ?? {
+            schemaVersion: 1,
+            books: [],
+            updatedAt: 0,
+          },
+        );
+        etag = afterPull?.etag ?? null;
+        stable = true;
+        break;
+      }
+      if (!stable) break;
+    }
+    throw new FileSyncError('Remote library index changed repeatedly', 'CONFLICT', 412);
   }
 
   /**
@@ -635,8 +730,14 @@ export class FileSyncEngine {
     const syncNotes = options.syncNotes ?? true;
     const syncScope = { progress: syncProgress, notes: syncNotes };
     const concurrency = Math.max(1, options.concurrency ?? 4);
+    let pendingPulls = pendingConfigPulls.get(this.provider);
+    if (!pendingPulls) {
+      pendingPulls = new Set();
+      pendingConfigPulls.set(this.provider, pendingPulls);
+    }
 
     let remoteIndex: RemoteLibraryIndex | null = null;
+    let remoteEtag: string | undefined;
     // True when the remote index provably matches what this provider saw on
     // its previous successful run. Every peer mutation rewrites library.json,
     // so an unchanged index means no remote-side news — the run can skip the
@@ -647,7 +748,6 @@ export class FileSyncEngine {
       // WebDAV ETag; a provider without one always re-pulls. An AUTH failure
       // aborts exactly like the pull below; any other probe failure falls
       // back to the full pull.
-      let remoteEtag: string | undefined;
       if (!fullSync) {
         try {
           remoteEtag = (await this.provider.head(buildLibraryPath(this.provider.rootPath)))?.etag;
@@ -844,6 +944,35 @@ export class FileSyncEngine {
             syncedHashes.add(rb.hash);
           } catch (e) {
             console.warn('file sync: metadata update failed', rb.hash, e);
+          }
+        },
+        aborted,
+      );
+    }
+
+    // A remote-only file is inserted with the index row's cursor even when
+    // its companion config GET fails. Remember that failure independently of
+    // the metadata cursor and retry it on the next incremental pass.
+    if (canPull && (syncProgress || syncNotes) && pendingPulls.size > 0) {
+      const retryBooks = books.filter((book) => pendingPulls.has(book.hash) && !book.deletedAt);
+      await runPool(
+        retryBooks,
+        concurrency,
+        async (book) => {
+          try {
+            const localConfig = (await this.store.loadConfig(book)) ?? {
+              updatedAt: 0,
+              booknotes: [],
+            };
+            const pull = await this.pullBookConfig(book, localConfig, syncScope);
+            if (pull.applied && pull.mergedConfig) {
+              await this.store.saveBookConfig(book, pull.mergedConfig);
+              result.configsDownloaded += 1;
+            }
+            pendingPulls.delete(book.hash);
+          } catch (e) {
+            noteAbort(e);
+            console.warn('file sync: pending config retry failed', book.hash, e);
           }
         },
         aborted,
@@ -1047,6 +1176,7 @@ export class FileSyncEngine {
                   result.configsDownloaded += 1;
                 }
               } catch (e) {
+                pendingPulls.add(rb.hash);
                 console.warn('file sync: config download failed', rb.hash, e);
               }
               // We just pulled its bytes, so the file is on the remote: the row is
@@ -1289,7 +1419,11 @@ export class FileSyncEngine {
             uploadedHashes: nextUploadedHashes,
             emptyDirs: nextEmptyDirs,
           };
-          await this.pushLibraryIndex(newIndex);
+          await this.pushLibraryIndex(
+            newIndex,
+            remoteEtag ?? (remoteIndex === null ? null : undefined),
+            remoteIndex,
+          );
           // Our own push changed the remote etag; drop the cached snapshot so
           // the next run re-pulls (and re-discovers) once, then goes quiet.
           remoteIndexCache.delete(this.provider);

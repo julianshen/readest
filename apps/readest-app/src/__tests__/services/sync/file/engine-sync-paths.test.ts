@@ -118,6 +118,31 @@ describe('FileSyncEngine.pushBookFile — streaming upload', () => {
   });
 });
 
+describe('FileSyncEngine.pushBookCover — mutable content', () => {
+  test('uploads a changed cover even when its byte length matches the remote', async () => {
+    const localBytes = new Uint8Array([1, 2, 3]).buffer;
+    const remoteBytes = new Uint8Array([3, 2, 1]).buffer;
+    const writeBinary = vi.fn(async () => {});
+    const provider = fakeProvider({
+      head: async () => ({ size: 3 }),
+      readBinary: async () => remoteBytes,
+      writeBinary,
+    });
+    const store = fakeStore({
+      loadBookCover: async () => ({ bytes: localBytes, size: 3 }),
+    });
+
+    const result = await new FileSyncEngine(provider, store).pushBookCover(makeBook('h1'));
+
+    expect(result).toEqual({ uploaded: true });
+    expect(writeBinary).toHaveBeenCalledWith(
+      expect.stringContaining('/Readest/books/h1/cover.png'),
+      localBytes,
+      'image/png',
+    );
+  });
+});
+
 describe('FileSyncEngine.syncLibrary — remote discovery + streaming download', () => {
   test('discovers a remote-only book, streams it down, and adds it to the library', async () => {
     const downloadStream = vi.fn(async () => true);
@@ -152,6 +177,62 @@ describe('FileSyncEngine.syncLibrary — remote discovery + streaming download',
     expect(addBookToLibrary).toHaveBeenCalledTimes(1);
     expect(addBookToLibrary.mock.calls[0]![0].hash).toBe('h2');
     expect(res.booksDownloaded).toBe(1);
+  });
+
+  test('retries a failed remote-only config pull on the next incremental sync', async () => {
+    const remoteBook = makeBook('h2', { updatedAt: 100 });
+    const remoteConfig: RemoteBookConfig = {
+      schemaVersion: 1,
+      bookHash: 'h2',
+      config: { location: 'remote-location', updatedAt: 100 },
+      booknotes: [],
+      writerDeviceId: 'peer',
+      writerVersion: 'readest-webdav-1',
+      updatedAt: 100,
+    };
+    let configAttempts = 0;
+    const provider = fakeProvider({
+      head: async (path) => (path.endsWith('library.json') ? { etag: 'stable' } : null),
+      readText: async (path) => {
+        if (path.endsWith('library.json')) return JSON.stringify(makeIndex([remoteBook], ['h2']));
+        if (path.endsWith('config.json')) {
+          configAttempts += 1;
+          if (configAttempts === 1) throw new Error('temporary config failure');
+          return JSON.stringify(remoteConfig);
+        }
+        return null;
+      },
+      list: async (path) =>
+        path.endsWith('/books')
+          ? [{ name: 'h2', path: '/Readest/books/h2', isDirectory: true }]
+          : [
+              {
+                name: 'Remote.epub',
+                path: '/Readest/books/h2/Remote.epub',
+                isDirectory: false,
+                size: 50,
+              },
+            ],
+      downloadStream: async () => true,
+      captured: { writes: [] },
+    });
+    const saveBookConfig = vi.fn(async () => {});
+    const store = fakeStore({
+      prepareLocalBookPath: async () => '/local/h2/Remote.epub',
+      addBookToLibrary: async () => {},
+      loadConfig: async () => ({ updatedAt: 1, booknotes: [] }),
+      saveBookConfig,
+    });
+    const options = { strategy: 'silent', syncBooks: false, deviceId: 'd' } as const;
+
+    await new FileSyncEngine(provider, store).syncLibrary([], options);
+    await new FileSyncEngine(provider, store).syncLibrary([remoteBook], options);
+
+    expect(configAttempts).toBe(2);
+    expect(saveBookConfig).toHaveBeenCalledWith(
+      expect.objectContaining({ hash: 'h2' }),
+      expect.objectContaining({ location: 'remote-location' }),
+    );
   });
 });
 
@@ -918,6 +999,45 @@ describe('FileSyncEngine.syncLibrary — remote change detection', () => {
     // No per-book counters fire for a tombstone, but the index MUST publish it.
     const idx = JSON.parse(indexWrites(h.captured)[0]!.body) as RemoteLibraryIndex;
     expect(idx.books.find((b) => b.hash === 'h1')?.deletedAt).toBe(150);
+  });
+});
+
+describe('FileSyncEngine.pushLibraryIndex — optimistic publication', () => {
+  test('re-pulls and merges a peer addition after an etag conflict', async () => {
+    const base = makeIndex([makeBook('base', { updatedAt: 1 })]);
+    const candidate = makeIndex([
+      makeBook('base', { updatedAt: 1 }),
+      makeBook('local', { updatedAt: 2 }),
+    ]);
+    const peer = makeIndex([
+      makeBook('base', { updatedAt: 1 }),
+      makeBook('peer', { updatedAt: 2 }),
+    ]);
+    const conditional = vi
+      .fn<(path: string, body: string, etag: string | null) => Promise<boolean>>()
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+    const provider = Object.assign(
+      fakeProvider({
+        readText: async (path) => (path.endsWith('library.json') ? JSON.stringify(peer) : null),
+        head: async (path) => (path.endsWith('library.json') ? { etag: 'E2' } : null),
+      }),
+      { writeTextConditional: conditional },
+    );
+    const engine = new FileSyncEngine(provider, fakeStore());
+
+    await (
+      engine.pushLibraryIndex as unknown as (
+        index: RemoteLibraryIndex,
+        expectedEtag: string | null,
+        base: RemoteLibraryIndex | null,
+      ) => Promise<void>
+    )(candidate, 'E1', base);
+
+    expect(conditional).toHaveBeenCalledTimes(2);
+    const retried = JSON.parse(conditional.mock.calls[1]![1]) as RemoteLibraryIndex;
+    expect(retried.books.map((book) => book.hash).sort()).toEqual(['base', 'local', 'peer']);
+    expect(conditional.mock.calls[1]![2]).toBe('E2');
   });
 });
 

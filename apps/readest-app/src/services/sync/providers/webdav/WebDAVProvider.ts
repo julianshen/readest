@@ -21,6 +21,7 @@ import {
   listDirectory,
   normalizeRootPath,
   putFile,
+  putFileConditional,
   putFileBinary,
 } from './client';
 
@@ -79,6 +80,8 @@ export const createWebDAVProvider = (settings: WebDAVSettings): FileSyncProvider
     head: (path): Promise<FileHead | null> => wrap(() => headFile(config, path)),
     list: (path): Promise<FileEntry[]> => wrap(() => listDirectory(config, path)),
     writeText: (path, body, contentType) => wrap(() => putFile(config, path, body, contentType)),
+    writeTextConditional: (path, body, expectedEtag, contentType) =>
+      wrap(() => putFileConditional(config, path, body, expectedEtag, contentType)),
     writeBinary: (path, body, contentType) =>
       wrap(() => putFileBinary(config, path, body, contentType)),
     ensureDir: (paths) => wrap(() => ensureDirectory(config, paths)),

@@ -63,6 +63,17 @@ export interface FileSyncProvider {
 
   /** PUT text. Parent directories must already exist (see {@link ensureDir}). */
   writeText(path: string, body: string, contentType?: string): Promise<void>;
+  /**
+   * Atomically PUT text only when the current entity tag matches. `null`
+   * means create only if the path is still absent. Returns false on a
+   * precondition conflict so the engine can re-pull and merge.
+   */
+  writeTextConditional?(
+    path: string,
+    body: string,
+    expectedEtag: string | null,
+    contentType?: string,
+  ): Promise<boolean>;
   /** PUT binary. Parent directories must already exist. */
   writeBinary(path: string, body: ArrayBuffer, contentType?: string): Promise<void>;
 

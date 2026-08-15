@@ -115,7 +115,10 @@ export const createICloudProvider = (documentsPath: string): FileSyncProvider =>
       wrap(async () => {
         try {
           const s = await stat(abs(path));
-          return { size: s.size ?? undefined };
+          return {
+            size: s.size ?? undefined,
+            etag: `${s.size ?? 0}:${s.mtime?.getTime() ?? 0}`,
+          };
         } catch (e) {
           if (mapError(e).code !== 'NOT_FOUND') throw e;
           // Undownloaded placeholder: the file exists in iCloud but not on
@@ -162,6 +165,20 @@ export const createICloudProvider = (documentsPath: string): FileSyncProvider =>
       }),
 
     writeText: (path, body) => wrap(() => writeAtomic(path, (tmp) => writeTextFile(tmp, body))),
+
+    writeTextConditional: (path, body, expectedEtag) =>
+      wrap(async () => {
+        let current: string | null = null;
+        try {
+          const s = await stat(abs(path));
+          current = `${s.size ?? 0}:${s.mtime?.getTime() ?? 0}`;
+        } catch (e) {
+          if (mapError(e).code !== 'NOT_FOUND') throw e;
+        }
+        if (current !== expectedEtag) return false;
+        await writeAtomic(path, (tmp) => writeTextFile(tmp, body));
+        return true;
+      }),
 
     writeBinary: (path, body) =>
       wrap(() => writeAtomic(path, (tmp) => writeFile(tmp, new Uint8Array(body)))),

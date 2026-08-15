@@ -36,6 +36,23 @@ const h = vi.hoisted(() => {
       .mockResolvedValue({ uploaded: false, reason: 'remote-matches' }),
   });
 
+  const settings = {
+    webdav: {
+      enabled: true,
+      serverUrl: 'https://dav.test',
+      username: 'reader',
+      syncBooks: true,
+      syncProgress: true,
+      syncNotes: true,
+    },
+    googleDrive: {
+      enabled: true,
+      syncBooks: true,
+      syncProgress: true,
+      syncNotes: true,
+    },
+  };
+
   return {
     makeStore,
     listeners,
@@ -49,6 +66,7 @@ const h = vi.hoisted(() => {
     progress: null as { location: string } | null,
     webdav: engine(),
     gdrive: engine(),
+    settings,
     buildEngine: vi.fn(),
     setConfig: vi.fn((_bookKey: string, config: typeof state.config) => {
       state.config = config;
@@ -90,12 +108,8 @@ vi.mock('@/store/libraryStore', () => ({
   },
 }));
 vi.mock('@/store/settingsStore', () => {
-  const settings = {
-    webdav: { enabled: true, serverUrl: 'https://dav.test', username: 'reader', syncBooks: true },
-    googleDrive: { enabled: true, syncBooks: true },
-  };
   const state = {
-    settings,
+    settings: h.settings,
     setSettings: vi.fn(),
     saveSettings: h.saveSettings,
   };
@@ -145,6 +159,10 @@ beforeEach(() => {
   vi.useFakeTimers();
   h.listeners.clear();
   h.progress = null;
+  h.settings.webdav.syncProgress = true;
+  h.settings.webdav.syncNotes = true;
+  h.settings.googleDrive.syncProgress = true;
+  h.settings.googleDrive.syncNotes = true;
   h.state.config = { location: 'epubcfi(/6/2)', booknotes: [], updatedAt: 1 };
   h.setConfig.mockClear();
   h.saveConfig.mockClear();
@@ -183,6 +201,45 @@ const mountReadyHook = async () => {
 };
 
 describe('useFileSync', () => {
+  test('passes each provider category scope through reader config pushes', async () => {
+    h.settings.webdav.syncProgress = false;
+    h.settings.webdav.syncNotes = true;
+    h.settings.googleDrive.syncProgress = true;
+    h.settings.googleDrive.syncNotes = false;
+    const webdavRemote = {
+      schemaVersion: 1 as const,
+      bookHash: h.book.hash,
+      config: { location: 'remote-location', updatedAt: 2 },
+      booknotes: [],
+      writerDeviceId: 'remote-webdav',
+      writerVersion: 'readest-webdav-1' as const,
+      updatedAt: 2,
+    };
+    const gdriveRemote = { ...webdavRemote, writerDeviceId: 'remote-gdrive' };
+    h.webdav.pullBookConfig.mockResolvedValue({ applied: true, remoteConfig: webdavRemote });
+    h.gdrive.pullBookConfig.mockResolvedValue({ applied: true, remoteConfig: gdriveRemote });
+    const { result } = await mountReadyHook();
+
+    await act(async () => {
+      await result.current.pushNow();
+    });
+
+    expect(h.webdav.pushBookConfig).toHaveBeenCalledWith(
+      h.book,
+      h.state.config,
+      expect.any(String),
+      { progress: false, notes: true },
+      webdavRemote,
+    );
+    expect(h.gdrive.pushBookConfig).toHaveBeenCalledWith(
+      h.book,
+      h.state.config,
+      expect.any(String),
+      { progress: true, notes: false },
+      gdriveRemote,
+    );
+  });
+
   test('routes generic pushes to every ready provider but legacy WebDAV events only to WebDAV', async () => {
     const { result } = await mountReadyHook();
 

@@ -87,17 +87,17 @@ describe('resolveCloudSyncGate', () => {
 });
 
 describe('applySyncBooksAutoEnable (upgrade migration for already-enabled providers)', () => {
-  test('flips syncBooks on for an enabled webdav provider, mutating the given settings', () => {
+  test('flips an absent syncBooks default on for an enabled webdav provider', () => {
     const settings = makeSettings({
-      webdav: { enabled: true, syncBooks: false },
+      webdav: { enabled: true },
     } as Partial<SystemSettings>);
     expect(applySyncBooksAutoEnable(settings)).toBe(true);
     expect(settings.webdav?.syncBooks).toBe(true);
   });
 
-  test('flips syncBooks on for an enabled gdrive provider', () => {
+  test('flips an absent syncBooks default on for an enabled gdrive provider', () => {
     const settings = makeSettings({
-      googleDrive: { enabled: true, syncBooks: false },
+      googleDrive: { enabled: true },
     } as Partial<SystemSettings>);
     expect(applySyncBooksAutoEnable(settings)).toBe(true);
     expect(settings.googleDrive?.syncBooks).toBe(true);
@@ -116,13 +116,21 @@ describe('applySyncBooksAutoEnable (upgrade migration for already-enabled provid
     expect(applySyncBooksAutoEnable(settings)).toBe(false);
   });
 
+  test('preserves an explicit book-upload opt-out', () => {
+    const settings = makeSettings({
+      webdav: { enabled: true, syncBooks: false },
+    } as Partial<SystemSettings>);
+    expect(applySyncBooksAutoEnable(settings)).toBe(false);
+    expect(settings.webdav?.syncBooks).toBe(false);
+  });
+
   test('flips syncBooks on for every enabled provider when multiple are enabled', () => {
     const settings = makeSettings({
       webdav: { enabled: true, syncBooks: false },
-      googleDrive: { enabled: true, syncBooks: false },
+      googleDrive: { enabled: true },
     } as Partial<SystemSettings>);
     expect(applySyncBooksAutoEnable(settings)).toBe(true);
-    expect(settings.webdav?.syncBooks).toBe(true);
+    expect(settings.webdav?.syncBooks).toBe(false);
     expect(settings.googleDrive?.syncBooks).toBe(true);
   });
 });
@@ -289,8 +297,8 @@ describe('icloud backend kind', () => {
     expect(cloudProviderDisplayName('icloud')).toBe('iCloud');
   });
 
-  test('applySyncBooksAutoEnable flips syncBooks on for an enabled icloud', () => {
-    const settings = s({ icloud: { enabled: true, syncBooks: false } } as never);
+  test('applySyncBooksAutoEnable fills an absent syncBooks default for enabled icloud', () => {
+    const settings = s({ icloud: { enabled: true } } as never);
     expect(applySyncBooksAutoEnable(settings)).toBe(true);
     expect(settings.icloud?.syncBooks).toBe(true);
   });

@@ -194,11 +194,20 @@ export const useFileSync = (bookKey: string) => {
       for (const { kind, engine } of entriesFor(kinds)) {
         if (!allowsPush(kind)) continue;
         const providerSettings = sliceFor(kind);
-        if (!(providerSettings?.syncProgress ?? true) && !(providerSettings?.syncNotes ?? true)) {
-          continue;
-        }
+        const scope = {
+          progress: providerSettings?.syncProgress ?? true,
+          notes: providerSettings?.syncNotes ?? true,
+        };
+        if (!scope.progress && !scope.notes) continue;
         try {
-          await engine.pushBookConfig(book, config, ensureDeviceId(kind));
+          // A partial-category push must retain the disabled category already
+          // on the remote. Pull its envelope first; without it the payload
+          // builder has nothing to preserve and would erase that category.
+          const remote =
+            scope.progress && scope.notes
+              ? undefined
+              : (await engine.pullBookConfig(book, config, scope)).remoteConfig;
+          await engine.pushBookConfig(book, config, ensureDeviceId(kind), scope, remote);
           pushed.push(kind);
           dirtyKindsRef.current.delete(kind);
         } catch (error) {

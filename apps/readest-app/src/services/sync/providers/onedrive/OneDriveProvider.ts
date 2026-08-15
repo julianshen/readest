@@ -215,6 +215,24 @@ class OneDriveProviderImpl {
       contentType,
     );
   }
+  async writeTextConditional(
+    path: string,
+    body: string,
+    expectedEtag: string | null,
+    contentType: string = DEFAULT_TEXT_CONTENT_TYPE,
+  ): Promise<boolean> {
+    const res = await this.authedFetch(contentUrl(path), HTTP_PUT, {
+      headers: {
+        [CONTENT_TYPE_HEADER]: contentType,
+        [expectedEtag === null ? 'If-None-Match' : 'If-Match']:
+          expectedEtag === null ? '*' : expectedEtag,
+      },
+      body,
+    });
+    if (res.status === 409 || res.status === 412) return false;
+    await this.ensureOk(res, 'write', path);
+    return true;
+  }
   async writeBinary(
     path: string,
     body: ArrayBuffer,
@@ -436,6 +454,8 @@ export const createOneDriveProvider = (
     head: (path) => wrap(() => impl.head(path)),
     list: (path) => wrap(() => impl.list(path)),
     writeText: (path, body, contentType) => wrap(() => impl.writeText(path, body, contentType)),
+    writeTextConditional: (path, body, expectedEtag, contentType) =>
+      wrap(() => impl.writeTextConditional(path, body, expectedEtag, contentType)),
     writeBinary: (path, body, contentType) => wrap(() => impl.writeBinary(path, body, contentType)),
     ensureDir: (paths) => wrap(() => impl.ensureDir(paths)),
     deleteDir: (path) => wrap(() => impl.deleteDir(path)),

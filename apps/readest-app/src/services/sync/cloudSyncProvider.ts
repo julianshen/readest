@@ -139,7 +139,8 @@ export const getActiveFileSyncBackends = (
  * who already had WebDAV/Drive enabled before provider selection shipped
  * become "third-party selected" on upgrade, which gates native Readest
  * Cloud uploads off — with syncBooks at its old `false` default their
- * books would back up nowhere. Flip syncBooks on for every enabled backend.
+ * books would back up nowhere. Fill only an absent legacy default; an
+ * explicit `false` is a user opt-out and must survive the upgrade.
  * Mutates `settings` in place (the migration runner saves the same
  * snapshot afterwards) and returns whether anything changed.
  */
@@ -151,31 +152,31 @@ export const applySyncBooksAutoEnable = (settings: SystemSettings): boolean => {
     // does not typecheck when `key` is a union of literal keys.
     switch (kind) {
       case 'webdav':
-        if (settings.webdav && !settings.webdav.syncBooks) {
+        if (settings.webdav?.syncBooks === undefined) {
           settings.webdav = { ...settings.webdav, syncBooks: true };
           changed = true;
         }
         break;
       case 'gdrive':
-        if (settings.googleDrive && !settings.googleDrive.syncBooks) {
+        if (settings.googleDrive?.syncBooks === undefined) {
           settings.googleDrive = { ...settings.googleDrive, syncBooks: true };
           changed = true;
         }
         break;
       case 's3':
-        if (settings.s3 && !settings.s3.syncBooks) {
+        if (settings.s3?.syncBooks === undefined) {
           settings.s3 = { ...settings.s3, syncBooks: true };
           changed = true;
         }
         break;
       case 'onedrive':
-        if (settings.onedrive && !settings.onedrive.syncBooks) {
+        if (settings.onedrive?.syncBooks === undefined) {
           settings.onedrive = { ...settings.onedrive, syncBooks: true };
           changed = true;
         }
         break;
       case 'icloud':
-        if (settings.icloud && !settings.icloud.syncBooks) {
+        if (settings.icloud?.syncBooks === undefined) {
           settings.icloud = { ...settings.icloud, syncBooks: true };
           changed = true;
         }

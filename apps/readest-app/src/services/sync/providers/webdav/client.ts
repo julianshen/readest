@@ -532,6 +532,31 @@ export const putFile = async (
   }
 };
 
+export const putFileConditional = async (
+  config: WebDAVConfig,
+  path: string,
+  body: string,
+  expectedEtag: string | null,
+  contentType: string = 'application/json; charset=utf-8',
+): Promise<boolean> => {
+  const response = await requestWithMethod(config, path, 'PUT', {
+    headers: {
+      'Content-Type': contentType,
+      [expectedEtag === null ? 'If-None-Match' : 'If-Match']:
+        expectedEtag === null ? '*' : expectedEtag,
+    },
+    body,
+  });
+  if (response.status === 412) return false;
+  if (response.status === 401 || response.status === 403) {
+    throw new WebDAVRequestError('Authentication failed', response.status, 'AUTH_FAILED');
+  }
+  if (![200, 201, 204, 207].includes(response.status)) {
+    throw new WebDAVRequestError(`PUT failed with status ${response.status}`, response.status);
+  }
+  return true;
+};
+
 /**
  * Binary equivalent of `putFile`. Used for book files (epub / pdf / ...) —
  * the body is an `ArrayBuffer` and the content type defaults to a

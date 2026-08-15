@@ -335,11 +335,11 @@ class DriveProviderImpl {
 
   async head(path: string): Promise<FileHead | null> {
     logDriveOp('head', path);
-    const file = await this.statFresh(path, (id) => metadataUrl(id), 'stat');
-    if (file === null) return null;
+    const stat = await this.statFresh(path, (id) => metadataUrl(id), 'stat');
+    if (stat === null) return null;
     return {
-      size: file.size !== undefined ? Number(file.size) : undefined,
-      etag: file.md5Checksum,
+      size: stat.file.size !== undefined ? Number(stat.file.size) : undefined,
+      etag: stat.etag ?? stat.file.md5Checksum,
     };
   }
 
@@ -375,6 +375,29 @@ class DriveProviderImpl {
       new TextEncoder().encode(body).buffer as ArrayBuffer,
       contentType,
     );
+  }
+
+  async writeTextConditional(
+    path: string,
+    body: string,
+    expectedEtag: string | null,
+    contentType: string = DEFAULT_TEXT_CONTENT_TYPE,
+  ): Promise<boolean> {
+    const fileId = await this.resolveFile(path);
+    if (fileId === null) {
+      if (expectedEtag !== null) return false;
+      await this.writeText(path, body, contentType);
+      return true;
+    }
+    if (expectedEtag === null) return false;
+    const bytes = new TextEncoder().encode(body).buffer as ArrayBuffer;
+    const res = await this.authedFetch(mediaUpdateUrl(fileId), HTTP_PATCH, {
+      headers: { [CONTENT_TYPE_HEADER]: contentType, 'If-Match': expectedEtag },
+      body: bytes,
+    });
+    if (res.status === 412) return false;
+    await this.ensureOk(res, 'upload', path);
+    return true;
   }
 
   async writeBinary(
@@ -487,7 +510,7 @@ class DriveProviderImpl {
     path: string,
     urlFor: (id: string) => string,
     operation: DriveOperation,
-  ): Promise<DriveFile | null> {
+  ): Promise<{ file: DriveFile; etag?: string } | null> {
     const cachedId = this.idCache.get(path);
     let fileId = await this.resolveFile(path);
     if (fileId === null) return null;
@@ -500,7 +523,7 @@ class DriveProviderImpl {
     }
     if (res.status === HTTP_NOT_FOUND) return null;
     await this.ensureOk(res, operation, path);
-    return (await res.json()) as DriveFile;
+    return { file: (await res.json()) as DriveFile, etag: res.headers.get('etag') ?? undefined };
   }
 
   // --- path resolution -----------------------------------------------------
@@ -925,6 +948,8 @@ export const createGoogleDriveProvider = (
     head: (path) => wrap(() => impl.head(path)),
     list: (path) => wrap(() => impl.list(path)),
     writeText: (path, body, contentType) => wrap(() => impl.writeText(path, body, contentType)),
+    writeTextConditional: (path, body, expectedEtag, contentType) =>
+      wrap(() => impl.writeTextConditional(path, body, expectedEtag, contentType)),
     writeBinary: (path, body, contentType) => wrap(() => impl.writeBinary(path, body, contentType)),
     ensureDir: (paths) => wrap(() => impl.ensureDir(paths)),
     deleteDir: (path) => wrap(() => impl.deleteDir(path)),
