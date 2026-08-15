@@ -107,6 +107,7 @@ export interface WebDAVSettings {
   syncProgress?: boolean;
   syncNotes?: boolean;
   syncBooks?: boolean;
+  fullSync?: boolean;
   // Conflict policy — same vocabulary as KOSync so users only learn one.
   strategy?: KOSyncStrategy;
   // Stable per-device id (uuidv4); written into library.json so we can tell
@@ -115,6 +116,8 @@ export interface WebDAVSettings {
   // Wall-clock millisecond timestamp of the last successful end-to-end
   // sync, surfaced in the WebDAV settings sub-page.
   lastSyncedAt?: number;
+  /** Device-local activation timestamp used by mixed-fleet detection. */
+  providerSelectedAt?: number;
   // Diagnostic ring buffer: most recent ten "Sync now" runs, oldest first
   // dropped when full. Persisted alongside the rest of settings so users
   // can screenshot a failure breakdown when reporting issues. We keep the
@@ -208,6 +211,67 @@ export interface WebDAVSyncLogEntry {
 
 /** Maximum entries retained in {@link WebDAVSettings.syncLog}. */
 export const WEBDAV_SYNC_LOG_LIMIT = 10;
+
+export interface GoogleDriveSettings {
+  enabled: boolean;
+  accountLabel?: string;
+  syncProgress?: boolean;
+  syncNotes?: boolean;
+  syncBooks?: boolean;
+  fullSync?: boolean;
+  strategy?: KOSyncStrategy;
+  deviceId?: string;
+  lastSyncedAt?: number;
+  providerSelectedAt?: number;
+}
+
+export interface S3Settings {
+  enabled: boolean;
+  endpoint: string;
+  region?: string;
+  bucket: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  syncProgress?: boolean;
+  syncNotes?: boolean;
+  syncBooks?: boolean;
+  fullSync?: boolean;
+  strategy?: KOSyncStrategy;
+  deviceId?: string;
+  lastSyncedAt?: number;
+  providerSelectedAt?: number;
+}
+
+export interface OneDriveSettings {
+  enabled: boolean;
+  accountLabel?: string;
+  syncProgress?: boolean;
+  syncNotes?: boolean;
+  syncBooks?: boolean;
+  fullSync?: boolean;
+  strategy?: KOSyncStrategy;
+  deviceId?: string;
+  lastSyncedAt?: number;
+  providerSelectedAt?: number;
+}
+
+export interface ICloudSettings {
+  enabled: boolean;
+  syncProgress?: boolean;
+  syncNotes?: boolean;
+  syncBooks?: boolean;
+  fullSync?: boolean;
+  strategy?: KOSyncStrategy;
+  deviceId?: string;
+  lastSyncedAt?: number;
+  providerSelectedAt?: number;
+}
+
+/** Device-local switch for the built-in Readest Cloud provider. */
+export interface ReadestCloudSettings {
+  enabled?: boolean;
+  disabledAt?: number;
+}
 
 /**
  * User-facing sync categories. 'progress' gates the existing book-config
@@ -338,7 +402,13 @@ export interface SystemSettings {
   kosync: KOSyncSettings;
   readwise: ReadwiseSettings;
   hardcover: HardcoverSettings;
+  /** Optional for backward compatibility with existing cloud-sync settings. */
+  readestCloud?: ReadestCloudSettings;
   webdav: WebDAVSettings;
+  googleDrive: GoogleDriveSettings;
+  s3: S3Settings;
+  onedrive: OneDriveSettings;
+  icloud: ICloudSettings;
 
   aiSettings: AISettings;
   /**

@@ -9,7 +9,8 @@ set -euo pipefail
 DEV_PORT=3000
 WEBDRIVER_PORT=4445
 POLL_INTERVAL=3
-TIMEOUT=300
+DEV_SERVER_TIMEOUT=${DEV_SERVER_TIMEOUT:-300}
+WEBDRIVER_TIMEOUT=${WEBDRIVER_TIMEOUT:-600}
 
 cleanup() {
   if [[ -n "${TAURI_PID:-}" ]]; then
@@ -39,7 +40,7 @@ while ! curl -sf "http://localhost:${DEV_PORT}" >/dev/null 2>&1; do
     echo "ERROR: Dev server exited unexpectedly."
     exit 1
   fi
-  if (( elapsed >= TIMEOUT )); then
+  if (( elapsed >= DEV_SERVER_TIMEOUT )); then
     echo "ERROR: Timed out waiting for dev server on port $DEV_PORT."
     exit 1
   fi
@@ -52,14 +53,14 @@ dotenv -e .env.tauri -- tauri dev --features webdriver --no-watch \
   --config '{"build":{"beforeDevCommand":""}}' &
 TAURI_PID=$!
 
-echo "Waiting for WebDriver server on port $WEBDRIVER_PORT (timeout ${TIMEOUT}s)..."
+echo "Waiting for WebDriver server on port $WEBDRIVER_PORT (timeout ${WEBDRIVER_TIMEOUT}s)..."
 elapsed=0
 while ! curl -sf "http://127.0.0.1:${WEBDRIVER_PORT}/status" >/dev/null 2>&1; do
   if ! kill -0 "$TAURI_PID" 2>/dev/null; then
     echo "ERROR: Tauri app exited before WebDriver became ready."
     exit 1
   fi
-  if (( elapsed >= TIMEOUT )); then
+  if (( elapsed >= WEBDRIVER_TIMEOUT )); then
     echo "ERROR: Timed out waiting for WebDriver on port $WEBDRIVER_PORT."
     exit 1
   fi

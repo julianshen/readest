@@ -12,6 +12,8 @@ import {
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/utils/supabase';
 import posthog from 'posthog-js';
+import { getUserProfilePlan } from '@/utils/access';
+import { setCachedUserPlan } from '@/services/sync/cloudSyncProvider';
 
 interface AuthContextType {
   token: string | null;
@@ -23,12 +25,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const updateCachedUserPlan = (token: string | null): void => {
+  try {
+    setCachedUserPlan(token ? getUserProfilePlan(token) : undefined);
+  } catch {
+    // A malformed persisted token must retain the restrictive default until
+    // Supabase refreshes or clears the session.
+    setCachedUserPlan(undefined);
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('token');
-    }
-    return null;
+    const storedToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    updateCachedUserPlan(storedToken);
+    return storedToken;
   });
   const [user, setUser] = useState<User | null>(() => {
     if (typeof window !== 'undefined') {
@@ -49,12 +60,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('refresh_token', refresh_token);
         localStorage.setItem('user', JSON.stringify(user));
         posthog.identify(user.id);
+        updateCachedUserPlan(access_token);
         setToken(access_token);
         setUser(user);
       } else {
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
+        updateCachedUserPlan(null);
         setToken(null);
         setUser(null);
       }
@@ -84,6 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // every render and the memo would always invalidate.
   const login = useCallback((newToken: string, newUser: User) => {
     console.log('Logging in');
+    updateCachedUserPlan(newToken);
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
@@ -99,6 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await supabase.auth.signOut();
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      updateCachedUserPlan(null);
       setToken(null);
       setUser(null);
     }

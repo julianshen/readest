@@ -6,12 +6,12 @@
 //!
 //! Download files from a remote HTTP server to disk.
 
-use futures_util::TryStreamExt;
+use futures_util::{StreamExt, TryStreamExt};
 use serde::{ser::Serializer, Serialize};
 use tauri::{command, ipc::Channel};
 use tokio::{
     fs::File,
-    io::{AsyncWriteExt, BufWriter},
+    io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, BufWriter},
 };
 use tokio_util::codec::{BytesCodec, FramedRead};
 
@@ -101,6 +101,13 @@ pub struct ProgressPayload {
     transfer_speed: u64,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UploadResponse {
+    status: u16,
+    body: String,
+}
+
 #[command]
 pub async fn download_file(
     url: &str,
@@ -111,10 +118,8 @@ pub async fn download_file(
     skip_ssl_verification: Option<bool>,
     on_progress: Channel<ProgressPayload>,
 ) -> Result<HashMap<String, String>> {
-    use futures::stream::{self, StreamExt};
+    use futures::stream::{self, TryStreamExt};
     use std::cmp::min;
-    use tokio::io::AsyncSeekExt;
-
     const PART_SIZE: u64 = 1024 * 1024;
 
     let client = reqwest::ClientBuilder::new()
@@ -221,7 +226,8 @@ pub async fn download_file(
     let progress = Arc::new(tokio::sync::Mutex::new(TransferStats::default()));
 
     stream::iter(0..part_count)
-        .for_each_concurrent(8, |i| {
+        .map(Ok)
+        .try_for_each_concurrent(8, |i| {
             let client = client.clone();
             let file = Arc::clone(&file);
             let progress = Arc::clone(&progress);
@@ -239,26 +245,15 @@ pub async fn download_file(
                     req = req.header(key, value);
                 }
 
-                let resp = match req.send().await {
-                    Ok(r) => r,
-                    Err(_) => return,
-                };
-
-                if !resp.status().is_success()
-                    && resp.status() != reqwest::StatusCode::PARTIAL_CONTENT
-                {
-                    return;
-                }
-
-                let bytes = match resp.bytes().await {
-                    Ok(b) => b,
-                    Err(_) => return,
-                };
+                let resp = req.send().await?;
+                let status = resp.status();
+                let bytes = resp.bytes().await?;
+                validate_download_range(status, start, end, bytes.len())?;
 
                 {
                     let mut f = file.lock().await;
-                    f.seek(std::io::SeekFrom::Start(start)).await.unwrap();
-                    f.write_all(&bytes).await.unwrap();
+                    f.seek(std::io::SeekFrom::Start(start)).await?;
+                    f.write_all(&bytes).await?;
                 }
 
                 {
@@ -270,9 +265,10 @@ pub async fn download_file(
                         transfer_speed: stat.transfer_speed,
                     });
                 }
+                Ok::<(), Error>(())
             }
         })
-        .await;
+        .await?;
 
     Ok(resp_headers)
 }
@@ -283,10 +279,11 @@ pub async fn upload_file(
     file_path: &str,
     method: &str,
     headers: HashMap<String, String>,
+    offset: Option<u64>,
+    length: Option<u64>,
     on_progress: Channel<ProgressPayload>,
-) -> Result<String> {
-    let file = File::open(file_path).await?;
-    let file_len = file.metadata().await.unwrap().len();
+) -> Result<UploadResponse> {
+    let (file, upload_length) = open_upload_range(file_path, offset, length).await?;
 
     let client = reqwest::Client::new();
     let mut request = match method.to_uppercase().as_str() {
@@ -296,16 +293,20 @@ pub async fn upload_file(
     };
 
     request = request
-        .header(reqwest::header::CONTENT_LENGTH, file_len)
-        .body(file_to_body(on_progress.clone(), file, file_len));
+        .header(reqwest::header::CONTENT_LENGTH, upload_length)
+        .body(file_to_body(on_progress.clone(), file, upload_length));
 
     for (key, value) in headers {
         request = request.header(&key, value);
     }
 
     let response = request.send().await?;
-    if response.status().is_success() {
-        response.text().await.map_err(Into::into)
+    let status = response.status();
+    if status.is_success() {
+        Ok(UploadResponse {
+            status: status.as_u16(),
+            body: response.text().await?,
+        })
     } else {
         Err(Error::HttpErrorCode(
             response.status().as_u16(),
@@ -314,7 +315,60 @@ pub async fn upload_file(
     }
 }
 
-fn file_to_body(channel: Channel<ProgressPayload>, file: File, file_len: u64) -> reqwest::Body {
+async fn open_upload_range(
+    file_path: &str,
+    offset: Option<u64>,
+    length: Option<u64>,
+) -> Result<(tokio::io::Take<File>, u64)> {
+    let mut file = File::open(file_path).await?;
+    let file_len = file.metadata().await?.len();
+    let offset = offset.unwrap_or(0);
+    if offset > file_len {
+        return Err(Error::ContentLength(format!(
+            "Upload offset {offset} exceeds file length {file_len}"
+        )));
+    }
+
+    let length = length.unwrap_or(file_len - offset);
+    let end = offset
+        .checked_add(length)
+        .ok_or_else(|| Error::ContentLength("Upload range overflows u64".into()))?;
+    if end > file_len {
+        return Err(Error::ContentLength(format!(
+            "Upload range {offset}..{end} exceeds file length {file_len}"
+        )));
+    }
+
+    file.seek(std::io::SeekFrom::Start(offset)).await?;
+    Ok((file.take(length), length))
+}
+
+fn validate_download_range(
+    status: reqwest::StatusCode,
+    start: u64,
+    end: u64,
+    actual_len: usize,
+) -> Result<()> {
+    if status != reqwest::StatusCode::PARTIAL_CONTENT {
+        return Err(Error::HttpErrorCode(
+            status.as_u16(),
+            format!("expected partial content for range {start}..={end}"),
+        ));
+    }
+    let expected_len = end - start + 1;
+    if actual_len as u64 != expected_len {
+        return Err(Error::ContentLength(format!(
+            "download range {start}..={end} returned {actual_len} bytes, expected {expected_len}"
+        )));
+    }
+    Ok(())
+}
+
+fn file_to_body(
+    channel: Channel<ProgressPayload>,
+    file: tokio::io::Take<File>,
+    file_len: u64,
+) -> reqwest::Body {
     let stream = FramedRead::new(file, BytesCodec::new()).map_ok(|r| r.freeze());
 
     let mut stats = TransferStats::default();
@@ -329,4 +383,87 @@ fn file_to_body(channel: Channel<ProgressPayload>, file: File, file_len: u64) ->
             });
         }),
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{open_upload_range, validate_download_range, Error};
+    use futures_util::TryStreamExt;
+    use std::{
+        fs,
+        time::{SystemTime, UNIX_EPOCH},
+    };
+    use tokio_util::codec::{BytesCodec, FramedRead};
+
+    #[test]
+    fn ranged_download_rejects_non_partial_responses() {
+        let error = validate_download_range(reqwest::StatusCode::OK, 0, 9, 10).unwrap_err();
+        assert!(matches!(error, Error::HttpErrorCode(200, _)));
+    }
+
+    #[test]
+    fn ranged_download_rejects_short_response_bodies() {
+        let error =
+            validate_download_range(reqwest::StatusCode::PARTIAL_CONTENT, 10, 19, 9).unwrap_err();
+        assert!(matches!(error, Error::ContentLength(_)));
+    }
+
+    #[test]
+    fn ranged_download_accepts_an_exact_partial_response() {
+        validate_download_range(reqwest::StatusCode::PARTIAL_CONTENT, 10, 19, 10).unwrap();
+    }
+
+    #[test]
+    fn upload_range_streams_only_the_requested_disk_slice() {
+        let path = std::env::temp_dir().join(format!(
+            "readest-upload-range-{}-{}.bin",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos(),
+        ));
+        fs::write(&path, b"0123456789").unwrap();
+
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let result = runtime.block_on(async {
+            let (file, length) =
+                open_upload_range(path.to_str().unwrap(), Some(3), Some(4)).await?;
+            let chunks = FramedRead::new(file, BytesCodec::new())
+                .map_ok(|chunk| chunk.freeze())
+                .try_collect::<Vec<_>>()
+                .await?;
+            Ok::<_, super::Error>((length, chunks.concat()))
+        });
+        fs::remove_file(&path).unwrap();
+
+        let (length, body) = result.unwrap();
+        assert_eq!(length, 4);
+        assert_eq!(body, b"3456");
+    }
+
+    #[test]
+    fn upload_range_rejects_a_slice_past_end_of_file() {
+        let path = std::env::temp_dir().join(format!(
+            "readest-upload-range-invalid-{}-{}.bin",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos(),
+        ));
+        fs::write(&path, b"0123456789").unwrap();
+
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let result = runtime.block_on(open_upload_range(path.to_str().unwrap(), Some(8), Some(3)));
+        fs::remove_file(&path).unwrap();
+
+        assert!(result.is_err());
+    }
 }

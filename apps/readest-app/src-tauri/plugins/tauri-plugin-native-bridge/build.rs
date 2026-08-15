@@ -33,6 +33,11 @@ const COMMANDS: &[&str] = &[
     "checkPermissions",
     "requestPermissions",
     "clip_url",
+    "set_secure_item",
+    "get_secure_item",
+    "clear_secure_item",
+    "icloud_container_status",
+    "icloud_ensure_downloaded",
 ];
 
 fn main() {

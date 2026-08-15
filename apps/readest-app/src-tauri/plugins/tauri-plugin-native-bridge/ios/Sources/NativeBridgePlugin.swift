@@ -30,6 +30,7 @@ func getLocalizedDisplayName(familyName: String) -> String? {
 
 class SafariAuthRequestArgs: Decodable {
   let authUrl: String
+  let callbackScheme: String?
 }
 
 class UseBackgroundAudioRequestArgs: Decodable {
@@ -59,6 +60,11 @@ class SetScreenBrightnessRequestArgs: Decodable {
 class CopyUriToPathRequestArgs: Decodable {
   let uri: String?
   let dst: String?
+}
+
+struct ICloudEnsureDownloadedArgs: Decodable {
+  let path: String
+  let timeoutMs: Int?
 }
 
 struct InitializeRequest: Decodable {
@@ -770,8 +776,9 @@ class NativeBridgePlugin: Plugin {
   @objc public func auth_with_safari(_ invoke: Invoke) throws {
     let args = try invoke.parseArgs(SafariAuthRequestArgs.self)
     let authUrl = URL(string: args.authUrl)!
+    let callbackScheme = args.callbackScheme ?? "readest"
 
-    authSession = ASWebAuthenticationSession(url: authUrl, callbackURLScheme: "readest") {
+    authSession = ASWebAuthenticationSession(url: authUrl, callbackURLScheme: callbackScheme) {
       [weak self] callbackURL, error in
       guard let strongSelf = self else { return }
 
@@ -1234,6 +1241,134 @@ class NativeBridgePlugin: Plugin {
     }
   }
 
+  private static let secureItemsService = "com.bilingify.readest.secure-items"
+
+  private func secureItemBaseQuery(_ key: String) -> [String: Any] {
+    return [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: NativeBridgePlugin.secureItemsService,
+      kSecAttrAccount as String: key
+    ]
+  }
+
+  @objc public func set_secure_item(_ invoke: Invoke) {
+    do {
+      let args = try invoke.parseArgs(SecureItemSetArgs.self)
+      guard let data = args.value.data(using: .utf8) else {
+        invoke.resolve(["success": false, "error": "encoding"])
+        return
+      }
+      let baseQuery = secureItemBaseQuery(args.key)
+      // Replace in place when the item already exists. Deleting with a query
+      // that carries kSecValueData does not match the stored item (the value
+      // is not part of its identity), so the old entry survives and the
+      // subsequent SecItemAdd fails with errSecDuplicateItem — surfacing as
+      // AUTH_FAILED on every token refresh or reconnect.
+      let updateStatus = SecItemUpdate(
+        baseQuery as CFDictionary,
+        [kSecValueData as String: data] as CFDictionary
+      )
+      let status: OSStatus
+      if updateStatus == errSecItemNotFound {
+        var addQuery = baseQuery
+        addQuery[kSecValueData as String] = data
+        status = SecItemAdd(addQuery as CFDictionary, nil)
+      } else {
+        status = updateStatus
+      }
+      if status == errSecSuccess {
+        invoke.resolve(["success": true])
+      } else {
+        invoke.resolve(["success": false, "error": "OSStatus \(status)"])
+      }
+    } catch {
+      invoke.resolve(["success": false, "error": "\(error)"])
+    }
+  }
+
+  @objc public func get_secure_item(_ invoke: Invoke) {
+    do {
+      let args = try invoke.parseArgs(SecureItemGetArgs.self)
+      var query = secureItemBaseQuery(args.key)
+      query[kSecReturnData as String] = true
+      query[kSecMatchLimit as String] = kSecMatchLimitOne
+      var item: CFTypeRef?
+      let status = SecItemCopyMatching(query as CFDictionary, &item)
+      if status == errSecSuccess, let data = item as? Data, let value = String(data: data, encoding: .utf8) {
+        invoke.resolve(["value": value])
+      } else if status == errSecItemNotFound {
+        invoke.resolve([:])
+      } else {
+        invoke.resolve(["error": "OSStatus \(status)"])
+      }
+    } catch {
+      invoke.resolve(["error": "\(error)"])
+    }
+  }
+
+  @objc public func clear_secure_item(_ invoke: Invoke) {
+    do {
+      let args = try invoke.parseArgs(SecureItemGetArgs.self)
+      let status = SecItemDelete(secureItemBaseQuery(args.key) as CFDictionary)
+      if status == errSecSuccess || status == errSecItemNotFound {
+        invoke.resolve(["success": true])
+      } else {
+        invoke.resolve(["success": false, "error": "OSStatus \(status)"])
+      }
+    } catch {
+      invoke.resolve(["success": false, "error": "\(error)"])
+    }
+  }
+
+  @objc public func icloud_container_status(_ invoke: Invoke) {
+    DispatchQueue.global(qos: .userInitiated).async {
+      guard let container = FileManager.default.url(forUbiquityContainerIdentifier: nil) else {
+        invoke.resolve(["available": false])
+        return
+      }
+      let documents = container.appendingPathComponent("Documents", isDirectory: true)
+      do {
+        try FileManager.default.createDirectory(at: documents, withIntermediateDirectories: true)
+      } catch {
+        invoke.reject("Failed to create iCloud Documents: \(error.localizedDescription)")
+        return
+      }
+      invoke.resolve(["available": true, "documentsPath": documents.path])
+    }
+  }
+
+  @objc public func icloud_ensure_downloaded(_ invoke: Invoke) {
+    guard let args = try? invoke.parseArgs(ICloudEnsureDownloadedArgs.self) else {
+      return invoke.reject("Failed to parse arguments")
+    }
+    DispatchQueue.global(qos: .userInitiated).async {
+      let fileManager = FileManager.default
+      if fileManager.fileExists(atPath: args.path) {
+        invoke.resolve(["status": "ready"])
+        return
+      }
+      let url = URL(fileURLWithPath: args.path)
+      let placeholder = url.deletingLastPathComponent()
+        .appendingPathComponent(".\(url.lastPathComponent).icloud")
+      guard fileManager.fileExists(atPath: placeholder.path) else {
+        invoke.resolve(["status": "notFound"])
+        return
+      }
+      if (try? fileManager.startDownloadingUbiquitousItem(at: url)) == nil {
+        try? fileManager.startDownloadingUbiquitousItem(at: placeholder)
+      }
+      let deadline = Date().addingTimeInterval(Double(args.timeoutMs ?? 60000) / 1000)
+      while Date() < deadline {
+        if fileManager.fileExists(atPath: args.path) {
+          invoke.resolve(["status": "ready"])
+          return
+        }
+        Thread.sleep(forTimeInterval: 0.25)
+      }
+      invoke.resolve(["status": "timeout"])
+    }
+  }
+
   @objc public func show_lookup_popover(_ invoke: Invoke) {
     // Bridge for the system-dictionary "Look Up" surface on iOS.
     // We use `UIReferenceLibraryViewController`, which is the same
@@ -1631,6 +1766,15 @@ private func topmostViewController() -> UIViewController? {
 
 class SyncPassphraseSetArgs: Decodable {
   let passphrase: String
+}
+
+class SecureItemSetArgs: Decodable {
+  let key: String
+  let value: String
+}
+
+class SecureItemGetArgs: Decodable {
+  let key: String
 }
 
 class ShowLookupPopoverArgs: Decodable {

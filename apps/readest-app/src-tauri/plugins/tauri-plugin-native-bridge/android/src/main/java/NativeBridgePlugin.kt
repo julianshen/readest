@@ -7,6 +7,8 @@ import android.net.Uri
 import android.util.Log
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.provider.DocumentsContract
 import android.view.View
@@ -45,6 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @InvokeArg
 class AuthRequestArgs {
     var authUrl: String? = null
+    var callbackUrl: String? = null
 }
 
 @InvokeArg
@@ -135,8 +138,6 @@ interface KeyDownInterceptor {
 )
 class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     private val implementation = NativeBridge()
-    private var redirectScheme = "readest"
-    private var redirectHost = "auth-callback"
     private val billingManager by lazy {
         BillingManager(activity)
     }
@@ -150,7 +151,24 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     companion object {
         private const val REQUEST_MANAGE_STORAGE = 1001
         private const val FOLDER_PICKER_REQUEST_CODE = 1002
-        var pendingInvoke: Invoke? = null
+        private const val OAUTH_CALLBACK_TIMEOUT_MS = 5 * 60 * 1000L
+        private val oauthHandler = Handler(Looper.getMainLooper())
+        private val pendingAuthRequest by lazy {
+            OAuthPendingRequest<Invoke>(
+                scheduler = object : OAuthDeadlineScheduler {
+                    override fun schedule(delayMs: Long, action: () -> Unit): OAuthDeadline {
+                        val runnable = Runnable { action() }
+                        oauthHandler.postDelayed(runnable, delayMs)
+                        return object : OAuthDeadline {
+                            override fun cancel() {
+                                oauthHandler.removeCallbacks(runnable)
+                            }
+                        }
+                    }
+                },
+                timeoutMs = OAUTH_CALLBACK_TIMEOUT_MS,
+            )
+        }
         var pendingFolderPickerInvoke: Invoke? = null
         private var instance: NativeBridgePlugin? = null
         fun getInstance(): NativeBridgePlugin? = instance
@@ -170,16 +188,19 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         if (intent == null) return
         Log.d("NativeBridgePlugin", "Received intent: action=${intent.action} data=${intent.data}")
 
-        // OAuth callback uses a custom scheme on intent.data and is handled
-        // separately from any user-shared content.
-        intent.data?.let { uri ->
-            if (uri.scheme == "readest" && uri.host == "auth-callback") {
-                val result = JSObject().apply {
-                    put("redirectUrl", uri.toString())
+        // Accept an OAuth callback only for the active authorization attempt.
+        // Its full provider callback target is checked before ordinary VIEW
+        // intents are forwarded as user-shared content.
+        if (intent.action == Intent.ACTION_VIEW) {
+            intent.data?.let { uri ->
+                val invoke = pendingAuthRequest.takeMatching(uri.toString())
+                if (invoke != null) {
+                    val result = JSObject().apply {
+                        put("redirectUrl", uri.toString())
+                    }
+                    invoke.resolve(result)
+                    return
                 }
-                pendingInvoke?.resolve(result)
-                pendingInvoke = null
-                return
             }
         }
 
@@ -259,15 +280,31 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     @Command
     fun auth_with_custom_tab(invoke: Invoke) {
         val args = invoke.parseArgs(AuthRequestArgs::class.java)
+        val callbackTarget = args.callbackUrl?.let(OAuthCallbackTarget::parse)
+        if (callbackTarget == null) {
+            invoke.reject("Invalid OAuth callback URL")
+            return
+        }
         val uri = Uri.parse(args.authUrl)
-
         val customTabsIntent = CustomTabsIntent.Builder().build()
         customTabsIntent.intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
 
-        Log.d("NativeBridgePlugin", "Launching OAuth URL: ${args.authUrl}")
-        customTabsIntent.launchUrl(activity, uri)
+        if (!pendingAuthRequest.begin(invoke, callbackTarget) { timedOutInvoke ->
+                timedOutInvoke.reject("OAuth authorization timed out")
+            }
+        ) {
+            invoke.reject("OAuth authorization already in progress")
+            return
+        }
 
-        pendingInvoke = invoke
+        Log.d("NativeBridgePlugin", "Launching OAuth URL: ${args.authUrl}")
+        try {
+            customTabsIntent.launchUrl(activity, uri)
+        } catch (error: Exception) {
+            if (pendingAuthRequest.remove(invoke)) {
+                invoke.reject("Failed to launch OAuth URL: ${error.message}")
+            }
+        }
     }
 
     @Command
@@ -859,7 +896,6 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         }
 
         invoke.resolve(result)
-        pendingInvoke = null
     }
 
     private fun extractPathFromUri(uri: Uri): String? {
@@ -977,6 +1013,64 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
         invoke.resolve(ret)
     }
 
+    private val secureItemsPrefsName = "readest_secure_items_v1"
+
+    private fun openSecureItemsPrefs(): android.content.SharedPreferences {
+        val masterKey = androidx.security.crypto.MasterKey.Builder(activity)
+            .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        return androidx.security.crypto.EncryptedSharedPreferences.create(
+            activity,
+            secureItemsPrefsName,
+            masterKey,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
+    }
+
+    @Command
+    fun set_secure_item(invoke: Invoke) {
+        val args = invoke.parseArgs(SecureItemSetArgs::class.java)
+        val ret = JSObject()
+        try {
+            openSecureItemsPrefs().edit().putString(args.key, args.value).apply()
+            ret.put("success", true)
+        } catch (e: Exception) {
+            Log.e("NativeBridgePlugin", "set_secure_item failed", e)
+            ret.put("success", false)
+            ret.put("error", e.message ?: "unknown")
+        }
+        invoke.resolve(ret)
+    }
+
+    @Command
+    fun get_secure_item(invoke: Invoke) {
+        val args = invoke.parseArgs(SecureItemGetArgs::class.java)
+        val ret = JSObject()
+        try {
+            openSecureItemsPrefs().getString(args.key, null)?.let { ret.put("value", it) }
+        } catch (e: Exception) {
+            Log.e("NativeBridgePlugin", "get_secure_item failed", e)
+            ret.put("error", e.message ?: "unknown")
+        }
+        invoke.resolve(ret)
+    }
+
+    @Command
+    fun clear_secure_item(invoke: Invoke) {
+        val args = invoke.parseArgs(SecureItemGetArgs::class.java)
+        val ret = JSObject()
+        try {
+            openSecureItemsPrefs().edit().remove(args.key).apply()
+            ret.put("success", true)
+        } catch (e: Exception) {
+            Log.e("NativeBridgePlugin", "clear_secure_item failed", e)
+            ret.put("success", false)
+            ret.put("error", e.message ?: "unknown")
+        }
+        invoke.resolve(ret)
+    }
+
     /**
      * Hand a selected word off to whatever dictionary / lookup app the
      * user has installed, via the standard `ACTION_PROCESS_TEXT`
@@ -1086,4 +1180,15 @@ class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
 @app.tauri.annotation.InvokeArg
 class SyncPassphraseSetArgs {
     lateinit var passphrase: String
+}
+
+@app.tauri.annotation.InvokeArg
+class SecureItemSetArgs {
+    lateinit var key: String
+    lateinit var value: String
+}
+
+@app.tauri.annotation.InvokeArg
+class SecureItemGetArgs {
+    lateinit var key: String
 }

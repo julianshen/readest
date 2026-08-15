@@ -4,16 +4,21 @@ import { useSync } from '@/hooks/useSync';
 import { useEnv } from '@/context/EnvContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLibraryStore } from '@/store/libraryStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SYNC_BOOKS_INTERVAL_SEC } from '@/services/constants';
 import { throttle } from '@/utils/throttle';
 import { debounce } from '@/utils/debounce';
 import { eventDispatcher } from '@/utils/event';
+import { runFileLibrarySyncPass } from '@/services/sync/file/runLibrarySync';
+import { isReadestCloudEnabled } from '@/services/sync/cloudSyncProvider';
 
 export const useBooksSync = () => {
   const _ = useTranslation();
   const { user } = useAuth();
-  const { appService } = useEnv();
+  const { envConfig, appService } = useEnv();
+  const settings = useSettingsStore((state) => state.settings);
+  const readestCloudEnabled = isReadestCloudEnabled(settings);
   const { library, isSyncing, libraryLoaded } = useLibraryStore();
   const { setLibrary, setIsSyncing, setSyncProgress } = useLibraryStore();
   const { useSyncInited, syncedBooks, syncBooks, lastSyncedAtBooks } = useSync();
@@ -48,7 +53,7 @@ export const useBooksSync = () => {
 
   const pullLibrary = useCallback(
     async (fullRefresh = false, verbose = false) => {
-      if (!user) return;
+      if (!user || !readestCloudEnabled) return;
       if (isPullingRef.current) return;
       try {
         isPullingRef.current = true;
@@ -65,7 +70,7 @@ export const useBooksSync = () => {
         isPullingRef.current = false;
       }
     },
-    [_, user, libraryLoaded, syncBooks],
+    [_, user, readestCloudEnabled, libraryLoaded, syncBooks],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,10 +79,19 @@ export const useBooksSync = () => {
       async () => {
         if (isPullingRef.current) return;
         const newBooks = getNewBooks();
-        if (!newBooks.lastSyncedAt) return;
         isPullingRef.current = true;
         try {
-          await syncBooks(newBooks.books, 'both');
+          if (user && readestCloudEnabled && newBooks.books?.length) {
+            try {
+              await syncBooks(newBooks.books, 'both');
+            } catch (error) {
+              // Native Readest Cloud and third-party file mirrors are
+              // independent destinations. A native outage must not prevent
+              // the selected file-backend pass.
+              console.warn('[cloudSync] native library sync failed', error);
+            }
+          }
+          await runFileLibrarySyncPass(envConfig, _);
         } finally {
           isPullingRef.current = false;
         }
@@ -85,27 +99,26 @@ export const useBooksSync = () => {
       SYNC_BOOKS_INTERVAL_SEC * 1000,
       { emitLast: true },
     ),
-    [syncBooks],
+    [syncBooks, user, readestCloudEnabled, getNewBooks, envConfig, _],
   );
 
   useEffect(() => {
-    if (!user) return;
     if (isPullingRef.current) return;
     handleAutoSync();
-  }, [user, library, handleAutoSync]);
+  }, [library, handleAutoSync]);
 
   const pushLibrary = useCallback(async () => {
-    if (!user) return;
+    if (!user || !readestCloudEnabled) return;
     const newBooks = getNewBooks();
     if (newBooks.lastSyncedAt) {
       await syncBooks(newBooks?.books, 'push');
     }
-  }, [user, syncBooks, getNewBooks]);
+  }, [user, readestCloudEnabled, syncBooks, getNewBooks]);
 
   useEffect(() => {
-    if (!user || !useSyncInited || !libraryLoaded) return;
+    if (!user || !readestCloudEnabled || !useSyncInited || !libraryLoaded) return;
     pullLibrary();
-  }, [user, useSyncInited, libraryLoaded, pullLibrary]);
+  }, [user, readestCloudEnabled, useSyncInited, libraryLoaded, pullLibrary]);
 
   const updateLibrary = useCallback(async () => {
     if (!syncedBooks?.length) return;

@@ -4,6 +4,13 @@ import { type as osType } from '@tauri-apps/plugin-os';
 
 export interface AuthRequest {
   authUrl: string;
+  /** Optional custom callback scheme for provider OAuth on iOS. */
+  callbackScheme?: string;
+}
+
+/** Provider OAuth supplies an exact Android custom-scheme callback URI. */
+export interface CustomTabAuthRequest extends AuthRequest {
+  callbackUrl: string;
 }
 
 export interface AuthResponse {
@@ -40,7 +47,7 @@ export async function authWithSafari(request: AuthRequest): Promise<AuthResponse
   }
 }
 
-export async function authWithCustomTab(request: AuthRequest): Promise<AuthResponse> {
+export async function authWithCustomTab(request: CustomTabAuthRequest): Promise<AuthResponse> {
   const result = await invoke<AuthResponse>('plugin:native-bridge|auth_with_custom_tab', {
     payload: request,
   });

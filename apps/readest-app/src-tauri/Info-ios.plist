@@ -53,6 +53,34 @@
           <string>readest</string>
         </array>
       </dict>
+      <dict>
+        <key>CFBundleURLName</key>
+        <string>com.googleusercontent.apps.gdrive-oauth</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e4qi4p60kq</string>
+        </array>
+      </dict>
+      <dict>
+        <key>CFBundleURLName</key>
+        <string>com.microsoft.onedrive-oauth</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>readest-onedrive</string>
+        </array>
+      </dict>
     </array>
+    <key>NSUbiquitousContainers</key>
+    <dict>
+      <key>iCloud.com.bilingify.readest</key>
+      <dict>
+        <key>NSUbiquitousContainerIsDocumentScopePublic</key>
+        <true/>
+        <key>NSUbiquitousContainerName</key>
+        <string>Readest</string>
+        <key>NSUbiquitousContainerSupportedFolderLevels</key>
+        <string>Any</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

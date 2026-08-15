@@ -11,6 +11,7 @@
     "fs:allow-write",
     "fs:allow-read",
     "fs:allow-rename",
+    "fs:allow-copy-file",
     "fs:allow-mkdir",
     "fs:allow-remove",
     "fs:allow-stat",
@@ -82,6 +83,12 @@
         },
         {
           "path": "**/com.github.johnfactotum.Foliate/**/*"
+        },
+        {
+          "path": "$HOME/Library/Mobile Documents/iCloud.com.bilingify.readest/Documents/**/*"
+        },
+        {
+          "path": "/private/var/mobile/Library/Mobile Documents/iCloud.com.bilingify.readest/Documents/**/*"
         },
         {
           "path": "**/last-book-cover.png"

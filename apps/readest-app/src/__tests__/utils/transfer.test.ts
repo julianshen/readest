@@ -1,5 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { webDownload, type ProgressPayload } from '@/utils/transfer';
+
+const invoke = vi.fn();
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: (...args: unknown[]) => invoke(...args),
+  Channel: class {
+    onmessage?: unknown;
+  },
+}));
+
+import { tauriUpload, webDownload, type ProgressPayload } from '@/utils/transfer';
 
 const buildResponse = (
   body: Uint8Array,
@@ -24,6 +33,36 @@ beforeEach(() => {
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  invoke.mockReset();
+});
+
+describe('tauriUpload', () => {
+  test('forwards a disk range to the native upload command', async () => {
+    invoke.mockResolvedValueOnce({ status: 202, body: '' });
+
+    const response = await tauriUpload(
+      'https://upload.example/session',
+      '/disk/book.epub',
+      'PUT',
+      undefined,
+      { 'Content-Range': 'bytes 10485760-20971519/20971521' },
+      10 * 1024 * 1024,
+      10 * 1024 * 1024,
+    );
+
+    expect(response).toEqual({ status: 202, body: '' });
+    expect(invoke).toHaveBeenCalledWith(
+      'upload_file',
+      expect.objectContaining({
+        url: 'https://upload.example/session',
+        filePath: '/disk/book.epub',
+        method: 'PUT',
+        headers: { 'Content-Range': 'bytes 10485760-20971519/20971521' },
+        offset: 10 * 1024 * 1024,
+        length: 10 * 1024 * 1024,
+      }),
+    );
+  });
 });
 
 describe('webDownload', () => {

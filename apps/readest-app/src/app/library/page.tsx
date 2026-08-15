@@ -36,8 +36,17 @@ import { useTheme } from '@/hooks/useTheme';
 import { useUICSS } from '@/hooks/useUICSS';
 import { useDemoBooks } from './hooks/useDemoBooks';
 import { useBooksSync } from './hooks/useBooksSync';
+import { useBookTransferActions } from './hooks/useBookTransferActions';
+import { createLibraryRefreshHandler } from './refreshLibrarySync';
 import { useInboxDrainer } from '@/hooks/useInboxDrainer';
 import { useOPDSSubscriptions } from '@/hooks/useOPDSSubscriptions';
+import { runFileLibrarySyncPass } from '@/services/sync/file/runLibrarySync';
+import {
+  applyPublishedFileCloudDeletion,
+  executeBookDeletion,
+  runCloudBookDelete,
+} from '@/services/sync/cloudBookDelete';
+import { hasAnyThirdPartyEnabled, isReadestCloudEnabled } from '@/services/sync/cloudSyncProvider';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useTransferStore } from '@/store/transferStore';
 import { useScreenWakeLock } from '@/hooks/useScreenWakeLock';
@@ -254,22 +263,32 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
 
   usePullToRefresh(
     scrollRef,
-    async () => {
-      if (!user) {
-        navigateToLogin(router);
-        return;
-      }
-      await pullLibrary(false, true);
-      checkOPDSSubscriptions(true);
-    },
-    async () => {
-      if (!user) {
-        navigateToLogin(router);
-        return;
-      }
-      await pullLibrary(true, true);
-      checkOPDSSubscriptions(true);
-    },
+    createLibraryRefreshHandler({
+      user,
+      settings,
+      envConfig,
+      translate: _,
+      router,
+      pullLibrary,
+      checkOPDSSubscriptions,
+      fullRefresh: false,
+      hasAnyThirdPartyEnabled,
+      runFileLibrarySyncPass,
+      navigateToLogin,
+    }),
+    createLibraryRefreshHandler({
+      user,
+      settings,
+      envConfig,
+      translate: _,
+      router,
+      pullLibrary,
+      checkOPDSSubscriptions,
+      fullRefresh: true,
+      hasAnyThirdPartyEnabled,
+      runFileLibrarySyncPass,
+      navigateToLogin,
+    }),
   );
   useScreenWakeLock(settings.screenWakeLock);
 
@@ -800,70 +819,11 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
     }));
   }, 500);
 
-  const handleBookUpload = useCallback(
-    async (book: Book, _syncBooks = true) => {
-      // Use transfer queue for uploads - priority 1 for manual uploads (higher priority)
-      const transferId = transferManager.queueUpload(book, 1);
-      if (transferId) {
-        eventDispatcher.dispatch('toast', {
-          type: 'info',
-          timeout: 2000,
-          message: _('Upload queued: {{title}}', {
-            title: book.title,
-          }),
-        });
-        return true;
-      }
-      return false;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
-  const handleBookDownload = useCallback(
-    async (book: Book, downloadOptions: { redownload?: boolean; queued?: boolean } = {}) => {
-      const { redownload = false, queued = false } = downloadOptions;
-      if (redownload || !queued) {
-        try {
-          await appService?.downloadBook(book, false, redownload, (progress) => {
-            updateBookTransferProgress(book.hash, progress);
-          });
-          await updateBook(envConfig, book);
-          eventDispatcher.dispatch('toast', {
-            type: 'info',
-            timeout: 2000,
-            message: _('Book downloaded: {{title}}', {
-              title: book.title,
-            }),
-          });
-          return true;
-        } catch {
-          eventDispatcher.dispatch('toast', {
-            message: _('Failed to download book: {{title}}', {
-              title: book.title,
-            }),
-            type: 'error',
-          });
-          return false;
-        }
-      }
-
-      // Use transfer queue for normal downloads - priority 1 for manual downloads
-      const transferId = transferManager.queueDownload(book, 1);
-      if (transferId) {
-        eventDispatcher.dispatch('toast', {
-          type: 'info',
-          timeout: 2000,
-          message: _('Download queued: {{title}}', {
-            title: book.title,
-          }),
-        });
-        return true;
-      }
-      return false;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [appService],
+  const { handleBookUpload, handleBookDownload } = useBookTransferActions(
+    envConfig,
+    appService,
+    updateBook,
+    updateBookTransferProgress,
   );
 
   const handleBookDelete = (deleteAction: DeleteAction) => {
@@ -880,25 +840,46 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       };
 
       try {
-        // Handle local deletion immediately
-        if (deleteAction === 'local' || deleteAction === 'both') {
-          await appService?.deleteBook(book, 'local');
-          if (deleteAction === 'both') {
-            book.deletedAt = Date.now();
-            book.downloadedAt = null;
-            book.coverDownloadedAt = null;
-          }
-          await updateBook(envConfig, book);
-          clearBookData(book.hash);
-          if (syncBooks) pushLibrary();
-        }
-
-        // Queue cloud deletion
-        if (deleteAction === 'cloud' || deleteAction === 'both') {
-          const transferId = transferManager.queueDelete(book, 1, true);
-          if (!transferId) {
-            throw new Error('Failed to queue cloud deletion');
-          }
+        const deletionResult = await executeBookDeletion(
+          deleteAction,
+          async () => {
+            await appService?.deleteBook(book, 'local');
+            if (deleteAction === 'both') {
+              book.deletedAt = Date.now();
+              book.downloadedAt = null;
+              book.coverDownloadedAt = null;
+            }
+            await updateBook(envConfig, book);
+            clearBookData(book.hash);
+            if (syncBooks) pushLibrary();
+          },
+          async () => {
+            // File backends tombstone the shared index and remove only their
+            // managed hash dir; native Readest Cloud remains queue-backed.
+            const readestEnabled = isReadestCloudEnabled(useSettingsStore.getState().settings);
+            const cloudDeletion = await runCloudBookDelete(
+              envConfig,
+              book,
+              readestEnabled,
+              (targetBook, priority, isBackground) =>
+                transferManager.queueDelete(targetBook, priority, isBackground),
+            );
+            // Keep a local row newer than a published file tombstone. A later
+            // sync may re-upload it when file sync remains enabled.
+            if (applyPublishedFileCloudDeletion(book, cloudDeletion, readestEnabled)) {
+              await updateBook(envConfig, book);
+            }
+            return cloudDeletion;
+          },
+        );
+        if (!deletionResult.ok) {
+          eventDispatcher.dispatch('toast', {
+            message: deletionResult.cloud?.partial
+              ? _('Partially failed to delete cloud backup: {{title}}', { title: book.title })
+              : deletionFailMessages[deleteAction],
+            type: 'error',
+          });
+          return false;
         }
 
         eventDispatcher.dispatch('toast', {

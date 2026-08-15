@@ -278,6 +278,87 @@ impl<R: Runtime> NativeBridge<R> {
                 .to_string(),
         ))
     }
+
+    pub fn set_secure_item(
+        &self,
+        payload: SetSecureItemRequest,
+    ) -> crate::Result<SecureItemResponse> {
+        match keyring_entry_for(&payload.key).and_then(|entry| entry.set_password(&payload.value)) {
+            Ok(()) => Ok(SecureItemResponse {
+                success: true,
+                error: None,
+            }),
+            Err(error) => Ok(SecureItemResponse {
+                success: false,
+                error: Some(error.to_string()),
+            }),
+        }
+    }
+
+    pub fn get_secure_item(
+        &self,
+        payload: GetSecureItemRequest,
+    ) -> crate::Result<GetSecureItemResponse> {
+        match keyring_entry_for(&payload.key).and_then(|entry| entry.get_password()) {
+            Ok(value) => Ok(GetSecureItemResponse {
+                value: Some(value),
+                error: None,
+            }),
+            Err(keyring_core::Error::NoEntry) => Ok(GetSecureItemResponse {
+                value: None,
+                error: None,
+            }),
+            Err(error) => Ok(GetSecureItemResponse {
+                value: None,
+                error: Some(error.to_string()),
+            }),
+        }
+    }
+
+    pub fn clear_secure_item(
+        &self,
+        payload: GetSecureItemRequest,
+    ) -> crate::Result<SecureItemResponse> {
+        match keyring_entry_for(&payload.key).and_then(|entry| entry.delete_credential()) {
+            Ok(()) | Err(keyring_core::Error::NoEntry) => Ok(SecureItemResponse {
+                success: true,
+                error: None,
+            }),
+            Err(error) => Ok(SecureItemResponse {
+                success: false,
+                error: Some(error.to_string()),
+            }),
+        }
+    }
+
+    pub fn icloud_container_status(&self) -> crate::Result<ICloudContainerStatusResponse> {
+        #[cfg(target_os = "macos")]
+        {
+            crate::platform::macos::icloud_container_status()
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            Ok(ICloudContainerStatusResponse {
+                available: false,
+                documents_path: None,
+            })
+        }
+    }
+
+    pub fn icloud_ensure_downloaded(
+        &self,
+        payload: ICloudEnsureDownloadedRequest,
+    ) -> crate::Result<ICloudEnsureDownloadedResponse> {
+        #[cfg(target_os = "macos")]
+        {
+            crate::platform::macos::icloud_ensure_downloaded(payload)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = payload;
+            Err(crate::Error::UnsupportedPlatformError)
+        }
+    }
 }
 
 const KEYRING_SERVICE: &str = "Readest Safe Storage";
@@ -285,4 +366,8 @@ const KEYRING_USER: &str = "default";
 
 fn keyring_entry() -> std::result::Result<keyring_core::Entry, keyring_core::Error> {
     keyring_core::Entry::new(KEYRING_SERVICE, KEYRING_USER)
+}
+
+fn keyring_entry_for(key: &str) -> std::result::Result<keyring_core::Entry, keyring_core::Error> {
+    keyring_core::Entry::new(KEYRING_SERVICE, key)
 }

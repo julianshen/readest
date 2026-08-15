@@ -132,11 +132,12 @@ export default function AuthPage() {
       throw new Error('No backend connected');
     }
     supabase.auth.signOut();
+    const redirectTo = getTauriRedirectTo(true);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         skipBrowserRedirect: true,
-        redirectTo: getTauriRedirectTo(true),
+        redirectTo,
       },
     });
 
@@ -152,7 +153,7 @@ export default function AuthPage() {
         handleOAuthUrl(res.redirectUrl);
       }
     } else if (appService?.isAndroidApp) {
-      const res = await authWithCustomTab({ authUrl: data.url });
+      const res = await authWithCustomTab({ authUrl: data.url, callbackUrl: redirectTo });
       if (res) {
         handleOAuthUrl(res.redirectUrl);
       }
