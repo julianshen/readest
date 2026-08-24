@@ -55,7 +55,7 @@ v1 size is Small (Android 2×2 resizable 1×1–3×2; iOS `.systemSmall`).
 | Content | Series cover, series title, "Vol. N finished", "Start Vol. N+1" pill |
 | Eligibility | Reuses the existing next-volume detection (`libraryUtils.ts` / `NextVolumePill.tsx` logic): most recent finished book whose sibling volume exists in the library |
 | Tap | Whole tile deep-links into the next volume's book hash |
-| Empty state | "No series in progress"; tile renders dimmed and non-prominent |
+| Empty state | "No series in progress"; tile renders dimmed and non-prominent; tap opens the Library (same as Continue Reading's empty state) |
 
 ## 4. E-ink style variant
 
@@ -98,7 +98,8 @@ A single boolean rides in every snapshot: `style: "default" | "eink"`.
 │     into the App Group container                             │
 │   • WidgetCenter.shared.reloadAllTimelines()                 │
 │   • New ReadestWidgets extension target (XcodeGen entry in   │
-│     gen/apple/project.yml), 3 TimelineProviders              │
+│     gen/apple/project.yml), 3 TimelineProviders; App Group    │
+│     entitlement added to BOTH main app and extension targets  │
 └───────────────┬───────────────────────────────────────────────┘
                 ▼
    Widgets render exclusively from the persisted store.
@@ -125,7 +126,8 @@ that makes the streak widget possible (and seeds future stats features).
   reader open, user not idle >60s without page interaction) into the current
   local calendar day.
 - Persistence: rolling map `{ "2026-08-24": 2580, ... }`, kept for 60 days,
-  stored via the app's standard settings/persist layer.
+  stored via `SettingsManager` under a single `reading.dailyStats` key
+  (~60 short entries ≈ 1–2 KB JSON — well within existing settings payloads).
 - Flush cadence: every 30s of accumulated time and on reader close (crash-
   safe: losing ≤30s of data is acceptable).
 - Streak definition: consecutive days ending today (or yesterday if today has
@@ -160,12 +162,16 @@ Publish triggers (debounced 5s, coalesced):
 Covers are written once per book hash (content-hash filename) so unchanged
 books don't rewrite bitmaps.
 
+Ordering: `week[6]` is today; indexes 0–5 are the six preceding days.
+The ≥60s progress throttle applies *before* the 5s debounce coalescer, so a
+burst of progress events yields at most one publish per minute.
+
 ## 8. Error handling & edge cases
 
 | Case | Behavior |
 |---|---|
 | Library empty / no in-progress book | Empty states per §3; providers always render something (Android requirement) |
-| Cover decode failure | Provider falls back to a generated letter-cover (initial + tinted background) baked at publish time |
+| Cover decode failure or file missing at render time (e.g. Android cacheDir eviction) | Provider falls back to a generated letter-cover placeholder until the next publish rewrites it |
 | Snapshot JSON corrupt/unreadable | Store treats as absent → widgets render empty states; next publish heals |
 | iOS App Group unavailable (dev build) | Swift store logs and no-ops; widgets show placeholder timeline |
 | Day flips while device off | Streak computed from the map at publish time; midnight rollover trigger also fires on first reader activity after date change |
