@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import { isTauriAppPlatform } from '@/services/environment';
-import type { AppService } from '@/services/appService';
+import type { AppService } from '@/types/system';
 import type { Book } from '@/types/book';
 import { getCoverFilename } from '@/utils/book';
 import { useLibraryStore } from '@/store/libraryStore';
@@ -43,7 +43,7 @@ async function readCoverBase64(book: Book): Promise<string | null> {
 async function publishNow() {
   if (!recorder || !isTauriAppPlatform()) return;
   const library: Book[] = useLibraryStore.getState().getVisibleLibrary();
-  const isEink = !!useSettingsStore.getState().settings?.viewSettings?.isEink;
+  const isEink = !!useSettingsStore.getState().settings?.globalViewSettings?.isEink;
   const now = Date.now();
   const snapshot: WidgetSnapshot = buildWidgetSnapshot(
     library,
