@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import { createDailyStatsRecorder, computeStreak, normalizeMap, todayKey } from '@/services/stats/dailyStats';
+import type { FileSystem } from '@/types/system';
+import {
+  createDailyStatsRecorder,
+  computeStreak,
+  normalizeMap,
+  todayKey,
+} from '@/services/stats/dailyStats';
 
 // Fixed "today": 2026-08-24 local noon.
 const NOW = new Date(2026, 7, 24, 12, 0, 0).getTime();
@@ -39,5 +45,40 @@ describe('normalizeMap', () => {
     const map = { '2026-06-01': 999, '2026-08-24': 100 };
     const out = normalizeMap(map, NOW);
     expect(out).toEqual({ '2026-08-24': 100 });
+  });
+});
+
+function makeFs(store: Record<string, string>) {
+  return {
+    writeFile: async (p: string, _b: unknown, data: string) => {
+      store[p] = data;
+    },
+    readFile: async (p: string) => {
+      if (!(p in store)) throw new Error('missing');
+      return store[p];
+    },
+  } as unknown as FileSystem;
+}
+
+describe('createDailyStatsRecorder', () => {
+  test('accumulates ticks and persists normalized map on flush', async () => {
+    const store: Record<string, string> = {};
+    const fs = makeFs(store);
+    const rec = createDailyStatsRecorder(fs);
+    await rec.load(); // no file yet → empty map
+    rec.recordTick(NOW, 29);
+    rec.recordTick(NOW, 2); // crosses internal 30s flush threshold
+    await rec.flush();
+    const saved = JSON.parse(store['daily-reading-stats.json']);
+    expect(saved['2026-08-24']).toBe(31);
+  });
+
+  test('load restores a previously flushed map', async () => {
+    const store: Record<string, string> = {};
+    const fs = makeFs(store);
+    store['daily-reading-stats.json'] = JSON.stringify({ '2026-08-23': 3000 });
+    const rec = createDailyStatsRecorder(fs);
+    await rec.load();
+    expect(rec.getMap()).toEqual({ '2026-08-23': 3000 });
   });
 });

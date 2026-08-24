@@ -1,3 +1,6 @@
+import { safeLoadJSON, safeSaveJSON } from '@/services/persistence';
+import type { FileSystem } from '@/types/system';
+
 export type DailyStatsMap = Record<string, number>; // 'YYYY-MM-DD' -> active seconds
 
 const DAY_MS = 86_400_000;
@@ -50,4 +53,42 @@ export function normalizeMap(map: DailyStatsMap, now: number): DailyStatsMap {
     if (!Number.isNaN(ts) && ts >= cutoff && seconds > 0) out[key] = seconds;
   }
   return out;
+}
+
+const STATS_FILENAME = 'daily-reading-stats.json';
+const FLUSH_THRESHOLD_SEC = 30;
+
+export interface DailyStatsRecorder {
+  recordTick(nowTs: number, seconds: number): void;
+  getMap(): DailyStatsMap;
+  flush(): Promise<void>;
+  load(): Promise<void>;
+}
+
+/**
+ * Device-local daily reading-time accumulator. Persists to the Data base dir
+ * (not Settings) so it never rides along with cloud settings sync.
+ */
+export function createDailyStatsRecorder(fs: FileSystem): DailyStatsRecorder {
+  let map: DailyStatsMap = {};
+  let pending = 0;
+
+  return {
+    getMap: () => map,
+    async load() {
+      map = normalizeMap(
+        await safeLoadJSON<DailyStatsMap>(fs, STATS_FILENAME, 'Data', {}),
+        Date.now(),
+      );
+    },
+    recordTick(nowTs, seconds) {
+      const key = todayKey(nowTs);
+      map[key] = (map[key] ?? 0) + seconds;
+      pending += seconds;
+      if (pending >= FLUSH_THRESHOLD_SEC) pending = 0; // caller flushes async
+    },
+    async flush() {
+      await safeSaveJSON(fs, STATS_FILENAME, 'Data', normalizeMap(map, Date.now()));
+    },
+  };
 }
