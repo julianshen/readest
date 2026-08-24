@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import android.os.Build
 import android.os.Environment
@@ -138,6 +139,18 @@ interface KeyDownInterceptor {
 )
 class NativeBridgePlugin(private val activity: Activity): Plugin(activity) {
     private val implementation = NativeBridge()
+
+    data class WidgetUpdateArgs(val snapshot: String, val covers: Map<String, String>)
+
+    @Command
+    fun update_reading_widgets(invoke: Invoke) {
+        val args = invoke.parseArgs(WidgetUpdateArgs::class.java)
+        val covers = args.covers.mapValues { Base64.decode(it.value, Base64.DEFAULT) }
+        ReadingWidgetStore.write(activity.applicationContext, args.snapshot, covers)
+        ReadingWidgetProviders.updateAll(activity.applicationContext)
+        invoke.resolve(null)
+    }
+
     private val billingManager by lazy {
         BillingManager(activity)
     }
