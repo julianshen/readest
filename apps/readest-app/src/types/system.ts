@@ -148,6 +148,7 @@ export interface AppService {
 
   getDefaultViewSettings(): ViewSettings;
   getFileSystem(): FileSystem;
+  localBooksDir: string;
   loadSettings(): Promise<SystemSettings>;
   saveSettings(settings: SystemSettings): Promise<void>;
   importFont(file?: string | File): Promise<CustomFontInfo | null>;
