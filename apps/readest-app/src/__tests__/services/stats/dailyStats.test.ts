@@ -69,7 +69,7 @@ describe('createDailyStatsRecorder', () => {
     rec.recordTick(NOW, 29);
     rec.recordTick(NOW, 2); // crosses internal 30s flush threshold
     await rec.flush();
-    const saved = JSON.parse(store['daily-reading-stats.json']);
+    const saved = JSON.parse(store['daily-reading-stats.json'] ?? '{}');
     expect(saved['2026-08-24']).toBe(31);
   });
 

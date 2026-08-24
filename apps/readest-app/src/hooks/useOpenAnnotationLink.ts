@@ -7,7 +7,7 @@ import { useReaderStore } from '@/store/readerStore';
 import { isTauriAppPlatform } from '@/services/environment';
 import { navigateToReader } from '@/utils/nav';
 import { eventDispatcher } from '@/utils/event';
-import { parseAnnotationDeepLink, AnnotationDeepLink } from '@/utils/deeplink';
+import { parseAnnotationDeepLink, parseBookDeepLink, AnnotationDeepLink } from '@/utils/deeplink';
 import { useTranslation } from './useTranslation';
 
 // Module-scoped — survives hook remounts (library → reader → library on
@@ -48,6 +48,7 @@ export function useOpenAnnotationLink() {
   const getBookByHash = useLibraryStore((s) => s.getBookByHash);
   const libraryLoaded = useLibraryStore((s) => s.libraryLoaded);
   const pending = useRef<AnnotationDeepLink | null>(null);
+  const pendingBookHash = useRef<string | null>(null);
 
   const resolveAndNavigate = useCallback(
     (parsed: AnnotationDeepLink) => {
@@ -85,6 +86,16 @@ export function useOpenAnnotationLink() {
     if (!isTauriAppPlatform() || !appService) return;
 
     const handle = (url: string) => {
+      // Widget taps emit bare book links — open straight into the reader.
+      const bookLink = parseBookDeepLink(url);
+      if (bookLink) {
+        if (!useLibraryStore.getState().libraryLoaded) {
+          pendingBookHash.current = bookLink.bookHash;
+          return;
+        }
+        navigateToReader(router, [bookLink.bookHash]);
+        return;
+      }
       const parsed = parseAnnotationDeepLink(url);
       if (!parsed) return;
       if (!useLibraryStore.getState().libraryLoaded) {
@@ -116,9 +127,17 @@ export function useOpenAnnotationLink() {
 
   // Replay any deferred deep link once the library hydrates.
   useEffect(() => {
-    if (!libraryLoaded || !pending.current) return;
-    const parsed = pending.current;
-    pending.current = null;
-    resolveAndNavigate(parsed);
-  }, [libraryLoaded, resolveAndNavigate]);
+    if (!libraryLoaded) return;
+    if (pending.current) {
+      const parsed = pending.current;
+      pending.current = null;
+      resolveAndNavigate(parsed);
+      return;
+    }
+    if (pendingBookHash.current) {
+      const hash = pendingBookHash.current;
+      pendingBookHash.current = null;
+      navigateToReader(router, [hash]);
+    }
+  }, [libraryLoaded, resolveAndNavigate, router]);
 }
