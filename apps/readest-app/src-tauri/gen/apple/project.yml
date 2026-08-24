@@ -25,6 +25,27 @@ targetTemplates:
     settings:
       groups: [app]
 targets:
+  ReadestWidgets:
+    type: app-extension
+    platform: iOS
+    # WidgetKit extension: three home-screen reading widgets rendered from
+    # the App Group snapshot store the main app publishes via native-bridge.
+    sources:
+      - path: ReadestWidgets
+    info:
+      path: ReadestWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Readest Widgets
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_NAME: ReadestWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: com.bilingify.readest.ReadestWidgets
+        DEVELOPMENT_TEAM: J5W48D69VR
+        CODE_SIGN_ENTITLEMENTS: ReadestWidgets/ReadestWidgets.entitlements
+        SWIFT_VERSION: "5.0"
+
   Readest_iOS:
     type: application
     platform: iOS
@@ -95,6 +116,8 @@ targets:
       - framework: libapp.a
         embed: false
       - target: ShareExtension
+        embed: true
+      - target: ReadestWidgets
         embed: true
         codeSign: true
       - sdk: CoreGraphics.framework
