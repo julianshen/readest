@@ -205,6 +205,11 @@ export abstract class BaseAppService implements AppService {
     return await this.fs.getImageURL(path);
   }
 
+  /** Raw filesystem access for services initialized outside the app service (e.g. widgets). */
+  getFileSystem(): FileSystem {
+    return this.fs;
+  }
+
   private get settingsCtx(): Settings.Context {
     return {
       fs: this.fs,
