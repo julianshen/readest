@@ -280,3 +280,11 @@ pub(crate) async fn icloud_ensure_downloaded<R: Runtime>(
 ) -> Result<ICloudEnsureDownloadedResponse> {
     app.native_bridge().icloud_ensure_downloaded(payload)
 }
+
+#[command]
+pub(crate) async fn update_reading_widgets<R: Runtime>(
+    app: AppHandle<R>,
+    payload: WidgetUpdateRequest,
+) -> Result<()> {
+    app.native_bridge().update_reading_widgets(payload)
+}

@@ -390,3 +390,14 @@ pub struct ICloudEnsureDownloadedRequest {
 pub struct ICloudEnsureDownloadedResponse {
     pub status: String,
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WidgetUpdateRequest {
+    pub snapshot: String,
+    /// {bookHash: base64 PNG} — covers referenced by the snapshot. The native
+    /// side decodes these into its widget cover cache; empty when all covers
+    /// were already delivered in a previous publish.
+    #[serde(default)]
+    pub covers: HashMap<String, String>,
+}
