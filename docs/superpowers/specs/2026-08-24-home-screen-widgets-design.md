@@ -59,10 +59,9 @@ v1 size is Small (Android 2×2 resizable 1×1–3×2; iOS `.systemSmall`).
 
 ## 4. E-ink style variant
 
-A single boolean rides in every snapshot: `style: "default" | "eink"`.
-
-- Setting: **Settings → Misc → "E-ink style widgets"**, defaulting to ON when
-  the app's e-ink mode (`[data-eink]`) is enabled at publish time.
+Widgets follow the app's existing e-ink mode: `style: "eink"` when
+`viewSettings.isEink` is enabled at publish time, `"default"` otherwise.
+No separate widget toggle.
 - Providers select a flat palette resource set: no gradients/shadows, solid
   `#111` text on white, crisp 1px borders around covers and tiles.
 - No second layout set — same RemoteViews/SwiftUI hierarchy, different color
@@ -126,8 +125,8 @@ that makes the streak widget possible (and seeds future stats features).
   reader open, user not idle >60s without page interaction) into the current
   local calendar day.
 - Persistence: rolling map `{ "2026-08-24": 2580, ... }`, kept for 60 days,
-  stored via `SettingsManager` under a single `reading.dailyStats` key
-  (~60 short entries ≈ 1–2 KB JSON — well within existing settings payloads).
+  persisted as a device-local JSON file (`daily-reading-stats.json`) in the
+  Data base dir via safeSaveJSON — deliberately NOT in cloud-synced settings.
 - Flush cadence: every 30s of accumulated time and on reader close (crash-
   safe: losing ≤30s of data is acceptable).
 - Streak definition: consecutive days ending today (or yesterday if today has
