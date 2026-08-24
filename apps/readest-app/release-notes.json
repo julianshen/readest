@@ -1,5 +1,14 @@
 {
   "releases": {
+    "0.13.1": {
+      "date": "2026-08-24",
+      "notes": [
+        "Sync: rebuilt cloud sync engine — serialized deletes, preserved failed cursors, and scoped retries make WebDAV, OneDrive, Google Drive, iCloud, and S3 sync much more reliable",
+        "Sync: large OneDrive uploads are now chunked automatically, and reader downloads validate ranged transfers to reject partial files",
+        "Sync: provider credentials survive app restarts and OAuth callbacks are hardened across windows",
+        "Android: bounded abandoned OAuth flows so sign-in can no longer hang the app"
+      ]
+    },
     "0.13.0": {
       "date": "2026-06-25",
       "notes": [

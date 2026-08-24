@@ -456,31 +456,28 @@ describe('WebAppService', () => {
     test.each([
       ['absent', { enabled: true }, true],
       ['false', { enabled: true, syncBooks: false }, false],
-    ])(
-      'persists the syncBooks upgrade once when legacy WebDAV syncBooks is %s',
-      async (_, webdav, expectedSyncBooks) => {
-        let persisted = {
-          localBooksDir: '',
-          migrationVersion: 20260000,
-          readestCloud: { enabled: false },
-          webdav,
-        } as Awaited<ReturnType<typeof Settings.loadSettings>>;
-        vi.mocked(Settings.loadSettings).mockImplementation(async () => persisted);
-        vi.mocked(Settings.saveSettings).mockImplementation(async (_fs, settings) => {
-          persisted = settings;
-        });
+    ])('persists the syncBooks upgrade once when legacy WebDAV syncBooks is %s', async (_, webdav, expectedSyncBooks) => {
+      let persisted = {
+        localBooksDir: '',
+        migrationVersion: 20260000,
+        readestCloud: { enabled: false },
+        webdav,
+      } as Awaited<ReturnType<typeof Settings.loadSettings>>;
+      vi.mocked(Settings.loadSettings).mockImplementation(async () => persisted);
+      vi.mocked(Settings.saveSettings).mockImplementation(async (_fs, settings) => {
+        persisted = settings;
+      });
 
-        await (service as unknown as { runMigrations: () => Promise<void> }).runMigrations();
+      await (service as unknown as { runMigrations: () => Promise<void> }).runMigrations();
 
-        expect(persisted.migrationVersion).toBe(20260706);
-        expect(persisted.webdav?.syncBooks).toBe(expectedSyncBooks);
-        expect(Settings.saveSettings).toHaveBeenCalledTimes(1);
+      expect(persisted.migrationVersion).toBe(20260706);
+      expect(persisted.webdav?.syncBooks).toBe(expectedSyncBooks);
+      expect(Settings.saveSettings).toHaveBeenCalledTimes(1);
 
-        await (service as unknown as { runMigrations: () => Promise<void> }).runMigrations();
+      await (service as unknown as { runMigrations: () => Promise<void> }).runMigrations();
 
-        expect(Settings.saveSettings).toHaveBeenCalledTimes(1);
-      },
-    );
+      expect(Settings.saveSettings).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('fs.resolvePath basePrefix', () => {

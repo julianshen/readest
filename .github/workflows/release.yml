@@ -242,8 +242,10 @@ jobs:
           git checkout .
 
           pushd src-tauri/gen/android
+          # gen/android/app/build.gradle.kts reads keyAlias/keyPassword/storePassword/storeFile
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
-          echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
+          echo "storePassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
           base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
           echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
 
@@ -429,12 +431,3 @@ jobs:
 
           echo "Uploading updated latest.json to GitHub release"
           gh release upload ${{ needs.get-release.outputs.release_tag }} latest.json --clobber
-
-  upload-to-r2:
-    needs: [get-release, build-tauri]
-    permissions:
-      contents: read
-    uses: ./.github/workflows/upload-to-r2.yml
-    with:
-      tag: ${{ needs.get-release.outputs.release_tag }}
-    secrets: inherit
