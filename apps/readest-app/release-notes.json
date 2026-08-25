@@ -667,9 +667,7 @@
     },
     "0.9.57": {
       "date": "2025-06-14",
-      "notes": [
-        "TTS: Fixed an issue to detect custom TTS engines on some Android devices"
-      ]
+      "notes": ["TTS: Fixed an issue to detect custom TTS engines on some Android devices"]
     },
     "0.9.56": {
       "date": "2025-06-13",
@@ -1043,10 +1041,7 @@
     },
     "0.9.6": {
       "date": "2025-01-18",
-      "notes": [
-        "Various enhancements for mobile platforms",
-        "Fix DeepL translation API"
-      ]
+      "notes": ["Various enhancements for mobile platforms", "Fix DeepL translation API"]
     },
     "0.9.5": {
       "date": "2025-01-15",
