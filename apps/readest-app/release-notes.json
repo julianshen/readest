@@ -1,5 +1,12 @@
 {
   "releases": {
+    "0.13.2": {
+      "date": "2026-08-26",
+      "notes": [
+        "Widgets: three new home-screen widgets — Continue Reading (resume your latest book with one tap), Reading Streak (days, minutes today, and a 7-day bar), and Next in Series (jump straight into the next comic volume when you finish one) — on Android and iOS",
+        "Widgets: e-ink devices get a crisp flat-color widget style automatically when E-ink mode is on"
+      ]
+    },
     "0.13.1": {
       "date": "2026-08-24",
       "notes": [
