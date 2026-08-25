@@ -5,6 +5,7 @@ import MediaPlayer
 import ObjectiveC
 import StoreKit
 import SwiftRs
+import WidgetKit
 import Tauri
 import UIKit
 import UniformTypeIdentifiers
@@ -31,6 +32,11 @@ func getLocalizedDisplayName(familyName: String) -> String? {
 class SafariAuthRequestArgs: Decodable {
   let authUrl: String
   let callbackScheme: String?
+}
+
+class WidgetUpdateArgs: Decodable {
+  let snapshot: String
+  let covers: [String: String]
 }
 
 class UseBackgroundAudioRequestArgs: Decodable {
@@ -801,6 +807,33 @@ class NativeBridgePlugin: Plugin {
 
     let started = authSession?.start() ?? false
     logger.log("Auth session start result: \(started)")
+  }
+
+  @objc public func update_reading_widgets(_ invoke: Invoke) throws {
+    let args = try invoke.parseArgs(WidgetUpdateArgs.self)
+    guard let groupDir = FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: "group.com.bilingify.readest") else {
+      logger.error("App Group unavailable — widget snapshot not written")
+      invoke.resolve()
+      return
+    }
+
+    let storeDir = groupDir.appendingPathComponent("widget-store", isDirectory: true)
+    try? FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)
+    try args.snapshot.write(
+      to: storeDir.appendingPathComponent("snapshot.json"),
+      atomically: true, encoding: .utf8)
+
+    for (hash, base64) in args.covers {
+      if let data = Data(base64Encoded: base64) {
+        try? data.write(to: storeDir.appendingPathComponent("\(hash).png"))
+      }
+    }
+
+    if #available(iOS 14.0, *) {
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+    invoke.resolve()
   }
 
   @objc public func set_system_ui_visibility(_ invoke: Invoke) throws {

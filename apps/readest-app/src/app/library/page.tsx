@@ -30,6 +30,7 @@ import { useThemeStore } from '@/store/themeStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useSettingsStore } from '@/store/settingsStore';
+import { initWidgetService } from '@/services/widgets/widgetService';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useTheme } from '@/hooks/useTheme';
@@ -570,6 +571,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       const appService = await envConfig.getAppService();
       const settings = await appService.loadSettings();
       setSettings(settings);
+      void initWidgetService(appService);
 
       // Re-grant fs_scope / asset_protocol_scope for every external
       // library folder the user registered in a previous session, so

@@ -30,6 +30,15 @@ impl<R: Runtime> NativeBridge<R> {
             .run_mobile_plugin("auth_with_safari", payload)
             .map_err(Into::into)
     }
+
+    pub fn update_reading_widgets(
+        &self,
+        payload: WidgetUpdateRequest,
+    ) -> crate::Result<()> {
+        self.0
+            .run_mobile_plugin("update_reading_widgets", payload)
+            .map_err(Into::into)
+    }
 }
 
 impl<R: Runtime> NativeBridge<R> {

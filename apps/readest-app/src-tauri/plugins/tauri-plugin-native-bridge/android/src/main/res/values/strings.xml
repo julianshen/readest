@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_continue_reading_desc">Resume your most recent book</string>
+    <string name="widget_streak_desc">Your reading streak at a glance</string>
+    <string name="widget_next_series_desc">Continue to the next volume of a series you finished</string>
+    <string name="widget_cover_desc">Book cover</string>
+    <string name="widget_empty_continue">Open a book to start reading</string>
+    <string name="widget_no_series">No series in progress</string>
+    <string name="widget_streak_zero">0 days</string>
+    <string name="widget_streak_days">%1$d days</string>
+    <string name="widget_minutes_today">%1$d min today</string>
+    <string name="widget_percent">%1$d%%</string>
+    <string name="widget_start_next">Start %1$s</string>
+</resources>

@@ -22,6 +22,7 @@ import { usePagination, viewPagination } from '../hooks/usePagination';
 import { useFoliateEvents } from '../hooks/useFoliateEvents';
 import { useProgressSync } from '../hooks/useProgressSync';
 import { useProgressAutoSave } from '../hooks/useProgressAutoSave';
+import { useReadingTimeTracker } from '@/hooks/useReadingTimeTracker';
 import { useBackgroundTexture } from '@/hooks/useBackgroundTexture';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -121,6 +122,7 @@ const FoliateViewer: React.FC<{
   const { registerBrightnessListeners, overlayVisible, overlayLevel } =
     useBrightnessGesture(bookKey);
   const bookData = getBookData(bookKey);
+  useReadingTimeTracker(bookKey);
   const viewState = getViewState(bookKey);
   const viewSettings = getViewSettings(bookKey);
   const { notifyPageChange } = useEpdPageRefresh({
