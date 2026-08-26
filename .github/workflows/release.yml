@@ -154,7 +154,9 @@ jobs:
             args: '--target aarch64-pc-windows-msvc --bundles nsis'
 
     runs-on: ${{ matrix.config.os }}
-    timeout-minutes: 60
+    # Ubuntu legs (Android: 4 Rust targets, Linux x64+arm64) exceed 60min cold
+    # and were being killed at exactly 60:00 on every release run.
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
