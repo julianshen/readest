@@ -21,7 +21,7 @@ class NextInSeriesWidgetProvider : ReadingWidgetProvider()
 
 open class ReadingWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
-        updateWidgets(context, manager, ids)
+        ReadingWidgetProviders.updateWidgets(context, manager, ids)
     }
 }
 
@@ -108,22 +108,17 @@ object ReadingWidgetProviders {
             ctx.getString(R.string.widget_minutes_today, streak.optInt("minutesToday")),
         )
 
-        // 7-day mini bars: week[6] is today. Scale each bar against the max.
+        // 7-day mini bars: week[6] is today. Filled vs empty per day.
+        // (RemoteViews can't resize individual views pre-API 31, so bars are
+        // fixed-height and encode activity via fill state.)
         val week = streak.optJSONArray("week")
         val barIds = intArrayOf(
             R.id.w_bar0, R.id.w_bar1, R.id.w_bar2, R.id.w_bar3,
             R.id.w_bar4, R.id.w_bar5, R.id.w_bar6,
         )
-        var max = 1
-        if (week != null) for (i in 0 until minOf(7, week.length())) {
-            max = maxOf(max, week.optInt(i))
-        }
         barIds.forEachIndexed { index, barId ->
             val minutes = if (week != null && index < week.length()) week.optInt(index) else 0
             views.setInt(barId, "setBackgroundResource", if (minutes > 0) R.drawable.w_bar_filled else R.drawable.w_bar_empty)
-            // Height scales linearly between 6dp (floor) and 24dp (max).
-            val heightDp = 6 + (18 * minutes) / max
-            views.setViewLayoutParams(barId, dp(ctx, heightDp))
         }
 
         views.setOnClickPendingIntent(R.id.w_root, deepLink(ctx, null))
