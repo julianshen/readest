@@ -186,8 +186,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEEwMkQ5MjQ3NDRDOEVEQUUKUldTdTdjaEVSNUl0b0Y2RzRMZWxjeTcwamxIbXo1K3Nkb1M0YVBydERpeS9WeGhJNko3eWNENzQK",
       "endpoints": [
-        "https://download.readest.com/releases/latest.json",
-        "https://github.com/readest/readest/releases/latest/download/latest.json"
+        "https://github.com/julianshen/readest/releases/latest/download/latest.json"
       ]
     },
     "webview-upgrade": {
