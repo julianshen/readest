@@ -879,7 +879,8 @@ export const READEST_UPDATER_FILE = `${LATEST_DOWNLOAD_BASE_URL}/latest.json`;
 
 export const READEST_CHANGELOG_FILE = `${LATEST_DOWNLOAD_BASE_URL}/release-notes.json`;
 
-export const READEST_NIGHTLY_UPDATER_FILE = 'https://github.com/julianshen/readest/releases/latest/download/latest.json';
+export const READEST_NIGHTLY_UPDATER_FILE =
+  'https://github.com/julianshen/readest/releases/latest/download/latest.json';
 
 // Public (verification) key, identical to src-tauri/tauri.conf.json `updater.pubkey`.
 // Used to verify nightly artifacts in the custom install flows (portable /
